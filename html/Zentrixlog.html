@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Vault Access | Zentrix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #0a192f;
+            --secondary: #112240;
+            --accent: #64ffda;
+            --text: #ccd6f6;
+            --text-secondary: #8892b0;
+        }
+        
+        @font-face {
+            font-family: 'Fira Code';
+            src: url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--primary);
+            font-family: 'Fira Code', monospace;
+            color: var(--text);
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(37, 109, 133, 0.15) 0%, transparent 60%),
+                radial-gradient(circle at 75% 75%, rgba(100, 255, 218, 0.15) 0%, transparent 60%),
+                linear-gradient(135deg, rgba(10, 25, 47, 0.9), rgba(17, 34, 64, 0.8));
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Card */
+        .auth-card {
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            background-color: rgba(17, 34, 64, 0.7);
+            border-radius: 12px;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            animation: fadeInUp 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        } */
+
+        /* Floating Particles */
+        .particle {
+            position: absolute;
+            background: rgba(100, 255, 218, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Animated Gradient Border */
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                #64ffda, 
+                #5be8cc, 
+                #0a192f, 
+                #64ffda);
+            background-size: 400% 400%;
+            z-index: -2;
+            border-radius: 14px;
+            animation: gradientBorder 8s ease infinite;
+            opacity: 0.7;
+        }
+
+        /* @keyframes gradientBorder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        } */
+
+        /* Form Elements */
+        .form-group {
+            position: relative;
+            margin-bottom: 1.75rem;
+        }
+
+        .form-label {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1.5rem 1rem 0.75rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(35, 53, 84, 0.7);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.2);
+        }
+
+        .form-input:focus + .form-label,
+        .form-input:not(:placeholder-shown) + .form-label {
+            top: 0.5rem;
+            font-size: 0.7rem;
+            color: var(--accent);
+        }
+
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent);
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent), #5be8cc);
+            color: var(--primary);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 255, 218, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            transition: all 0.5s ease;
+        }
+
+        .submit-btn:hover::after {
+            left: 100%;
+        }
+
+        /* Header */
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-icon {
+            font-size: 3.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 8px rgba(100, 255, 218, 0.5));
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .auth-title {
+            color: var(--accent);
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Footer Links */
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .auth-link {
+            color: var(--accent);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .auth-link:hover {
+            text-decoration: none;
+        }
+
+        .auth-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .auth-link:hover::after {
+            width: 100%;
+        }
+
+        /* Security Badge */
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            color: #87f2d9;
+            font-size: 0.8rem;
+        }
+
+        .security-line {
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(100, 255, 218, 0.5), 
+                transparent);
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            z-index: 10;
+            background: rgba(10, 25, 47, 0.7);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .back-btn:hover {
+            color: #5be8cc;
+            border-color: rgba(100, 255, 218, 0.6);
+            transform: translateX(-5px);
+        }
+
+        .back-btn::before {
+            content: "←";
+            font-size: 1.1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 2rem 1.5rem;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+            
+            .back-btn {
+                top: 1rem;
+                left: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <!-- Floating Particles Background -->
+    <div id="particles-js"></div>
+    
+    <!-- Back Button -->
+    <a href="index.html" class="back-btn">Back to Home Page</a>
+
+    <!-- Auth Card -->
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">🔒</div>
+            <h1 id="formTitle" class="auth-title">Secure Vault Access</h1>
+            <p id="formSubtitle" class="auth-subtitle">Enter your credentials to continue</p>
+        </div>
+        
+        <form id="authForm">
+            <!-- Name Field (shown only for signup) -->
+            <div id="nameField" class="form-group" style="display: none;">
+                <input type="text" id="name" name="name" class="form-input" placeholder=" " autocomplete="name">
+                <label for="name" class="form-label">Full Name</label>
+            </div>
+            
+            <!-- Email Field -->
+            <div class="form-group">
+                <input type="email" id="email" name="email" class="form-input" placeholder=" " required autocomplete="email">
+                <label for="email" class="form-label">Email Address</label>
+            </div>
+            
+            <!-- Password Field -->
+            <div class="form-group">
+                <input type="password" id="password" name="password" class="form-input" placeholder=" " required autocomplete="current-password">
+                <label for="password" class="form-label">Password</label>
+                <span class="password-toggle" onclick="togglePassword()">👁️</span>
+            </div>
+            
+            <!-- Remember Me (for login) -->
+            <div id="rememberField" style="display: none;" class="flex items-center mb-4">
+                <input type="checkbox" id="remember" name="remember" class="mr-2">
+                <label for="remember" class="text-sm text-[#8892b0]">Remember me</label>
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="submit" id="submitBtn" class="submit-btn">Continue</button>
+            
+            <!-- Forgot Password (for login) -->
+            <div id="forgotPassword" style="display: none;" class="text-right mt-2">
+                <a href="#" class="text-sm text-[#64ffda]">Forgot password?</a>
+            </div>
+            
+            <!-- Security Badge -->
+            <div class="security-badge">
+                <div class="security-line"></div>
+                <span>256-bit AES Encryption</span>
+                <div class="security-line"></div>
+            </div>
+        </form>
+        
+        <div class="auth-footer">
+            <p id="switchFormText">Don't have an account? <a href="#" id="switchFormLink" class="auth-link">Sign up</a></p>
+        </div>
+    </div>
+
+    <script>
+            let isLogin , action;
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            
+            // Form elements
+            const formTitle = document.getElementById('formTitle');
+            const formSubtitle = document.getElementById('formSubtitle');
+            const nameField = document.getElementById('nameField');
+            const rememberField = document.getElementById('rememberField');
+            const forgotPassword = document.getElementById('forgotPassword');
+            const submitBtn = document.getElementById('submitBtn');
+            const switchFormText = document.getElementById('switchFormText');
+            const switchFormLink = document.getElementById('switchFormLink');
+            
+            // Toggle between login/signup
+            let isLogin = action !== 'signup';
+            
+           function updateForm() {
+    if (isLogin) {
+        // Login form
+        formTitle.textContent = 'Welcome Back';
+        formSubtitle.textContent = 'Log in to access your secure vault';
+        nameField.style.display = 'none';
+        rememberField.style.display = 'flex';
+        forgotPassword.style.display = 'block';
+        submitBtn.textContent = 'Log In';
+document.getElementById("authForm").addEventListener("submit", login);
+        switchFormText.innerHTML = 'Don\'t have an account? <a href="#" id="switchFormLink" class="auth-link">Sign up</a>';
+    } else {
+        // Signup form
+        formTitle.textContent = 'Create Account';
+        formSubtitle.textContent = 'Get started with Zentrix security';
+        nameField.style.display = 'block';
+        rememberField.style.display = 'none';
+        forgotPassword.style.display = 'none';
+        submitBtn.textContent = 'Sign Up';
+        document.getElementById("authForm").addEventListener("submit", register);
+        switchFormText.innerHTML = 'Already have an account? <a href="#" id="switchFormLink" class="auth-link">Log in</a>';
+        // submitBtn.onclick=register
+    }
+
+    // Reattach the event listener to the new link
+    const switchFormLink = document.getElementById('switchFormLink');
+    switchFormLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        isLogin = !isLogin;
+        updateForm();
+    });
+}
+            
+            // Switch form type when link is clicked
+            switchFormLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                isLogin = !isLogin;
+                updateForm();
+            });
+            
+            // Initialize form based on URL parameter
+            updateForm();
+            
+            // Toggle password visibility
+            window.togglePassword = function() {
+                const passwordField = document.getElementById('password');
+                passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
+            };
+            
+            // // Form submission
+            // document.getElementById('authForm').addEventListener('submit', function(e) {
+            //     e.preventDefault();
+            //     submitBtn.disabled = true;
+            //     submitBtn.textContent = 'Processing...';
+                
+            //     // Simulate API call
+            //     setTimeout(function() {
+            //         alert(isLogin ? 'Login successful!' : 'Account created successfully!');
+            //         submitBtn.disabled = false;
+            //         submitBtn.textContent = isLogin ? 'Log In' : 'Sign Up';
+            //     }, 1500);
+            // });
+
+            // Create floating particles
+             async function login() {
+            const mailid = document.getElementById("email").value 
+            const password = document.getElementById("password").value
+            try {
+                 let response = await fetch("/login",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({
+                    "email":mailid,
+                    "password":password
+                })
+
+                
+            })
+            let data = await response.text()
+            if (data=="success")
+            {
+                window.location.replace()
+
+            } else {
+                console.log(data)
+                
+            }
+
+            } catch (error) {
+                console.log(error)
+            }
+
+           
+        }
+        async function register(event) {
+            event.preventDefault()
+            const name = document.getElementById("name").value
+            const mail = document.getElementById("email").value
+            const password = document.getElementById("password").value
+            try {
+                let response = await fetch("/register",{
+                    method:"POST",
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify({
+                        "username":name,
+                        "mailid":mail,
+                        "password":password
+
+                    })
+
+            })
+                    let data=await response.text()
+                    if(data=="success")
+                    {
+                        event.preventDefault();
+                        isLogin = !isLogin;
+                        updateForm();
+                    }else{
+                        console.log(error)
+                    }
+
+            }catch(error){
+                console.log(error)
+            }
+        }
+        })
+       
+    </script>   
+</body>
+</html>

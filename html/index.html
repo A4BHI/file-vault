@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zentrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0a192f;
+      font-family: 'Courier New', monospace;
+      color: #ccd6f6;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(37, 109, 133, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 75% 75%, rgba(100, 255, 218, 0.15) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(10, 25, 47, 0.8), rgba(17, 34, 64, 0.6));
+      background-attachment: fixed;
+    }
+    
+    /* Enhanced link styling */
+    a {
+      color: #64ffda;
+      transition: all 0.3s ease;
+    }
+    a:hover {
+      text-decoration: underline;
+      color: #5be8cc;
+      text-shadow: 0 0 8px rgba(100, 255, 218, 0.4);
+    }
+    
+    /* Enhanced card styling */
+    .card {
+      background: linear-gradient(135deg, #112240, #1a2f5a);
+      border: 1px solid #233554;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    .card:hover::before {
+      left: 100%;
+    }
+    .card:hover {
+      border-color: #64ffda;
+      box-shadow: 0 8px 32px rgba(100, 255, 218, 0.1);
+      transform: translateY(-5px);
+    }
+    
+    /* Button enhancements */
+    .btn-primary {
+      background: linear-gradient(135deg, #64ffda, #5be8cc);
+      color: #0a192f;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(100, 255, 218, 0.3);
+    }
+    
+    .btn-secondary {
+      border: 2px solid #64ffda;
+      color: #64ffda;
+      background: rgba(100, 255, 218, 0.05);
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(100, 255, 218, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(100, 255, 218, 0.2);
+    }
+    
+    /* Header enhancement */
+    header {
+      backdrop-filter: blur(20px);
+      background: rgba(10, 25, 47, 0.9);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Hero section with encryption background */
+    .hero-section {
+      background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.6), rgba(10, 25, 47, 0.8)),
+        url('https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=1400&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      position: relative;
+    }
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 30% 70%, rgba(100, 255, 218, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 70% 30%, rgba(37, 109, 133, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    /* Enhanced content box in hero */
+    .hero-content {
+      backdrop-filter: blur(15px);
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(17, 34, 64, 0.6));
+      border: 1px solid rgba(100, 255, 218, 0.2);
+      position: relative;
+      z-index: 2;
+    }
+    
+    /* Step circles animation */
+    .step-circle {
+      background: linear-gradient(135deg, #112240, #1a2f5a);
+      border: 2px solid #64ffda;
+      transition: all 0.3s ease;
+    }
+    .step-circle:hover {
+      background: linear-gradient(135deg, #64ffda, #5be8cc);
+      color: #0a192f;
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(100, 255, 218, 0.4);
+    }
+    
+    /* Text glow effect */
+    .glow-text {
+      text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+    }
+    
+    /* Smooth animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    /* Footer enhancement */
+    footer {
+      background: linear-gradient(135deg, rgba(10, 25, 47, 0.9), rgba(17, 34, 64, 0.8));
+      backdrop-filter: blur(10px);
+    }
+    
+    /* Login Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(10, 25, 47, 0.9);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(10px);
+    }
+    
+    .modal-content {
+      position: relative;
+      padding: 60px;
+      border: 1px solid #1e2a47;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      width: 350px;
+      max-width: 90%;
+      animation: modalFadeIn 0.3s ease-out;
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      color: #64ffda;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .close-btn:hover {
+      transform: rotate(90deg);
+      color: #5be8cc;
+    }
+    
+    .modal h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #64ffda;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-size: 24px;
+      position: relative;
+    }
+    
+    .modal h1::after {
+      content: "";
+      display: block;
+      width: 100px;
+      height: 2px;
+      background: #64ffda;
+      margin: 15px auto;
+    }
+    
+    .modal label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+      color: #8892b0;
+      font-size: 14px;
+    }
+    
+    .modal input {
+      padding: 12px 15px;
+      width: 100%;
+      margin: 5px 0 20px 0;
+      box-sizing: border-box;
+      border: 1px solid #233554;
+      border-radius: 4px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #ccd6f6;
+      font-family: 'Courier New', monospace;
+      transition: all 0.3s ease;
+    }
+    
+    .modal input:focus {
+      outline: none;
+      border-color: #64ffda;
+      box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.2);
+    }
+    
+    .modal input:hover {
+      border-color: #64ffda;
+    }
+    
+    .modal .bt-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    
+    .modal .bt {
+      padding: 15px 45px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      background-color: #0a192f;
+      color: #64ffda;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #64ffda;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .modal .bt:hover {
+      background-color: rgba(100, 255, 218, 0.1);
+      letter-spacing: 2px;
+      box-shadow: 0 5px 15px rgba(100, 255, 218, 0.2);
+    }
+    
+    .modal .security-notice {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 12px;
+      color: #87f2d9;
+    }
+    
+    .modal .encryption-icon {
+      display: block;
+      text-align: center;
+      font-size: 40px;
+      margin-bottom: 20px;
+      color: #64ffda;
+    }
+    
+    /* Binary code animation */
+    .binary-code {
+      position: absolute;
+      color: rgba(100, 255, 218, 0.05);
+      font-size: 10px;
+      user-select: none;
+      pointer-events: none;
+    }
+    
+    .binary-1 { top: 20%; left: 10%; }
+    .binary-2 { top: 60%; right: 15%; }
+    .binary-3 { bottom: 10%; left: 20%; }
+    
+    /* Responsive enhancements */
+    @media (max-width: 768px) {
+      .hero-section {
+        background-attachment: scroll;
+      }
+      .modal-content {
+        padding: 40px 20px;
+      }
+    }
+    /* (All your existing CSS styles remain exactly the same) */
+  </style>
+</head>
+<body>
+
+  <header class="flex justify-between items-center px-6 py-4 border-b border-[#233554] sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-gradient-to-br from-[#64ffda] to-[#5be8cc] rounded-lg flex items-center justify-center">
+        <span class="text-[#0a192f] font-bold text-sm">V</span>
+      </div>
+      <span class="font-semibold text-lg text-[#64ffda] glow-text">Vaultx</span>
+    </div>
+    <nav class="hidden md:flex gap-6 text-sm">
+      <a href="#overview">Home</a>
+      <a href="#features">Features</a>
+      <a href="#support">Support</a>
+    </nav>
+    <div class="flex gap-2">
+      <button id="signupBtn" class="btn-primary px-4 py-2 rounded-md font-bold">Sign Up</button>
+      <button id="loginBtn" class="btn-secondary px-4 py-2 rounded-md">Login</button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section px-6 py-20">
+    <div class="max-w-lg hero-content p-8 rounded-xl floating">
+      <h1 class="text-4xl font-bold mb-6 text-[#64ffda] glow-text">Vaultx</h1>
+      <p class="mb-8 text-lg leading-relaxed">
+        Bank-level security for your files.<br>
+        Share them — password-protected, time-limited, fully encrypted.
+      </p>
+      <div class="flex gap-4">
+        <button id="heroSignupBtn" class="btn-primary px-6 py-3 rounded-md font-bold">Get Started</button>
+        <a href="#overview" class="btn-secondary px-6 py-3 rounded-md inline-block">Learn More</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Overview -->
+  <section id="overview" class="px-6 py-16">
+    <h2 class="text-3xl font-bold text-[#64ffda] mb-6 glow-text">Overview</h2>
+    <p class="max-w-2xl mb-10 text-lg leading-relaxed">
+      Vaultx is a simple yet powerful platform to securely share files with end-to-end encryption.  
+      Whether you send via link, QR code, or email, your data stays visible only to you and your recipient.
+    </p>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="card shadow-lg p-6 rounded-xl">
+        <h3 class="font-semibold text-xl text-[#64ffda] mb-3">🔐 End-to-End Encryption</h3>
+        <p class="text-sm leading-relaxed">Your files are encrypted directly in your browser before being uploaded.</p>
+      </div>
+      <div class="card shadow-lg p-6 rounded-xl">
+        <h3 class="font-semibold text-xl text-[#64ffda] mb-3">🧩 Password & Expiry Links</h3>
+        <p class="text-sm leading-relaxed">Add passwords and expiry dates to your shared links for maximum control.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="features" class="px-6 py-16">
+    <h2 class="text-3xl font-bold text-[#64ffda] mb-8 glow-text">How It Works</h2>
+    <div class="grid md:grid-cols-4 gap-8">
+      <div class="text-center">
+        <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">1</div>
+        <p class="font-semibold text-lg mb-2">Upload</p>
+        <p class="text-sm leading-relaxed">Select or drag-and-drop your files.</p>
+      </div>
+      <div class="text-center">
+        <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">2</div>
+        <p class="font-semibold text-lg mb-2">Encrypt</p>
+        <p class="text-sm leading-relaxed">Files are encrypted right in your browser.</p>
+      </div>
+      <div class="text-center">
+        <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">3</div>
+        <p class="font-semibold text-lg mb-2">Share</p>
+        <p class="text-sm leading-relaxed">Set password & expiry, then share via link or QR code.</p>
+      </div>
+      <div class="text-center">
+        <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">4</div>
+        <p class="font-semibold text-lg mb-2">Track</p>
+        <p class="text-sm leading-relaxed">Monitor downloads and revoke links anytime.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="support" class="px-6 py-8 mt-16 border-t border-[#233554]">
+    <div class="max-w-4xl mx-auto grid md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="font-bold text-[#64ffda] mb-3 glow-text">Vaultx</h3>
+        <p class="text-sm leading-relaxed">Secure file encryption and sharing platform with full privacy control.</p>
+      </div>
+      <div>
+        <h3 class="font-bold text-[#64ffda] mb-3 glow-text">Quick Links</h3>
+        <ul class="text-sm space-y-2">
+          <li><a href="#overview">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#support">Support</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold text-[#64ffda] mb-3 glow-text">Contact</h3>
+        <p class="text-sm">support@vaultx.com</p>
+      </div>
+    </div>
+    <div class="mt-8 text-center text-xs text-[#64ffda]">
+      © 2025 vaultx. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- Login/Signup Modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <div class="binary-code binary-1">01001000 01100001 01110010 01100100 00100000 01110100 01101111 00100000 01100010 01110010 01100101 01100001 01101011 00100000 01100101 01101110 01100011 01110010 01111001 01110000 01110100 01101001 01101111 01101110</div>
+      <div class="binary-code binary-2">01010011 01100101 01100011 01110101 01110010 01100101 00100000 01111001 01101111 01110101 01110010 00100000 01100100 01100001 01110100 01100001</div>
+      <div class="binary-code binary-3">01000001 01000101 01010011 00101101 00110010 00110101 00110110 00100000 01100101 01101110 01100011 01110010 01111001 01110000 01110100 01101001 01101111 01101110</div>
+      
+      <div class="encryption-icon">🔐</div>
+      <h1 id="modalTitle">Secure Vault Access</h1>
+      
+      <form id="authForm" action="ex4.php" method="post">
+        <div id="nameField" style="display: none;">
+          <label for="name">Full Name:</label>
+          <input type="text" id="name" name="name" placeholder="Enter your full name">
+        </div>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required placeholder="Enter your email">
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required placeholder="••••••••">
+        
+        <div class="bt-container">     
+          <button class="bt" type="submit" id="submitBtn">Authenticate</button>
+        </div>
+        
+        <div class="security-notice">
+          All connections are encrypted with AES-256
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginBtn = document.getElementById('loginBtn');
+      const signupBtn = document.getElementById('signupBtn');
+      const heroSignupBtn = document.getElementById('heroSignupBtn');
+      
+      // Redirect to login page
+      loginBtn.addEventListener('click', () => {
+        window.location.href = 'Zentrixlog.html?action=login';
+      });
+      
+      // Redirect to signup page
+      signupBtn.addEventListener('click', () => {
+        window.location.href = 'Zentrixlog.html?action=signup';
+      });
+      
+      heroSignupBtn.addEventListener('click', () => {
+        window.location.href = 'Zentrixlog.html?action=signup';
+      });
+    });
+  </script>
+</body>
+</html>
