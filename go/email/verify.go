@@ -23,8 +23,7 @@ func SendMail(email string, username string) {
 	mess.SetHeader("From", "vaultx000@gmail.com")
 	mess.SetHeader("To", email)
 	mess.SetHeader("Subject", "VaultX Email Verification")
-	mess.SetBody("text/plain", "Your email verification code for VaultX is \n \n OTP CODE: "+otp)
-	// mess.SetBody("text/plain",otp)
+	mess.SetBody("text/plain", "Hi "+username+"\nYour Email Verification code for VaultX is \n \n OTP CODE: "+otp+"\nPlease enter this code in VaultX Email Verification form.\nThis code is confidential - DO NOT SHARE!!!")
 	err := dm.DialAndSend(mess)
 
 	if err != nil {
