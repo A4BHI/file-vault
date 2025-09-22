@@ -3,19 +3,20 @@ package email
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 
 	"gopkg.in/mail.v2"
 )
 
-func Otp() int {
+func Otp() string {
 	otp := rand.Intn(900000) + 100000
-	return otp
+	return strconv.Itoa(otp)
 }
 
 func SendMail(email string, username string) {
 
 	dm := mail.NewDialer("smtp.gmail.com", 587, "vaultx000@gmail.com", "rvcm inec dgxh eypu")
-	otp := string(Otp())
+	otp := Otp()
 
 	mess := mail.NewMessage()
 
