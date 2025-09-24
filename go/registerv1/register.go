@@ -6,13 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	mathrand "math/rand"
+
+	// mathrand "math/rand"
 	"net/http"
-	"time"
+	// "time"
 	"vaultx/db"
 	"vaultx/errorcheck"
-
-	"golang.org/x/crypto/bcrypt"
+	// "golang.org/x/crypto/bcrypt"
 )
 
 type Creds struct {
@@ -28,24 +28,32 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		errorcheck.Nigger("Error From register.go in register Function:", err)
 
 		creds := Creds{}
+		var exists bool
 
 		err = json.Unmarshal(body, &creds)
 		errorcheck.Nigger("Error in register.go Register function json unmarshal", err)
 
 		fmt.Println(creds.Password)
 
-		hashed, err := bcrypt.GenerateFromPassword([]byte(creds.Password), 12)
+		// hashed, err := bcrypt.GenerateFromPassword([]byte(creds.Password), 12)
 
 		errorcheck.Nigger("Error generating hash password (register.go file Register() function )", err)
 
 		conn, err := db.Connect()
 		errorcheck.Nigger("Error creating connection to psql (Register.go file in Register function)", err)
 
-		createdat := time.Now()
-		userid := mathrand.Intn(9000) + 1000
+		// createdat := time.Now()
+		// userid := mathrand.Intn(9000) + 1000
 		salt := make([]byte, 32)
 		rand.Read(salt)
-		_, err = conn.Exec(context.Background(), "insert into users values($1,$2,$3,$4,$5,$6)", userid, creds.Username, creds.Email, salt, hashed, createdat)
+		row := conn.QueryRow(context.Background(), "select exists( select 1 from users where username = $1 or mailid=$2)", creds.Username, creds.Email)
+		row.Scan(&exists)
+
+		if exists {
+			fmt.Fprintf(w, "Fail")
+		} else {
+			fmt.Fprintf(w, "Pass")
+		}
 		if err == nil {
 			w.Header().Set("Content-Type", "Apllication/JSON")
 			fmt.Fprint(w, "success")
