@@ -525,14 +525,19 @@ document.getElementById("authForm").addEventListener("submit", login);
 
             })
                     let data=await response.text()
-                    if(data=="success")
-                    {
-                        event.preventDefault();
-                        isLogin = !isLogin;
-                        updateForm();
-                    }else{
-                        console.log(error)
+                    if(data=="Pass"){
+                        alert(1)
+                    }else if(data=="Fail"){
+                        alert(0)
                     }
+                   // if(data=="success")
+                    // {
+                    //     event.preventDefault();
+                    //     isLogin = !isLogin;
+                    //     updateForm();
+                    // }else{
+                    //     console.log(error)
+                    // }
 
             }catch(error){
                 console.log(error)

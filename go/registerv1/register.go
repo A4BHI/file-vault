@@ -11,6 +11,7 @@ import (
 	"net/http"
 	// "time"
 	"vaultx/db"
+	"vaultx/email"
 	"vaultx/errorcheck"
 	// "golang.org/x/crypto/bcrypt"
 )
@@ -55,6 +56,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, "Pass")
+
+			email.SendMail(creds.Email, creds.Username)
+
 		}
 
 	}
