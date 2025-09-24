@@ -14,7 +14,7 @@ func Otp() string {
 
 func SendMail(email string, username string) (string, error) {
 
-	dm := mail.NewDialer("smtp.gmail.com", 587, "vaultx000@gmail.com", "")
+	dm := mail.NewDialer("smtp.gmail.com", 587, "vaultx000@gmail.com", "rvcm inec dgxh eypu ")
 	otp := Otp()
 
 	mess := mail.NewMessage()
