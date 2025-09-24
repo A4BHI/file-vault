@@ -57,7 +57,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, "Pass")
 
-			email.SendMail(creds.Email, creds.Username)
+			err := email.SendMail(creds.Email, creds.Username)
+			errorcheck.Nigger("File:register.go Error Sending mail :", err)
 
 		}
 

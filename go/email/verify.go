@@ -3,6 +3,7 @@ package email
 import (
 	"math/rand"
 	"strconv"
+	"vaultx/otps"
 
 	"gopkg.in/mail.v2"
 )
@@ -12,11 +13,12 @@ func Otp() string {
 	return strconv.Itoa(otp)
 }
 
-func SendMail(email string, username string) (string, error) {
+func SendMail(email string, username string) error {
 
 	dm := mail.NewDialer("smtp.gmail.com", 587, "vaultx000@gmail.com", "rvcm inec dgxh eypu ")
 	otp := Otp()
 
+	otps.StoreOtp(username, otp)
 	mess := mail.NewMessage()
 
 	mess.SetHeader("From", "vaultx000@gmail.com")
@@ -25,6 +27,6 @@ func SendMail(email string, username string) (string, error) {
 	mess.SetBody("text/plain", "Hi "+username+"\nYour Email Verification code for VaultX is \n \n OTP CODE: "+otp+"\nPlease enter this code in VaultX Email Verification form.\nThis code is confidential - DO NOT SHARE!!!")
 	err := dm.DialAndSend(mess)
 
-	return otp, err
+	return err
 
 }
