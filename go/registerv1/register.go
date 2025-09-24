@@ -50,13 +50,12 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		row.Scan(&exists)
 
 		if exists {
+			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, "Fail")
 		} else {
+			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, "Pass")
 		}
-		if err == nil {
-			w.Header().Set("Content-Type", "Apllication/JSON")
-			fmt.Fprint(w, "success")
-		}
+
 	}
 }
