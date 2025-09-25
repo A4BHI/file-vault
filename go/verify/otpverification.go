@@ -36,8 +36,6 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 
 		emailid := getSession(r)
 
-		// otp := otps.GetOtp(emailid)
-
 		response := otps.CompareOtp(emailid, string(UserInputOtp))
 
 		if response {

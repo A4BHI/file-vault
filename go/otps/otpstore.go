@@ -21,10 +21,5 @@ func DeleteOtp(key string) {
 
 func CompareOtp(key string, otp string) bool {
 	o, _ := m.Load(key)
-
-	if o == otp {
-		return true
-	}
-
-	return false
+	return o == otp
 }
