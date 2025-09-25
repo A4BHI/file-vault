@@ -2,15 +2,16 @@ package registerv1
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
+	"time"
 
 	// mathrand "math/rand"
 	"net/http"
 	// "time"
 	"vaultx/db"
-	"vaultx/email"
 	"vaultx/errorcheck"
 	// "golang.org/x/crypto/bcrypt"
 )
@@ -21,6 +22,19 @@ type Creds struct {
 	Password string `json:"password"`
 }
 
+func setSession(email string, w http.ResponseWriter) {
+	emailbytes := []byte(email)
+
+	hashedMail := hex.EncodeToString(emailbytes)
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "mail",
+		Value:    hashedMail,
+		HttpOnly: true,
+		Expires:  time.Now().Add(time.Minute * 30),
+	})
+
+}
 func Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		fmt.Println("++++++++++Register++++++++++")
@@ -55,8 +69,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, "Pass")
+			setSession(creds.Email, w)
 
-			err := email.SendMail(creds.Email, creds.Username)
+			// err := email.SendMail(creds.Email, creds.Username)
 			errorcheck.Nigger("File:register.go Error Sending mail :", err)
 
 		}
