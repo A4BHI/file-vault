@@ -2,7 +2,6 @@ package registerv1
 
 import (
 	"context"
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -38,15 +37,15 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 		// hashed, err := bcrypt.GenerateFromPassword([]byte(creds.Password), 12)
 
-		errorcheck.Nigger("Error generating hash password (register.go file Register() function )", err)
+		// errorcheck.Nigger("Error generating hash password (register.go file Register() function )", err)
 
 		conn, err := db.Connect()
 		errorcheck.Nigger("Error creating connection to psql (Register.go file in Register function)", err)
 
 		// createdat := time.Now()
 		// userid := mathrand.Intn(9000) + 1000
-		salt := make([]byte, 32)
-		rand.Read(salt)
+		// salt := make([]byte, 32)
+		// rand.Read(salt)
 		row := conn.QueryRow(context.Background(), "select exists( select 1 from users where username = $1 or mailid=$2)", creds.Username, creds.Email)
 		row.Scan(&exists)
 
