@@ -41,8 +41,9 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		if response {
 			otps.DeleteOtp(emailid)
 			cokkie.MaxAge = -1
+			fmt.Fprintf(w, `{"verified":true}`)
 		} else {
-
+			fmt.Fprintf(w, `{"verified":false}`)
 		}
 
 	}
