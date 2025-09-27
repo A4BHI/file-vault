@@ -2,11 +2,17 @@ package verify
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"vaultx/errorcheck"
 	"vaultx/otps"
 )
+
+type userotp struct {
+	Uotp string `json:"otp"`
+}
 
 func getSession(r *http.Request) string {
 	cokkie, err := r.Cookie("mail")
@@ -33,10 +39,15 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("Error getting otp from frontend:", err)
 		}
-
+		o := userotp{}
+		err = json.Unmarshal(UserInputOtp, &o)
+		errorcheck.Nigger("Error unmarshalling json File:otpverification.go function:Verify", err)
 		emailid := getSession(r)
-
-		response := otps.CompareOtp(emailid, string(UserInputOtp))
+		fmt.Println("Emailid:", emailid)
+		fmt.Println("User Input otp:", o.Uotp)
+		a := otps.GetOtp(emailid)
+		fmt.Println("Generated Otp", a)
+		response := otps.CompareOtp(emailid, o.Uotp)
 
 		if response {
 			otps.DeleteOtp(emailid)

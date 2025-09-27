@@ -12,6 +12,7 @@ import (
 	"net/http"
 	// "time"
 	"vaultx/db"
+	"vaultx/email"
 	"vaultx/errorcheck"
 	// "golang.org/x/crypto/bcrypt"
 )
@@ -70,7 +71,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			setSession(creds.Email, w)
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, `{"ok":true}`)
-			// err := email.SendMail(creds.Email, creds.Username)
+			err := email.SendMail(creds.Email, creds.Username)
 			errorcheck.Nigger("File:register.go Error Sending mail :", err)
 
 		}

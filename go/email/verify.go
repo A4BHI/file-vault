@@ -18,7 +18,7 @@ func SendMail(email string, username string) error {
 	dm := mail.NewDialer("smtp.gmail.com", 587, "vaultx000@gmail.com", "")
 	otp := Otp()
 
-	otps.StoreOtp(username, otp)
+	otps.StoreOtp(email, otp)
 	mess := mail.NewMessage()
 
 	mess.SetHeader("From", "vaultx000@gmail.com")
