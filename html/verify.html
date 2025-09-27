@@ -422,33 +422,27 @@
                 
                 // Simulate verification process (replace with your API call)
                 try {
-                    // This would be your actual API call to verify the code
-                    // const response = await fetch('/api/verify-code', {
-                    //     method: 'POST',
-                    //     headers: {
-                    //         'Content-Type': 'application/json'
-                    //     },
-                    //     body: JSON.stringify({ email, code })
-                    // });
-                    // 
-                    // const result = await response.json();
-                    // 
-                    // if (result.success) {
-                    //     showSuccess();
-                    //     setTimeout(() => {
-                    //         window.location.href = '/dashboard'; // Redirect after successful verification
-                    //     }, 2000);
-                    // } else {
-                    //     showError(result.message || 'Invalid verification code');
-                    // }
-                    
-                    // For demo purposes, we'll simulate a successful verification after 1 second
-                    setTimeout(() => {
+                    let response = await fetch("/verifyotp",{
+                        method: "POST",
+                        headers:{"content-type":"application/json"},
+                        body:JSON.stringify({
+                            "otp":code
+                        })
+                    })
+
+                    let data = await response.json()
+                    console.log(data)
+                    if(data.verified){
+                         setTimeout(() => {
                         showSuccess();
                         setTimeout(() => {
                             window.location.href = 'zentrix.html'; // Redirect to main page
                         }, 2000);
                     }, 1000);
+                    }else{
+                        showError("Invalid otp.")
+                    }
+                   
                     
                 } catch (error) {
                     console.error('Verification error:', error);
@@ -459,16 +453,9 @@
             // Resend code functionality
             resendBtn.addEventListener('click', async () => {
                 try {
-                    // This would be your actual API call to resend the code
-                    // await fetch('/api/resend-code', {
-                    //     method: 'POST',
-                    //     headers: {
-                    //         'Content-Type': 'application/json'
-                    //     },
-                    //     body: JSON.stringify({ email })
-                    // });
-                    
-                    // Clear inputs and focus on first one
+                    let response = await fetch("/resendotp",{
+                        method:"POST",
+                    })
                     codeInputs.forEach(input => input.value = '');
                     codeInputs[0].focus();
                     

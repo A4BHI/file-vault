@@ -527,9 +527,10 @@ document.getElementById("authForm").addEventListener("submit", login);
                     let data=await response.json()
                     console.log(data)
                     if(data.ok){
+
                         window.location.replace("verify.html")
                     }else{
-                        alert(0)
+                                  
                     }
                    // if(data=="success")
                     // {
