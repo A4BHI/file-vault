@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"vaultx/errorcheck"
 	"vaultx/otps"
+	"vaultx/registerv1"
 )
 
 type userotp struct {
@@ -52,8 +53,11 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		if response {
 			otps.DeleteOtp(emailid)
 			cokkie.MaxAge = -1
+			registerv1.SaveToDB()
+			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, `{"verified":true}`)
 		} else {
+			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, `{"verified":false}`)
 		}
 

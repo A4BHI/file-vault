@@ -23,6 +23,8 @@ type Creds struct {
 	Password string `json:"password"`
 }
 
+var UserInfo Creds
+
 func setSession(email string, w http.ResponseWriter) {
 	emailbytes := []byte(email)
 
@@ -42,13 +44,14 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		errorcheck.Nigger("Error From register.go in register Function:", err)
 
-		creds := Creds{}
+		// creds := Creds{}
+
 		var exists bool
 
-		err = json.Unmarshal(body, &creds)
+		err = json.Unmarshal(body, &UserInfo)
 		errorcheck.Nigger("Error in register.go Register function json unmarshal", err)
 
-		fmt.Println(creds.Password)
+		fmt.Println(UserInfo.Password)
 
 		// hashed, err := bcrypt.GenerateFromPassword([]byte(creds.Password), 12)
 
@@ -61,17 +64,17 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		// userid := mathrand.Intn(9000) + 1000
 		// salt := make([]byte, 32)
 		// rand.Read(salt)
-		row := conn.QueryRow(context.Background(), "select exists( select 1 from users where username = $1 or mailid=$2)", creds.Username, creds.Email)
+		row := conn.QueryRow(context.Background(), "select exists( select 1 from users where username = $1 or mailid=$2)", UserInfo.Username, UserInfo.Email)
 		row.Scan(&exists)
 
 		if exists {
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, `{"ok":false}`)
 		} else {
-			setSession(creds.Email, w)
+			setSession(UserInfo.Email, w)
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, `{"ok":true}`)
-			err := email.SendMail(creds.Email, creds.Username)
+			err := email.SendMail(UserInfo.Email, UserInfo.Username)
 			errorcheck.Nigger("File:register.go Error Sending mail :", err)
 
 		}
