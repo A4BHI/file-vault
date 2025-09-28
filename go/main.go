@@ -6,6 +6,10 @@ import (
 	"vaultx/verify"
 )
 
+type Test struct {
+	H string
+}
+
 func main() {
 	http.Handle("/", http.FileServer(http.Dir("../html")))
 	http.HandleFunc("/register", registerv1.Register)
