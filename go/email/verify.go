@@ -15,7 +15,7 @@ func Otp() string {
 
 func SendMail(email string, username string) error {
 
-	dm := mail.NewDialer("smtp.gmail.com", 587, "vaultx000@gmail.com", "")
+	dm := mail.NewDialer("smtp.gmail.com", 587, "vaultx000@gmail.com", "fakevcm inec dgxh eypfake")
 	otp := Otp()
 
 	otps.StoreOtp(email, otp)

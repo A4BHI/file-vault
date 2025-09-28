@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func SaveToDB() {
+func SaveToDB() bool {
 	// creds := Creds{}
 
 	userid := math.Intn(9000) + 1000
@@ -34,6 +34,8 @@ func SaveToDB() {
 	_, err = conn.Exec(context.Background(), "insert into users values($1,$2,$3,$4,$5,$6)", userid, UserInfo.Username, UserInfo.Email, salt, HashedPass, createdat)
 	if err != nil {
 		fmt.Println("Error executing sql query in SavetoDb function:", err)
-
+		return false
+	} else {
+		return true
 	}
 }

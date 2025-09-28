@@ -8,13 +8,11 @@ import (
 	"io"
 	"time"
 
-	// mathrand "math/rand"
 	"net/http"
-	// "time"
+
 	"vaultx/db"
 	"vaultx/email"
 	"vaultx/errorcheck"
-	// "golang.org/x/crypto/bcrypt"
 )
 
 type Creds struct {
@@ -44,8 +42,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		errorcheck.Nigger("Error From register.go in register Function:", err)
 
-		// creds := Creds{}
-
 		var exists bool
 
 		err = json.Unmarshal(body, &UserInfo)
@@ -53,17 +49,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Println(UserInfo.Password)
 
-		// hashed, err := bcrypt.GenerateFromPassword([]byte(creds.Password), 12)
-
-		// errorcheck.Nigger("Error generating hash password (register.go file Register() function )", err)
-
 		conn, err := db.Connect()
 		errorcheck.Nigger("Error creating connection to psql (Register.go file in Register function)", err)
 
-		// createdat := time.Now()
-		// userid := mathrand.Intn(9000) + 1000
-		// salt := make([]byte, 32)
-		// rand.Read(salt)
 		row := conn.QueryRow(context.Background(), "select exists( select 1 from users where username = $1 or mailid=$2)", UserInfo.Username, UserInfo.Email)
 		row.Scan(&exists)
 
@@ -71,10 +59,20 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, `{"ok":false}`)
 		} else {
+			fmt.Println("TESTTTT")
 			setSession(UserInfo.Email, w)
+			fmt.Println("TESTTTT2")
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, `{"ok":true}`)
-			err := email.SendMail(UserInfo.Email, UserInfo.Username)
+			if f, ok := w.(http.Flusher); ok {
+				f.Flush()
+			}
+			go func(emailAddr, username string) {
+				err := email.SendMail(emailAddr, username)
+				if err != nil {
+					fmt.Println("Failed to send email:", err)
+				}
+			}(UserInfo.Email, UserInfo.Username)
 			errorcheck.Nigger("File:register.go Error Sending mail :", err)
 
 		}
