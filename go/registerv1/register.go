@@ -59,9 +59,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, `{"ok":false}`)
 		} else {
-			fmt.Println("TESTTTT")
+
 			setSession(UserInfo.Email, w)
-			fmt.Println("TESTTTT2")
+
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, `{"ok":true}`)
 			if f, ok := w.(http.Flusher); ok {
