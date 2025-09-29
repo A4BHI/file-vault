@@ -435,9 +435,14 @@
                     if(data.Verified){
                          setTimeout(() => {
                         showSuccess();
-                        setTimeout(() => {
+                        if(data.Account_Created){
+                            setTimeout(() => {
                             window.location.href = 'zentrix.html'; // Redirect to main page
                         }, 2000);
+                        }else{
+                            showError("Internal Error Occured Try After Sometime.")
+                        }
+                        
                     }, 1000);
                     }else{
                         setTimeout(()=>{
@@ -460,9 +465,9 @@
                     })
                     codeInputs.forEach(input => input.value = '');
                     codeInputs[0].focus();
-                    
-                    // Show success message
-                    successMessage.textContent = 'Verification code sent!';
+                    let data = await response.json()
+                    if(data.Email == "Send"){
+                        successMessage.textContent = 'Verification code sent!';
                     successMessage.style.display = 'block';
                     errorMessage.style.display = 'none';
                     
@@ -470,6 +475,10 @@
                     setTimeout(() => {
                         successMessage.style.display = 'none';
                     }, 3000);
+                    }else{
+                        showError("Internal Error Occured.")
+                    }
+                    // Show success message
                     
                     // Start countdown again
                     startCountdown();
