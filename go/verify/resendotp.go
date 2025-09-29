@@ -29,16 +29,18 @@ func ResendOtp(w http.ResponseWriter, r *http.Request) {
 		if c.(int) <= 3 {
 			count += 1
 			StoreCount(mailid, count)
+			fmt.Fprintf(w, `{"Status":"Sending"}`)
 			go func(emailAddr, username string) {
 				err := email.SendMail(emailAddr, username)
 				if err != nil {
 					fmt.Println("Failed to send email:", err)
+				} else {
+					fmt.Fprintf(w, `{"Email":"Send"}`)
 				}
 			}(mailid, namme[0])
-			fmt.Fprintf(w, `{"Email":"Send"}`)
-			Verify(w, r)
+
 		} else {
-			fmt.Fprintf(w, `{"Error":"Limit-Reached"}`)
+			fmt.Fprintf(w, `{"Status":"Limit-Reached"}`)
 		}
 
 	}
