@@ -1,6 +1,7 @@
 package verify
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -8,9 +9,12 @@ import (
 	"vaultx/email"
 )
 
-var ResendLimit sync.Map
+type ResponseToJs struct {
+	Limit_Reached bool `json:"limit-reached"`
+	Email_Send    bool `json:"email_send"`
+}
 
-var count int = 0
+var ResendLimit sync.Map
 
 func StoreCount(Email string, Count int) {
 	ResendLimit.Store(Email, Count)
@@ -25,23 +29,36 @@ func ResendOtp(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "application/json")
 		mailid := getSession(r)
 		namme := strings.Split(mailid, "@")
-		c, _ := GetCount(mailid)
-		if c.(int) <= 3 {
+		c, ok := GetCount(mailid)
+		count := 0
+		if ok {
+			count = c.(int)
+		}
+		res := ResponseToJs{}
+		if count < 3 {
+			res.Limit_Reached = false
 			count += 1
 			StoreCount(mailid, count)
-			fmt.Fprintf(w, `{"Status":"Sending"}`)
-			go func(emailAddr, username string) {
-				err := email.SendMail(emailAddr, username)
-				if err != nil {
-					fmt.Println("Failed to send email:", err)
-				} else {
-					fmt.Fprintf(w, `{"Email":"Send"}`)
-				}
-			}(mailid, namme[0])
+
+			err := email.SendMail(mailid, namme[0])
+			if err != nil {
+				fmt.Println("Failed to send email:", err)
+				res.Email_Send = false
+
+			} else {
+
+				res.Email_Send = true
+
+			}
 
 		} else {
-			fmt.Fprintf(w, `{"Status":"Limit-Reached"}`)
+			res.Email_Send = false
+			res.Limit_Reached = true
+			json.NewEncoder(w).Encode(res)
+			return
 		}
+
+		json.NewEncoder(w).Encode(res)
 
 	}
 }
