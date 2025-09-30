@@ -35,27 +35,27 @@ func ResendOtp(w http.ResponseWriter, r *http.Request) {
 			count = c.(int)
 		}
 		res := ResponseToJs{}
+
 		if count < 3 {
-			res.Limit_Reached = false
-			count += 1
-			StoreCount(mailid, count)
-
-			err := email.SendMail(mailid, namme[0])
-			if err != nil {
-				fmt.Println("Failed to send email:", err)
-				res.Email_Send = false
-
-			} else {
-
-				res.Email_Send = true
-
-			}
-
-		} else {
-			res.Email_Send = false
 			res.Limit_Reached = true
+			res.Email_Send = false
 			json.NewEncoder(w).Encode(res)
 			return
+		}
+
+		res.Limit_Reached = false
+		count += 1
+		StoreCount(mailid, count)
+
+		err := email.SendMail(mailid, namme[0])
+		if err != nil {
+			fmt.Println("Failed to send email:", err)
+			res.Email_Send = false
+
+		} else {
+
+			res.Email_Send = true
+
 		}
 
 		json.NewEncoder(w).Encode(res)
