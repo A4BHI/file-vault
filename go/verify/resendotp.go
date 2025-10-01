@@ -22,37 +22,59 @@ type ResponseToJs struct {
 
 var ResendLimit sync.Map
 
-func StoreCount(Email string, Count int) {
-	ResendLimit.Store(Email, Count)
+func StoreCount(Email string, Count int, LockTime time.Time) {
+	ResendLimit.Store(Email, CountnTime{Count: Count, LockedTime: LockTime})
 }
 
-func GetCount(Email string) (any, bool) {
-	return ResendLimit.Load(Email)
+func GetCount(Email string) (CountnTime, bool) {
+	r, ok := ResendLimit.Load(Email)
+
+	if !ok {
+		return CountnTime{}, false
+	} else {
+		return r.(CountnTime), true
+	}
 }
 
 func ResendOtp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		w.Header().Set("content-type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		mailid := getSession(r)
 		namme := strings.Split(mailid, "@")
 		c, ok := GetCount(mailid)
 		count := 0
 		if ok {
-			count = c.(int)
+			count = c.Count
 		}
 		res := ResponseToJs{}
 
-		if count >= 3 {
-			res.Limit_Reached = true
+		if count >= 4 {
+			if time.Now().Before(c.LockedTime) {
+				res.Limit_Reached = true
+				res.Email_Send = false
+				res.Unlock_At = c.LockedTime.Unix()
+				json.NewEncoder(w).Encode(res)
+				return
+			} else {
+				count = 0
+			}
+
+		}
+
+		count++
+		if count >= 4 {
+			unloacktime := time.Now().Add(30 * time.Minute)
+			StoreCount(mailid, count, unloacktime)
 			res.Email_Send = false
+			res.Limit_Reached = true
+			res.Unlock_At = unloacktime.Unix()
 			json.NewEncoder(w).Encode(res)
 			return
+
 		}
 
 		res.Limit_Reached = false
-		count += 1
-		StoreCount(mailid, count)
-
+		StoreCount(mailid, count, time.Time{})
 		err := email.SendMail(mailid, namme[0])
 		if err != nil {
 			fmt.Println("Failed to send email:", err)
