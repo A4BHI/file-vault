@@ -58,24 +58,23 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		if exists {
 			w.Header().Set("Content-Type", "Application/JSON")
 			fmt.Fprintf(w, `{"ok":false}`)
-		} else {
-
-			setSession(UserInfo.Email, w)
-
-			w.Header().Set("Content-Type", "Application/JSON")
-			fmt.Fprintf(w, `{"ok":true}`)
-			if f, ok := w.(http.Flusher); ok {
-				f.Flush()
-			}
-			go func(emailAddr, username string) {
-				err := email.SendMail(emailAddr, username)
-				if err != nil {
-					fmt.Println("Failed to send email:", err)
-				}
-			}(UserInfo.Email, UserInfo.Username)
-			errorcheck.Nigger("File:register.go Error Sending mail :", err)
-
+			return
 		}
+
+		setSession(UserInfo.Email, w)
+
+		w.Header().Set("Content-Type", "Application/JSON")
+		fmt.Fprintf(w, `{"ok":true}`)
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
+		go func(emailAddr, username string) {
+			err := email.SendMail(emailAddr, username)
+			if err != nil {
+				fmt.Println("Failed to send email:", err)
+			}
+		}(UserInfo.Email, UserInfo.Username)
+		errorcheck.Nigger("File:register.go Error Sending mail :", err)
 
 	}
 }
