@@ -6,12 +6,18 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 	"vaultx/email"
 )
 
+type CountnTime struct {
+	Count      int
+	LockedTime time.Time
+}
 type ResponseToJs struct {
-	Limit_Reached bool `json:"limit-reached"`
-	Email_Send    bool `json:"email_send"`
+	Limit_Reached bool  `json:"limit-reached"`
+	Email_Send    bool  `json:"email_send"`
+	Unlock_At     int64 `json:"unlock_at"`
 }
 
 var ResendLimit sync.Map
@@ -36,7 +42,7 @@ func ResendOtp(w http.ResponseWriter, r *http.Request) {
 		}
 		res := ResponseToJs{}
 
-		if count < 3 {
+		if count >= 3 {
 			res.Limit_Reached = true
 			res.Email_Send = false
 			json.NewEncoder(w).Encode(res)
