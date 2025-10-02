@@ -9,18 +9,20 @@ import (
 	"vaultx/errorcheck"
 	"vaultx/otps"
 	"vaultx/registerv1"
+	"vaultx/session"
 )
 
 type userotp struct {
 	Uotp string `json:"otp"`
 }
 type jsonresponse struct {
-	Verified        bool `json:"Verified"`
-	Account_Created bool `json:"Account_Created"`
+	Verified        bool   `json:"Verified"`
+	Account_Created bool   `json:"Account_Created"`
+	Internal_Error  string `json:"Internal_Error"`
 }
 
 func getSession(r *http.Request) string {
-	cookie, err := r.Cookie("mail")
+	cookie, err := r.Cookie("sessionid")
 	if err != nil {
 		fmt.Println("Error in otpverification.go error getting session from cookie", err)
 	}
@@ -36,7 +38,7 @@ func getSession(r *http.Request) string {
 
 func Verify(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-
+		res := jsonresponse{}
 		UserInputOtp, err := io.ReadAll(r.Body)
 		if err != nil {
 			fmt.Println("Error getting otp from frontend:", err)
@@ -44,19 +46,28 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		o := userotp{}
 		err = json.Unmarshal(UserInputOtp, &o)
 		errorcheck.Nigger("Error unmarshalling json File:otpverification.go function:Verify", err)
-		emailid := getSession(r)
-		fmt.Println("Emailid:", emailid)
+		sessionid := getSession(r)
+		_, mailid, ok := session.GetSession(sessionid)
+		if !ok {
+			res.Verified = false
+			res.Account_Created = false
+			res.Internal_Error = "Cannot retrieve mailid from the sessionid"
+			json.NewEncoder(w).Encode(res)
+			return
+
+		}
+
+		fmt.Println("Emailid:", mailid)
 		fmt.Println("User Input otp:", o.Uotp)
-		a := otps.GetOtp(emailid)
+		a := otps.GetOtp(mailid)
 		fmt.Println("Generated Otp", a)
-		response := otps.CompareOtp(emailid, o.Uotp)
-		res := jsonresponse{}
+		response := otps.CompareOtp(mailid, o.Uotp)
 
 		if response {
 			res.Verified = true
-			otps.DeleteOtp(emailid)
+			otps.DeleteOtp(mailid)
 			cokkie := &http.Cookie{
-				Name:     "mail",
+				Name:     "sessionid",
 				Value:    "",
 				Path:     "/",
 				MaxAge:   -1,
