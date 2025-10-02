@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 	"vaultx/db"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func SetSession(w http.ResponseWriter, username string, mailid string) bool {
@@ -52,4 +54,20 @@ func DeleteSession(sessionid string) bool {
 
 	return true
 
+}
+
+func GetSession(sessionid string) (string, string, bool) {
+	conn, err := db.Connect()
+	if err != nil {
+		fmt.Println("Error connecting to db in getsession():", err)
+		return "", "", false
+	}
+	var username, mailid string
+	err = conn.QueryRow(context.TODO(), "select username,mailid from sessions where sessionid = $1", sessionid).Scan(&username, &mailid)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return "", "", false
+		}
+	}
+	return username, mailid, true
 }
