@@ -36,3 +36,20 @@ func SetSession(w http.ResponseWriter, username string, mailid string) bool {
 	}
 	return true
 }
+
+func DeleteSession(sessionid string) bool {
+	conn, err := db.Connect()
+	if err != nil {
+		fmt.Println("Error connecting to db from makesession.go in DeleteSession func :", err)
+		return false
+	}
+
+	_, err = conn.Exec(context.TODO(), "DELETE from sessions where sessionid=$1", sessionid)
+	if err != nil {
+		fmt.Println("Error deleting session from db file:makesession.go:", err)
+		return false
+	}
+
+	return true
+
+}
