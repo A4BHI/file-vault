@@ -434,7 +434,7 @@
                     console.log(data)
                     if(data.Verified){
                          setTimeout(() => {
-                        showSuccess();
+                        showSuccess("Otp verification successfull..Redirecting..");
                         if(data.Account_Created){
                             setTimeout(() => {
                             window.location.href = 'zentrix.html'; // Redirect to main page
@@ -495,7 +495,8 @@
                 successMessage.style.display = 'none';
             }
             
-            function showSuccess() {
+            function showSuccess(message) {
+                successMessage.textContent=message
                 successMessage.style.display = 'block';
                 errorMessage.style.display = 'none';
             }
