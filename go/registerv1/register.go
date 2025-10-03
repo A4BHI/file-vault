@@ -2,17 +2,16 @@ package registerv1
 
 import (
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
-	"time"
 
 	"net/http"
 
 	"vaultx/db"
 	"vaultx/email"
 	"vaultx/errorcheck"
+	"vaultx/session"
 )
 
 type Creds struct {
@@ -21,21 +20,6 @@ type Creds struct {
 	Password string `json:"password"`
 }
 
-var UserInfo Creds
-
-func setSession(email string, w http.ResponseWriter) {
-	emailbytes := []byte(email)
-
-	hashedMail := hex.EncodeToString(emailbytes)
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "mail",
-		Value:    hashedMail,
-		HttpOnly: true,
-		Expires:  time.Now().Add(time.Minute * 30),
-	})
-
-}
 func Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		fmt.Println("++++++++++Register++++++++++")
@@ -43,7 +27,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		errorcheck.Nigger("Error From register.go in register Function:", err)
 
 		var exists bool
-
+		UserInfo := Creds{}
 		err = json.Unmarshal(body, &UserInfo)
 		errorcheck.Nigger("Error in register.go Register function json unmarshal", err)
 
@@ -61,7 +45,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		setSession(UserInfo.Email, w)
+		session.SetSession(w, UserInfo.Username, UserInfo.Email)
 
 		w.Header().Set("Content-Type", "Application/JSON")
 		fmt.Fprintf(w, `{"ok":true}`)

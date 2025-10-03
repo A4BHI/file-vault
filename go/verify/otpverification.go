@@ -75,7 +75,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 			}
 			http.SetCookie(w, cokkie)
 
-			if registerv1.SaveToDB() {
+			if registerv1.SaveToDB(r) {
 				res.Account_Created = true
 			} else {
 				res.Account_Created = false

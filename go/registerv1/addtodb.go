@@ -5,16 +5,21 @@ import (
 	"crypto/rand"
 	"fmt"
 	math "math/rand"
+	"net/http"
 	"time"
 	"vaultx/db"
 	"vaultx/errorcheck"
+	"vaultx/session"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func SaveToDB() bool {
+func SaveToDB(r *http.Request) bool {
 	// creds := Creds{}
-
+	cookie, _ := r.Cookie("sessionid")
+	sessionid := cookie.Value
+	//store password hash and salt also in db
+	username, mailid, ok := session.GetSession(sessionid)
 	userid := math.Intn(9000) + 1000
 
 	salt := make([]byte, 32)
