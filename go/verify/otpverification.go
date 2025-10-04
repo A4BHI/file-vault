@@ -47,7 +47,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(UserInputOtp, &o)
 		errorcheck.Nigger("Error unmarshalling json File:otpverification.go function:Verify", err)
 		sessionid := getSession(r)
-		_, mailid, ok := session.GetSession(sessionid)
+		_, mailid, _, _, ok := session.GetSession(sessionid)
 		if !ok {
 			res.Verified = false
 			res.Account_Created = false

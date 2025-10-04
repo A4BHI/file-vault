@@ -2,6 +2,7 @@ package session
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"vaultx/db"
 
 	"github.com/jackc/pgx/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func SetSession(w http.ResponseWriter, username string, mailid string, password string) bool {
@@ -16,7 +18,15 @@ func SetSession(w http.ResponseWriter, username string, mailid string, password 
 	sessionid := hex.EncodeToString(randomb)
 	createdat := time.Now().UTC()
 	expires := createdat.Add(30 * time.Minute)
-
+	salt := make([]byte, 32)
+	_, err := rand.Read(salt)
+	if err != nil {
+		fmt.Println("makesession.go setSessionFunction salt:", err)
+	}
+	hashedpass, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		fmt.Println("makesession.go setSessionFunction hashedpass:", err)
+	}
 	http.SetCookie(w, &http.Cookie{
 		Name:     sessionid,
 		Value:    sessionid,
@@ -31,7 +41,7 @@ func SetSession(w http.ResponseWriter, username string, mailid string, password 
 		return false
 	}
 
-	_, err = conn.Exec(context.TODO(), "insert into sessions (username,email,sessionid,createdat,expires) values($1,$2,$3,$4,$5)", username, mailid, sessionid, createdat, expires)
+	_, err = conn.Exec(context.TODO(), "insert into sessions (username,email,sessionid,createdat,expires) values($1,$2,$3,$4,$5,$6,$7)", username, mailid, salt, hashedpass, sessionid, createdat, expires)
 	if err != nil {
 		fmt.Println("Error executing query for adding session to db in makesession.go", err)
 		return false
@@ -56,18 +66,18 @@ func DeleteSession(sessionid string) bool {
 
 }
 
-func GetSession(sessionid string) (string, string, bool) {
+func GetSession(sessionid string) (string, string, string, string, bool) {
 	conn, err := db.Connect()
 	if err != nil {
 		fmt.Println("Error connecting to db in getsession():", err)
-		return "", "", false
+		return "", "", "", "", false
 	}
-	var username, mailid string
-	err = conn.QueryRow(context.TODO(), "select username,mailid from sessions where sessionid = $1", sessionid).Scan(&username, &mailid)
+	var username, mailid, hashedpass, salt string
+	err = conn.QueryRow(context.TODO(), "select username,mailid,hashedpass,salt from sessions where sessionid = $1", sessionid).Scan(&username, &mailid, &hashedpass, &salt)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return "", "", false
+			return "", "", "", "", false
 		}
 	}
-	return username, mailid, true
+	return username, mailid, hashedpass, salt, true
 }
