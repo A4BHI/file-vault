@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func SetSession(w http.ResponseWriter, username string, mailid string) bool {
+func SetSession(w http.ResponseWriter, username string, mailid string, password string) bool {
 	randomb := make([]byte, 32)
 	sessionid := hex.EncodeToString(randomb)
 	createdat := time.Now().UTC()

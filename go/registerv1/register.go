@@ -45,7 +45,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		session.SetSession(w, UserInfo.Username, UserInfo.Email)
+		session.SetSession(w, UserInfo.Username, UserInfo.Email, UserInfo.Password)
 
 		w.Header().Set("Content-Type", "Application/JSON")
 		fmt.Fprintf(w, `{"ok":true}`)
