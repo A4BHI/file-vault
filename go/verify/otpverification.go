@@ -1,7 +1,6 @@
 package verify
 
 import (
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,13 +26,13 @@ func getSession(r *http.Request) string {
 		fmt.Println("Error in otpverification.go error getting session from cookie", err)
 	}
 
-	b, err := hex.DecodeString(cookie.Value)
+	b := cookie.Value
 
 	if err != nil {
 		fmt.Println("Error decoding session value in otpverification.go:", err)
 	}
 
-	return string(b)
+	return b
 }
 
 func Verify(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +74,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 			}
 			http.SetCookie(w, cokkie)
 
-			if registerv1.SaveToDB(r) {
+			if registerv1.SaveToDB(sessionid) {
 				res.Account_Created = true
 			} else {
 				res.Account_Created = false

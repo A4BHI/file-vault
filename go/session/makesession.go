@@ -15,6 +15,7 @@ import (
 
 func SetSession(w http.ResponseWriter, username string, mailid string, password string) bool {
 	randomb := make([]byte, 32)
+	rand.Read(randomb)
 	sessionid := hex.EncodeToString(randomb)
 	createdat := time.Now().UTC()
 	expires := createdat.Add(30 * time.Minute)
@@ -28,7 +29,7 @@ func SetSession(w http.ResponseWriter, username string, mailid string, password 
 		fmt.Println("makesession.go setSessionFunction hashedpass:", err)
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name:     sessionid,
+		Name:     "sessionid",
 		Value:    sessionid,
 		Path:     "/",
 		HttpOnly: true,
@@ -41,7 +42,7 @@ func SetSession(w http.ResponseWriter, username string, mailid string, password 
 		return false
 	}
 
-	_, err = conn.Exec(context.TODO(), "insert into sessions (username,email,sessionid,createdat,expires) values($1,$2,$3,$4,$5,$6,$7)", username, mailid, salt, hashedpass, sessionid, createdat, expires)
+	_, err = conn.Exec(context.TODO(), "insert into sessions  values($1,$2,$3,$4,$5,$6,$7)", username, mailid, sessionid, hashedpass, salt, createdat, expires)
 	if err != nil {
 		fmt.Println("Error executing query for adding session to db in makesession.go", err)
 		return false
@@ -66,17 +67,18 @@ func DeleteSession(sessionid string) bool {
 
 }
 
-func GetSession(sessionid string) (string, string, string, string, bool) {
+func GetSession(sessionid string) (string, string, string, []byte, bool) {
 	conn, err := db.Connect()
 	if err != nil {
 		fmt.Println("Error connecting to db in getsession():", err)
-		return "", "", "", "", false
+		return "", "", "", nil, false
 	}
-	var username, mailid, hashedpass, salt string
+	var salt []byte
+	var username, mailid, hashedpass string
 	err = conn.QueryRow(context.TODO(), "select username,mailid,hashedpass,salt from sessions where sessionid = $1", sessionid).Scan(&username, &mailid, &hashedpass, &salt)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return "", "", "", "", false
+			return "", "", "", nil, false
 		}
 	}
 	return username, mailid, hashedpass, salt, true

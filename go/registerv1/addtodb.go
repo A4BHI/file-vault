@@ -4,17 +4,15 @@ import (
 	"context"
 	"fmt"
 	math "math/rand"
-	"net/http"
 	"time"
 	"vaultx/db"
 	"vaultx/errorcheck"
 	"vaultx/session"
 )
 
-func SaveToDB(r *http.Request) bool {
+func SaveToDB(sessionid string) bool {
 	// creds := Creds{}
-	cookie, _ := r.Cookie("sessionid")
-	sessionid := cookie.Value
+
 	//store password hash and salt also in db
 	username, mailid, hashedpass, salt, ok := session.GetSession(sessionid)
 	if !ok {
@@ -33,6 +31,7 @@ func SaveToDB(r *http.Request) bool {
 		fmt.Println("Error executing sql query in SavetoDb function:", err)
 		return false
 	} else {
+		conn.Exec(context.TODO(), "DELETE FROM sessions where username=$1 and mailid=$2", username, mailid)
 		return true
 	}
 }
