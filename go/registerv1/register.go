@@ -52,7 +52,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		err = email.SendMail(UserInfo.Email, UserInfo.Username)
 		if err != nil {
 			errorcheck.Nigger("File:register.go Error Sending mail :", err)
-			fmt.Fprintf(w, `{"ok":false}`)
+			fmt.Fprintf(w, `{"ok":false}`) //in website show email havent been send
 			return
 		}
 		fmt.Fprintf(w, `{"ok":true}`)
