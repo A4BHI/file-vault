@@ -48,14 +48,26 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		session.SetSession(w, UserInfo.Username, UserInfo.Email, UserInfo.Password)
 
 		w.Header().Set("Content-Type", "Application/JSON")
-
-		err = email.SendMail(UserInfo.Email, UserInfo.Username)
-		if err != nil {
-			errorcheck.Nigger("File:register.go Error Sending mail :", err)
-			fmt.Fprintf(w, `{"ok":false}`) //in website show email havent been send
-			return
-		}
 		fmt.Fprintf(w, `{"ok":true}`)
+
+		if f, ok := w.(http.Flusher); ok {
+
+			f.Flush()
+		}
+		go func(emailAddr, username string) {
+
+			err := email.SendMail(emailAddr, username)
+
+			if err != nil {
+
+				fmt.Println("Failed to send email:", err)
+
+			}
+
+		}(UserInfo.Email, UserInfo.Username)
+
+		// errorcheck.Nigger("File:register.go Error Sending mail :", err)
+		// fmt.Fprintf(w, `{"ok":true}`)
 
 	}
 }
