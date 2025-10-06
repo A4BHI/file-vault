@@ -63,11 +63,11 @@ func ResendOtp(w http.ResponseWriter, r *http.Request) {
 
 		count++
 		if count >= 4 {
-			unloacktime := time.Now().Add(30 * time.Minute)
-			StoreCount(mailid, count, unloacktime)
+			unlocktime := time.Now().Add(30 * time.Minute)
+			StoreCount(mailid, count, unlocktime)
 			res.Email_Send = false
 			res.Limit_Reached = true
-			res.Unlock_At = unloacktime.Unix()
+			res.Unlock_At = unlocktime.Unix()
 			json.NewEncoder(w).Encode(res)
 			return
 
