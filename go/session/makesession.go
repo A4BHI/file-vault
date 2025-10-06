@@ -67,7 +67,7 @@ func DeleteSession(sessionid string) bool {
 
 }
 
-func GetSession(sessionid string) (string, string, string, []byte, bool) {
+func GetSession(sessionid string) (user string, mail string, hashedpas string, upp []byte, ok bool) {
 	conn, err := db.Connect()
 	if err != nil {
 		fmt.Println("Error connecting to db in getsession():", err)

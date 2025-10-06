@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 	"vaultx/email"
+	"vaultx/session"
 )
 
 type CountnTime struct {
@@ -39,9 +39,15 @@ func GetCount(Email string) (CountnTime, bool) {
 func ResendOtp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		w.Header().Set("Content-Type", "application/json")
-		mailid := getSession(r)
-		namme := strings.Split(mailid, "@")
-		c, ok := GetCount(mailid)
+		sessioid := getSession(r)
+		username, mail, _, _, ok := session.GetSession(sessioid)
+
+		if !ok {
+			fmt.Println("Session error in ResendOtp()")
+			return
+		}
+
+		c, ok := GetCount(mail)
 		count := 0
 		if ok {
 			count = c.Count
@@ -64,7 +70,7 @@ func ResendOtp(w http.ResponseWriter, r *http.Request) {
 		count++
 		if count >= 4 {
 			unlocktime := time.Now().Add(30 * time.Minute)
-			StoreCount(mailid, count, unlocktime)
+			StoreCount(mail, count, unlocktime)
 			res.Email_Send = false
 			res.Limit_Reached = true
 			res.Unlock_At = unlocktime.Unix()
@@ -74,8 +80,8 @@ func ResendOtp(w http.ResponseWriter, r *http.Request) {
 		}
 
 		res.Limit_Reached = false
-		StoreCount(mailid, count, time.Time{})
-		err := email.SendMail(mailid, namme[0])
+		StoreCount(mail, count, time.Time{})
+		err := email.SendMail(mail, username)
 		if err != nil {
 			fmt.Println("Failed to send email:", err)
 			res.Email_Send = false
