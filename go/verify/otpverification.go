@@ -44,7 +44,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		}
 		o := userotp{}
 		err = json.Unmarshal(UserInputOtp, &o)
-		errorcheck.Nigger("Error unmarshalling json File:otpverification.go function:Verify", err)
+		errorcheck.PrintError("Error unmarshalling json File:otpverification.go function:Verify", err)
 		sessionid := getSession(r)
 		_, mailid, _, _, ok := session.GetSession(sessionid)
 		if !ok {

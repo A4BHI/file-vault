@@ -25,7 +25,7 @@ func CleanSessionFromDB() {
 		var sessionid string
 		var expires time.Time
 		var mail string
-		row.Scan(&sessionid, &expires)
+		row.Scan(&sessionid, &expires, &mail)
 		if time.Now().After(expires) {
 			sessionids = append(sessionids, sessionid)
 			otps.DeleteOtp(mail)

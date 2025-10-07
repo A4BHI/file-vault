@@ -2,8 +2,8 @@ package errorcheck
 
 import "fmt"
 
-func Nigger(niggesh string, err error) {
+func PrintError(statement string, err error) {
 	if err != nil {
-		fmt.Println(niggesh, err)
+		fmt.Println(statement, err)
 	}
 }

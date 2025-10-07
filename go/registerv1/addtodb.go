@@ -24,7 +24,7 @@ func SaveToDB(sessionid string) bool {
 	createdat := time.Now().UTC()
 
 	conn, err := db.Connect()
-	errorcheck.Nigger("Error connecting to db file addtodb.go function:SaveToDB:", err)
+	errorcheck.PrintError("Error connecting to db file addtodb.go function:SaveToDB:", err)
 
 	_, err = conn.Exec(context.Background(), "insert into users values($1,$2,$3,$4,$5,$6)", userid, username, mailid, salt, hashedpass, createdat)
 	if err != nil {

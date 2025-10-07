@@ -24,17 +24,17 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		fmt.Println("++++++++++Register++++++++++")
 		body, err := io.ReadAll(r.Body)
-		errorcheck.Nigger("Error From register.go in register Function:", err)
+		errorcheck.PrintError("Error From register.go in register Function:", err)
 
 		var exists bool
 		UserInfo := Creds{}
 		err = json.Unmarshal(body, &UserInfo)
-		errorcheck.Nigger("Error in register.go Register function json unmarshal", err)
+		errorcheck.PrintError("Error in register.go Register function json unmarshal", err)
 
 		fmt.Println(UserInfo.Password)
 
 		conn, err := db.Connect()
-		errorcheck.Nigger("Error creating connection to psql (Register.go file in Register function)", err)
+		errorcheck.PrintError("Error creating connection to psql (Register.go file in Register function)", err)
 
 		row := conn.QueryRow(context.Background(), "select exists( select 1 from users where username = $1 or mailid=$2)", UserInfo.Username, UserInfo.Email)
 		row.Scan(&exists)
@@ -58,9 +58,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Fprintf(w, `{"ok":true}`)
 		}
-
-		// errorcheck.Nigger("File:register.go Error Sending mail :", err)
-		// fmt.Fprintf(w, `{"ok":true}`)
 
 	}
 }
