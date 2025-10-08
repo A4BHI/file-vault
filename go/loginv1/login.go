@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"vaultx/db"
+	"vaultx/email"
 	"vaultx/errorcheck"
 
 	"golang.org/x/crypto/bcrypt"
@@ -14,10 +15,11 @@ import (
 
 type response struct {
 	Authentication bool
+	Email          bool
 }
 
 type Creds struct {
-	Email    string `json:"mailid"`
+	Username string `json:"mailid"`
 	Password string `json:"password"`
 }
 
@@ -36,9 +38,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			conn, err := db.Connect()
 			errorcheck.PrintError("Error connecting to db in login function", err)
 			var password string
-			conn.QueryRow(context.TODO(), "select password from users where mailid=$1", creds.Email).Scan(&password)
+			var mailid string
+			conn.QueryRow(context.TODO(), "select password,mailid from users where username=$1", creds.Username).Scan(&password, &mailid)
 
 			if bcrypt.CompareHashAndPassword([]byte(password), []byte(creds.Password)) == nil {
+				err := email.SendMail(mailid, creds.Username)
+				if err != nil {
+					fmt.Println("Error in Login()", err)
+					res.Email = false
+					json.NewEncoder(w).Encode(res)
+					return
+				}
+
+				res.Email = true
 				res.Authentication = true
 
 			} else {
