@@ -13,21 +13,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func SetSession(w http.ResponseWriter, username string, mailid string, password string) bool {
+func SetSession(w http.ResponseWriter, username string, mailid string, password string, session_type string) bool {
 	randomb := make([]byte, 32)
 	rand.Read(randomb)
 	sessionid := hex.EncodeToString(randomb)
 	createdat := time.Now().UTC()
 	expires := createdat.Add(30 * time.Minute)
-	salt := make([]byte, 32)
-	_, err := rand.Read(salt)
-	if err != nil {
-		fmt.Println("makesession.go setSessionFunction salt:", err)
-	}
-	hashedpass, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	if err != nil {
-		fmt.Println("makesession.go setSessionFunction hashedpass:", err)
-	}
 	http.SetCookie(w, &http.Cookie{
 		Name:     "sessionid",
 		Value:    sessionid,
@@ -35,18 +26,43 @@ func SetSession(w http.ResponseWriter, username string, mailid string, password 
 		HttpOnly: true,
 		Expires:  expires,
 	})
+	if session_type == "login" {
+		conn, err := db.Connect()
+		if err != nil {
+			fmt.Println("Error connecting to db in makesession.go", err)
+			return false
+		}
 
-	conn, err := db.Connect()
-	if err != nil {
-		fmt.Println("Error connecting to db in makesession.go", err)
-		return false
+		_, err = conn.Exec(context.TODO(), "insert into sessions  values($1,$2,$3,$4,$5,$6,$7,$8)", username, mailid, sessionid, "nil", "nil", createdat, expires, session_type)
+		if err != nil {
+			fmt.Println("Error executing query for adding session to db in makesession.go", err)
+			return false
+		}
+	} else if session_type == "register" {
+
+		salt := make([]byte, 32)
+		_, err := rand.Read(salt)
+		if err != nil {
+			fmt.Println("makesession.go setSessionFunction salt:", err)
+		}
+		hashedpass, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+		if err != nil {
+			fmt.Println("makesession.go setSessionFunction hashedpass:", err)
+		}
+		conn, err := db.Connect()
+		if err != nil {
+			fmt.Println("Error connecting to db in makesession.go", err)
+			return false
+		}
+
+		_, err = conn.Exec(context.TODO(), "insert into sessions  values($1,$2,$3,$4,$5,$6,$7,$8)", username, mailid, sessionid, hashedpass, salt, createdat, expires, session_type)
+		if err != nil {
+			fmt.Println("Error executing query for adding session to db in makesession.go", err)
+			return false
+		}
+		return true
 	}
 
-	_, err = conn.Exec(context.TODO(), "insert into sessions  values($1,$2,$3,$4,$5,$6,$7)", username, mailid, sessionid, hashedpass, salt, createdat, expires)
-	if err != nil {
-		fmt.Println("Error executing query for adding session to db in makesession.go", err)
-		return false
-	}
 	return true
 }
 
@@ -67,19 +83,19 @@ func DeleteSession(sessionid string) bool {
 
 }
 
-func GetSession(sessionid string) (user string, mail string, hashedpas string, upp []byte, ok bool) {
+func GetSession(sessionid string) (user string, mail string, hashedpas string, upp []byte, session_type string, ok bool) {
 	conn, err := db.Connect()
 	if err != nil {
 		fmt.Println("Error connecting to db in getsession():", err)
-		return "", "", "", nil, false
+		return "", "", "", nil, "", false
 	}
 	var salt []byte
-	var username, mailid, hashedpass string
-	err = conn.QueryRow(context.TODO(), "select username,mailid,hashedpass,salt from sessions where sessionid = $1", sessionid).Scan(&username, &mailid, &hashedpass, &salt)
+	var username, mailid, hashedpass, sessiontype string
+	err = conn.QueryRow(context.TODO(), "select username,mailid,hashedpass,salt ,session_type from sessions where sessionid = $1", sessionid).Scan(&username, &mailid, &hashedpass, &salt, &sessiontype)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return "", "", "", nil, false
+			return "", "", "", nil, "", false
 		}
 	}
-	return username, mailid, hashedpass, salt, true
+	return username, mailid, hashedpass, salt, sessiontype, true
 }

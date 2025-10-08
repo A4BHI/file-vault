@@ -40,7 +40,7 @@ func ResendOtp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		w.Header().Set("Content-Type", "application/json")
 		sessioid := getSession(r)
-		username, mail, _, _, ok := session.GetSession(sessioid)
+		username, mail, _, _, _, ok := session.GetSession(sessioid)
 
 		if !ok {
 			fmt.Println("Session error in ResendOtp()")

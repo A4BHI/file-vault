@@ -45,7 +45,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		session.SetSession(w, UserInfo.Username, UserInfo.Email, UserInfo.Password)
+		session.SetSession(w, UserInfo.Username, UserInfo.Email, UserInfo.Password, "register")
 
 		w.Header().Set("Content-Type", "Application/JSON")
 
@@ -54,6 +54,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Fprintf(w, `{"ok":false}`)
 			fmt.Println("Failed to send email:", err)
+			return
 
 		} else {
 			fmt.Fprintf(w, `{"ok":true}`)

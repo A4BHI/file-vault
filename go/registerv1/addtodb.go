@@ -14,7 +14,7 @@ func SaveToDB(sessionid string) bool {
 	// creds := Creds{}
 
 	//store password hash and salt also in db
-	username, mailid, hashedpass, salt, ok := session.GetSession(sessionid)
+	username, mailid, hashedpass, salt, _, ok := session.GetSession(sessionid)
 	if !ok {
 		fmt.Println("Error calling getSession() in addtodb")
 		return false

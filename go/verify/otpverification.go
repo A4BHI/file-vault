@@ -14,7 +14,12 @@ import (
 type userotp struct {
 	Uotp string `json:"otp"`
 }
+
+//	type loginresponse struct {
+//		Login bool `json:"login"`
+//	}
 type jsonresponse struct {
+	Login           bool   `json:"login"`
 	Verified        bool   `json:"Verified"`
 	Account_Created bool   `json:"Account_Created"`
 	Internal_Error  string `json:"Internal_Error"`
@@ -37,6 +42,7 @@ func getSession(r *http.Request) string {
 
 func Verify(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
+		// log := loginresponse{}
 		res := jsonresponse{}
 		UserInputOtp, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -45,8 +51,9 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		o := userotp{}
 		err = json.Unmarshal(UserInputOtp, &o)
 		errorcheck.PrintError("Error unmarshalling json File:otpverification.go function:Verify", err)
+
 		sessionid := getSession(r)
-		_, mailid, _, _, ok := session.GetSession(sessionid)
+		_, mailid, _, _, session_type, ok := session.GetSession(sessionid)
 		if !ok {
 			res.Verified = false
 			res.Account_Created = false
@@ -66,7 +73,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 			res.Verified = true
 			otps.DeleteOtp(mailid)
 			cokkie := &http.Cookie{
-				Name:     "sessionid",
+				Name:     "session",
 				Value:    "",
 				Path:     "/",
 				MaxAge:   -1,
@@ -74,10 +81,23 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 			}
 			http.SetCookie(w, cokkie)
 
-			if registerv1.SaveToDB(sessionid) {
-				res.Account_Created = true
-			} else {
-				res.Account_Created = false
+			if session_type == "login" {
+				// log.Login = true
+				res.Login = true
+				res.Verified = true
+				json.NewEncoder(w).Encode(res)
+				if session.DeleteSession(sessionid) {
+					fmt.Println("PASS")
+				} else {
+					fmt.Println("FAIL")
+				}
+				return
+			} else if session_type == "register" {
+				if registerv1.SaveToDB(sessionid) {
+					res.Account_Created = true
+				} else {
+					res.Account_Created = false
+				}
 			}
 
 		} else {

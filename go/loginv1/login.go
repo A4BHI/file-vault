@@ -9,17 +9,18 @@ import (
 	"vaultx/db"
 	"vaultx/email"
 	"vaultx/errorcheck"
+	"vaultx/session"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type response struct {
-	Authentication bool
-	Email          bool
+	Authentication bool `json:"auth"`
+	Email          bool `json:"send_mail"`
 }
 
 type Creds struct {
-	Username string `json:"mailid"`
+	Mailid   string `json:"mailid"`
 	Password string `json:"password"`
 }
 
@@ -39,10 +40,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			errorcheck.PrintError("Error connecting to db in login function", err)
 			var password string
 			var mailid string
-			conn.QueryRow(context.TODO(), "select password,mailid from users where username=$1", creds.Username).Scan(&password, &mailid)
 
-			if bcrypt.CompareHashAndPassword([]byte(password), []byte(creds.Password)) == nil {
-				err := email.SendMail(mailid, creds.Username)
+			var username string
+			conn.QueryRow(context.TODO(), "select hashed_passed,mailid,username from users where mailid=$1", creds.Mailid).Scan(&password, &mailid, &username)
+			fmt.Println("check1")
+			fmt.Println(password)
+			fmt.Println(creds.Mailid)
+			fmt.Println(mailid)
+			err = bcrypt.CompareHashAndPassword([]byte(password), []byte(creds.Password))
+			if err == nil {
+				fmt.Println("check2")
+				err := email.SendMail(mailid, username)
 				if err != nil {
 					fmt.Println("Error in Login()", err)
 					res.Email = false
@@ -50,10 +58,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
+				errorcheck.PrintError("error connecting to db in login.go ", err)
+
+				session.SetSession(w, username, mailid, "nil", "login")
+				fmt.Println(username)
 				res.Email = true
 				res.Authentication = true
+				json.NewEncoder(w).Encode(res)
 
 			} else {
+				fmt.Println("check3")
+				fmt.Println(err)
 				res.Authentication = false
 				json.NewEncoder(w).Encode(res)
 				return
