@@ -477,7 +477,8 @@ document.getElementById("authForm").addEventListener("submit", login);
             // });
 
             // Create floating particles
-             async function login() {
+             async function login(event) {
+                event.preventDefault()
             const mailid = document.getElementById("email").value 
             const password = document.getElementById("password").value
             try {
@@ -485,16 +486,16 @@ document.getElementById("authForm").addEventListener("submit", login);
                 method:"POST",
                 headers:{"Content-Type":"application/json"},
                 body:JSON.stringify({
-                    "email":mailid,
+                    "mailid":mailid,
                     "password":password
                 })
 
                 
             })
-            let data = await response.text()
-            if (data=="success")
+            let data = await response.json()
+            if (data.auth && data.send_mail)
             {
-                window.location.replace()
+                 window.location.replace("verify.html")
 
             } else {
                 console.log(data)
