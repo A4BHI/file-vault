@@ -314,7 +314,7 @@
                 <input type="text" class="code-input" maxlength="1" data-index="5" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
             </div>
             
-            <button type="submit" class="submit-btn">Verify Code</button>
+            <button type="submit" id="btn" class="submit-btn">Verify Code</button>
             
             <div class="success-message" id="successMessage">
                 Verification successful! Redirecting...
@@ -342,13 +342,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Get the email from URL parameters (you might want to get this from your backend)
-            const urlParams = new URLSearchParams(window.location.search);
-            const email = urlParams.get('email') || 'user@example.com';
-            document.getElementById('userEmail').textContent = email;
+           
             
             const codeInputs = document.querySelectorAll('.code-input');
             const form = document.getElementById('verificationForm');
             const resendBtn = document.getElementById('resendBtn');
+            const submitbtn = document.getElementById('btn');
             const countdownEl = document.getElementById('countdown');
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
@@ -459,24 +458,34 @@
             
             // Resend code functionality
             resendBtn.addEventListener('click', async () => {
+                 
                 try {
+                    
+                    
+                     successMessage.textContent = 'Sending Email...';
+                    successMessage.style.display = 'block';
+                    errorMessage.style.display = 'none';
                     let response = await fetch("/resendotp",{
                         method:"POST",
                     })
+                  
+                   
                     codeInputs.forEach(input => input.value = '');
                     codeInputs[0].focus();
                     let data = await response.json()
-                    if(data.Email == "Send"){
+                    console.log(data)
+                    if(data.email_send){
                         successMessage.textContent = 'Verification code sent!';
                     successMessage.style.display = 'block';
                     errorMessage.style.display = 'none';
+                   
                     
                     // Hide success message after 3 seconds
                     setTimeout(() => {
                         successMessage.style.display = 'none';
                     }, 3000);
-                    }else{
-                        showError("Internal Error Occured.")
+                    }else if (data.limit-reached){
+                        showError("otp verification limit reached")
                     }
                     // Show success message
                     
