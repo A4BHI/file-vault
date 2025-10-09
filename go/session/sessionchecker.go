@@ -29,13 +29,20 @@ func Check(w http.ResponseWriter, r *http.Request) {
 
 		}
 		var expiry time.Time
-		conn.QueryRow(context.Background(), "select expiry_time from sessions where sessionid=$1", sessionid).Scan(&expiry)
+		conn.QueryRow(context.Background(), "select expires from sessions where sessionid=$1", sessionid).Scan(&expiry)
 		w.Header().Set("Content-Type", "application/json")
 		if expiry.After(time.Now().UTC()) {
 			cook.Active = true
 			json.NewEncoder(w).Encode(cook)
 		} else {
-
+			cokkie := &http.Cookie{
+				Name:     "sessionid",
+				Value:    "",
+				Path:     "/",
+				MaxAge:   -1,
+				HttpOnly: true,
+			}
+			http.SetCookie(w, cokkie)
 			cook.Active = false
 			json.NewEncoder(w).Encode(cook)
 		}

@@ -73,7 +73,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 			res.Verified = true
 			otps.DeleteOtp(mailid)
 			cokkie := &http.Cookie{
-				Name:     "session",
+				Name:     "sessionid",
 				Value:    "",
 				Path:     "/",
 				MaxAge:   -1,
