@@ -11,6 +11,7 @@ import (
 	"vaultx/db"
 	"vaultx/email"
 	"vaultx/errorcheck"
+	"vaultx/masterkeys"
 	"vaultx/session"
 )
 
@@ -56,6 +57,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 		}
 		session.SetSession(w, UserInfo.Username, UserInfo.Email, UserInfo.Password, "register")
+		masterkeys.StorePassword(UserInfo.Email, UserInfo.Password)
 		fmt.Fprintf(w, `{"ok":true}`)
 
 	}

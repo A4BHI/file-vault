@@ -15,7 +15,7 @@ type CountnTime struct {
 	LockedTime time.Time
 }
 type ResponseToJs struct {
-	Limit_Reached bool  `json:"limit-reached"`
+	Limit_Reached bool  `json:"limit_reached"`
 	Email_Send    bool  `json:"email_send"`
 	Unlock_At     int64 `json:"unlock_at"`
 }

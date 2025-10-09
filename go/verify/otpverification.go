@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"vaultx/errorcheck"
+	"vaultx/masterkeys"
 	"vaultx/otps"
 	"vaultx/registerv1"
 	"vaultx/session"
@@ -83,6 +84,14 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 
 			if session_type == "login" {
 				// log.Login = true
+				password, ok := masterkeys.GetPassword(mailid)
+				if !ok {
+					fmt.Println("Error getting password from getPassword() in otpverification")
+					return
+				}
+				m := masterkeys.GenerateKey(mailid, password.(string))
+				fmt.Println(m)
+				masterkeys.DeletePassword(mailid)
 				res.Login = true
 				res.Verified = true
 				json.NewEncoder(w).Encode(res)
@@ -95,7 +104,16 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 			} else if session_type == "register" {
 				if registerv1.SaveToDB(sessionid) {
 					res.Account_Created = true
+					password, ok := masterkeys.GetPassword(mailid)
+					if !ok {
+						fmt.Println("Error getting password from getPassword() in otpverification")
+						return
+					}
+					m := masterkeys.GenerateKey(mailid, password.(string))
+					fmt.Println(m)
+					masterkeys.DeletePassword(mailid)
 				} else {
+					masterkeys.DeletePassword(mailid)
 					res.Account_Created = false
 				}
 			}

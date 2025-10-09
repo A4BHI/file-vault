@@ -9,6 +9,7 @@ import (
 	"vaultx/db"
 	"vaultx/email"
 	"vaultx/errorcheck"
+	"vaultx/masterkeys"
 	"vaultx/session"
 
 	"golang.org/x/crypto/bcrypt"
@@ -50,6 +51,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(mailid)
 			err = bcrypt.CompareHashAndPassword([]byte(password), []byte(creds.Password))
 			if err == nil {
+				masterkeys.StorePassword(mailid, creds.Password)
+
 				fmt.Println("check2")
 				err := email.SendMail(mailid, username)
 				if err != nil {
