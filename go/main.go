@@ -23,6 +23,7 @@ func main() {
 	http.HandleFunc("/login", auth.Login)
 	http.HandleFunc("/verifyotp", verify.Verify)
 	http.HandleFunc("/resendotp", verify.ResendOtp)
+	http.HandleFunc("/checksession", session.Check)
 	http.ListenAndServe(":8080", nil)
 
 }

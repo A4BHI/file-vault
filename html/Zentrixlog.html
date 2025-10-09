@@ -397,6 +397,20 @@
     <script>
             let isLogin , action;
         document.addEventListener('DOMContentLoaded', function() {
+            checker()
+           async function checker(){
+       
+        let response = await fetch("/checksession",{
+          method:"POST",
+          credentials:"include"
+          
+        })
+        let data=await response.json()
+        if(data.Active){
+          window.location.replace("/chat.html")
+        }
+        console.log(data)
+      }
             const urlParams = new URLSearchParams(window.location.search);
             const action = urlParams.get('action');
             
@@ -527,20 +541,12 @@ document.getElementById("authForm").addEventListener("submit", login);
             })
                     let data=await response.json()
                     console.log(data)
+                    if(data.acc){
+                        //show acc already registered
+                    }
                     if(data.ok){
                         window.location.replace("verify.html")
-                    }else{
-
                     }
-                   // if(data=="success")
-                    // {
-                    //     event.preventDefault();
-                    //     isLogin = !isLogin;
-                    //     updateForm();
-                    // }else{
-                    //     console.log(error)
-                    // }
-
             }catch(error){
                 console.log(error)
             }

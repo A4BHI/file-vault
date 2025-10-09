@@ -26,6 +26,7 @@ type Creds struct {
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
+		fmt.Println("+++++++++++LOGIN++++++++++++++")
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			fmt.Println("Error from Login.go login function: ", err)
