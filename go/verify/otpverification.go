@@ -90,7 +90,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				m := masterkeys.GenerateKey(mailid, password.(string))
-				fmt.Println(m)
+				fmt.Println("MasterKey:", m)
 				masterkeys.DeletePassword(mailid)
 				res.Login = true
 				res.Verified = true
@@ -110,7 +110,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					m := masterkeys.GenerateKey(mailid, password.(string))
-					fmt.Println(m)
+					fmt.Println("MasterKey:", m)
 					masterkeys.DeletePassword(mailid)
 				} else {
 					masterkeys.DeletePassword(mailid)
