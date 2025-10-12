@@ -301,7 +301,7 @@
         <div class="auth-header">
             <div class="auth-icon">✉️</div>
             <h1 class="auth-title">Verify Your Email</h1>
-            <p class="auth-subtitle">We've sent a 6-digit verification code to<br><span id="userEmail" class="email-highlight">user@example.com</span></p>
+            <p class="auth-subtitle">We've sent a 6-digit verification code to your emailid</p>
         </div>
         
         <form id="verificationForm">
@@ -436,7 +436,7 @@
                         showSuccess("Otp verification successfull..Redirecting..");
                         if(data.Account_Created || data.login){
                             setTimeout(() => {
-                            window.location.href = 'zentrix.html'; // Redirect to main page
+                            window.location.href = 'vaultx.html'; // Redirect to main page
                         }, 2000);
                         }else{
                             showError("Internal Error Occured Try After Sometime.")

@@ -337,7 +337,7 @@
     <div id="particles-js"></div>
     
     <!-- Back Button -->
-    <a href="index.html" class="back-btn">Back to Home Page</a>
+    <a href="zentrix.html" class="back-btn">Back to Home Page</a>
 
     <!-- Auth Card -->
     <div class="auth-card">
@@ -347,7 +347,7 @@
             <p id="formSubtitle" class="auth-subtitle">Enter your credentials to continue</p>
         </div>
         
-        <form id="authForm">
+        <form id="authForm"  method="post">
             <!-- Name Field (shown only for signup) -->
             <div id="nameField" class="form-group" style="display: none;">
                 <input type="text" id="name" name="name" class="form-input" placeholder=" " autocomplete="name">
@@ -367,11 +367,23 @@
                 <span class="password-toggle" onclick="togglePassword()">👁️</span>
             </div>
             
+            <!-- Password Requirements (for signup) -->
+<div id="passwordRequirements" style="display:none; margin-bottom:1rem; font-size:0.95rem;">
+    <div><span id="req-length">•</span> At least 8 characters</div>
+    <div><span id="req-uppercase">•</span> One uppercase letter</div>
+    <div><span id="req-lowercase">•</span> One lowercase letter</div>
+    <div><span id="req-number">•</span> One number</div>
+    <div><span id="req-special">•</span> One special character</div>
+    <div id="passwordStrength" style="margin-top:0.5rem;"></div>
+</div>
             <!-- Remember Me (for login) -->
             <div id="rememberField" style="display: none;" class="flex items-center mb-4">
                 <input type="checkbox" id="remember" name="remember" class="mr-2">
                 <label for="remember" class="text-sm text-[#8892b0]">Remember me</label>
             </div>
+
+            <!-- Status Message -->
+            <div id="statusMessage" style="display:none; text-align:center; color:#64ffda; margin-bottom:1rem; font-size:1rem;"></div>
             
             <!-- Submit Button -->
             <button type="submit" id="submitBtn" class="submit-btn">Continue</button>
@@ -394,10 +406,11 @@
         </div>
     </div>
 
-    <script>
-            let isLogin , action;
-        document.addEventListener('DOMContentLoaded', function() {
-            checker()
+  <script>
+    let isLogin = true; // Global variable to track form state
+
+    document.addEventListener('DOMContentLoaded', function() {
+           checker()
            async function checker(){
        
         let response = await fetch("/checksession",{
@@ -411,148 +424,322 @@
         }
         console.log(data)
       }
-            const urlParams = new URLSearchParams(window.location.search);
-            const action = urlParams.get('action');
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        
+        // Form elements
+        const formTitle = document.getElementById('formTitle');
+        const formSubtitle = document.getElementById('formSubtitle');
+        const nameField = document.getElementById('nameField');
+        const rememberField = document.getElementById('rememberField');
+        const forgotPassword = document.getElementById('forgotPassword');
+        const submitBtn = document.getElementById('submitBtn');
+        const switchFormText = document.getElementById('switchFormText');
+        const switchFormLink = document.getElementById('switchFormLink');
+        const passwordRequirements = document.getElementById('passwordRequirements');
+        
+        // Initialize form state based on URL parameter
+        isLogin = action !== 'signup';
+        
+        function updateForm() {
+            if (isLogin) {
+                // Login form
+                formTitle.textContent = 'Welcome Back';
+                formSubtitle.textContent = 'Log in to access your secure vault';
+                nameField.style.display = 'none';
+                rememberField.style.display = 'flex';
+                forgotPassword.style.display = 'block';
+                passwordRequirements.style.display = 'none'; // Hide for login
+                submitBtn.textContent = 'Log In';
+                switchFormText.innerHTML = 'Don\'t have an account? <a href="#" id="switchFormLink" class="auth-link">Sign up</a>';
+                
+                // Clear password validation for login
+                document.getElementById('passwordStrength').textContent = '';
+            } else {
+                // Signup form
+                formTitle.textContent = 'Create Account';
+                formSubtitle.textContent = 'Get started with Zentrix security';
+                nameField.style.display = 'block';
+                rememberField.style.display = 'none';
+                forgotPassword.style.display = 'none';
+                passwordRequirements.style.display = 'block'; // Show for signup
+                submitBtn.textContent = 'Sign Up';
+                switchFormText.innerHTML = 'Already have an account? <a href="#" id="switchFormLink" class="auth-link">Log in</a>';
+                
+                // Trigger password validation to update requirements display
+                validatePassword();
+            }
             
-            // Form elements
-            const formTitle = document.getElementById('formTitle');
-            const formSubtitle = document.getElementById('formSubtitle');
-            const nameField = document.getElementById('nameField');
-            const rememberField = document.getElementById('rememberField');
-            const forgotPassword = document.getElementById('forgotPassword');
-            const submitBtn = document.getElementById('submitBtn');
-            const switchFormText = document.getElementById('switchFormText');
-            const switchFormLink = document.getElementById('switchFormLink');
-            
-            // Toggle between login/signup
-            let isLogin = action !== 'signup';
-            
-           function updateForm() {
-    if (isLogin) {
-        // Login form
-        formTitle.textContent = 'Welcome Back';
-        formSubtitle.textContent = 'Log in to access your secure vault';
-        nameField.style.display = 'none';
-        rememberField.style.display = 'flex';
-        forgotPassword.style.display = 'block';
-        submitBtn.textContent = 'Log In';
-document.getElementById("authForm").addEventListener("submit", login);
-        switchFormText.innerHTML = 'Don\'t have an account? <a href="#" id="switchFormLink" class="auth-link">Sign up</a>';
-    } else {
-        // Signup form
-        formTitle.textContent = 'Create Account';
-        formSubtitle.textContent = 'Get started with Zentrix security';
-        nameField.style.display = 'block';
-        rememberField.style.display = 'none';
-        forgotPassword.style.display = 'none';
-        submitBtn.textContent = 'Sign Up';
-        document.getElementById("authForm").addEventListener("submit", register);
-        switchFormText.innerHTML = 'Already have an account? <a href="#" id="switchFormLink" class="auth-link">Log in</a>';
-        // submitBtn.onclick=register
-    }
-
-    // Reattach the event listener to the new link
-    const switchFormLink = document.getElementById('switchFormLink');
-    switchFormLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        isLogin = !isLogin;
-        updateForm();
-    });
-}
-            
-            // Switch form type when link is clicked
-            switchFormLink.addEventListener('click', function(e) {
+            // Reattach the event listener to the new link
+            const newSwitchLink = document.getElementById('switchFormLink');
+            newSwitchLink.addEventListener('click', function(e) {
                 e.preventDefault();
                 isLogin = !isLogin;
                 updateForm();
+                validateForm(); // Re-validate when switching forms
             });
             
-            // Initialize form based on URL parameter
-            updateForm();
+            validateForm(); // Validate the form after updating
+        }
+        
+        // Toggle password visibility
+        window.togglePassword = function() {
+            const passwordField = document.getElementById('password');
+            passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
+        };
+
+        // Password validation rules
+        const requirements = {
+            length: /.{8,}/,
+            uppercase: /[A-Z]/,
+            lowercase: /[a-z]/,
+            number: /[0-9]/,
+            special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/
+        };
+
+        // Validate password for signup
+        function validatePassword() {
+            const password = document.getElementById('password').value;
             
-            // Toggle password visibility
-            window.togglePassword = function() {
-                const passwordField = document.getElementById('password');
-                passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
-            };
+            // Skip validation for login
+            if (isLogin) {
+                return true;
+            }
             
-            // // Form submission
-            // document.getElementById('authForm').addEventListener('submit', function(e) {
-            //     e.preventDefault();
-            //     submitBtn.disabled = true;
-            //     submitBtn.textContent = 'Processing...';
-                
-            //     // Simulate API call
-            //     setTimeout(function() {
-            //         alert(isLogin ? 'Login successful!' : 'Account created successfully!');
-            //         submitBtn.disabled = false;
-            //         submitBtn.textContent = isLogin ? 'Log In' : 'Sign Up';
-            //     }, 1500);
-            // });
+            let isValid = true;
+            
+            // Check each requirement
+            const isLengthValid = requirements.length.test(password);
+            const isUppercaseValid = requirements.uppercase.test(password);
+            const isLowercaseValid = requirements.lowercase.test(password);
+            const isNumberValid = requirements.number.test(password);
+            const isSpecialValid = requirements.special.test(password);
+            
+            // Update requirement indicators
+            updateRequirement('req-length', isLengthValid);
+            updateRequirement('req-uppercase', isUppercaseValid);
+            updateRequirement('req-lowercase', isLowercaseValid);
+            updateRequirement('req-number', isNumberValid);
+            updateRequirement('req-special', isSpecialValid);
+            
+            // Check if all requirements are met
+            if (!isLengthValid || !isUppercaseValid || !isLowercaseValid || !isNumberValid || !isSpecialValid) {
+                isValid = false;
+            }
+            
+            // Calculate and display password strength
+            const strength = calculatePasswordStrength(password);
+            updateStrengthIndicator(strength);
+            
+            return isValid;
+        }
 
-            // Create floating particles
-             async function login(event) {
-                event.preventDefault()
-            const mailid = document.getElementById("email").value 
-            const password = document.getElementById("password").value
-            try {
-                 let response = await fetch("/login",{
-                method:"POST",
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({
-                    "mailid":mailid,
-                    "password":password
-                })
+        function updateRequirement(elementId, isValid) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                if (isValid) {
+                    element.style.color = '#64ffda';
+                    element.innerHTML = '✓';
+                } else {
+                    element.style.color = '#8892b0';
+                    element.innerHTML = '•';
+                }
+            }
+        }
 
-                
-            })
-            let data = await response.json()
-            if (data.auth && data.send_mail)
-            {
-                 window.location.replace("verify.html")
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            
+            // Length contributes up to 40 points
+            strength += Math.min(password.length * 4, 40);
+            
+            // Character variety contributes up to 60 points
+            if (requirements.uppercase.test(password)) strength += 10;
+            if (requirements.lowercase.test(password)) strength += 10;
+            if (requirements.number.test(password)) strength += 10;
+            if (requirements.special.test(password)) strength += 10;
+            
+            // Additional points for longer passwords with more variety
+            if (password.length >= 12) strength += 10;
+            if (password.length >= 16) strength += 10;
+            
+            return Math.min(strength, 100);
+        }
 
+        function updateStrengthIndicator(strength) {
+            const strengthIndicator = document.getElementById('passwordStrength');
+            if (!strengthIndicator) return;
+            
+            const password = document.getElementById('password').value;
+            if (password.length === 0) {
+                strengthIndicator.textContent = '';
+                return;
+            }
+            
+            let strengthText = '';
+            let strengthColor = '';
+            
+            if (strength < 30) {
+                strengthText = 'Weak';
+                strengthColor = '#e74c3c';
+            } else if (strength < 70) {
+                strengthText = 'Fair';
+                strengthColor = '#f39c12';
+            } else if (strength < 90) {
+                strengthText = 'Good';
+                strengthColor = '#3498db';
             } else {
-                console.log(data)
+                strengthText = 'Strong';
+                strengthColor = '#2ecc71';
+            }
+            
+            strengthIndicator.innerHTML = `Password strength: <span style="color: ${strengthColor}">${strengthText}</span>`;
+        }
+
+        // Form validation
+        function validateForm() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name') ? document.getElementById('name').value : '';
+            
+            let isFormValid = false;
+            
+            if (isLogin) {
+                // For login: only check if fields are not empty
+                isFormValid = email.length > 0 && password.length > 0;
+            } else {
+                // For signup: validate password requirements and other fields
+                const isPasswordValid = validatePassword();
+                const isEmailValid = validateEmail(email);
+                const isNameValid = name.length >= 2;
                 
+                isFormValid = isPasswordValid && isEmailValid && isNameValid;
             }
-
-            } catch (error) {
-                console.log(error)
-            }
-
-           
+            
+            submitBtn.disabled = !isFormValid;
+            submitBtn.style.opacity = isFormValid ? '1' : '0.6';
+            submitBtn.style.cursor = isFormValid ? 'pointer' : 'not-allowed';
+            
+            return isFormValid;
         }
-        async function register(event) {
-            event.preventDefault()
-            const name = document.getElementById("name").value
-            const mail = document.getElementById("email").value
-            const password = document.getElementById("password").value
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Real-time validation
+        document.getElementById('email').addEventListener('input', validateForm);
+        document.getElementById('password').addEventListener('input', function() {
+            if (!isLogin) {
+                validatePassword(); // Only validate password requirements for signup
+            }
+            validateForm();
+        });
+
+        if (document.getElementById('name')) {
+            document.getElementById('name').addEventListener('input', validateForm);
+        }
+        
+        // Form submission handler
+        document.getElementById('authForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                const statusMessage = document.getElementById('statusMessage');
+                statusMessage.textContent = 'Please fix the form errors before submitting.';
+                statusMessage.style.display = 'block';
+                statusMessage.style.color = '#ff6b6b';
+                return;
+            }
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const name = isLogin ? null : document.getElementById('name').value;
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Disable form and show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            statusMessage.textContent = 'Verifying your credentials...';
+            statusMessage.style.display = 'block';
+            statusMessage.style.color = '#8892b0';
+            
             try {
-                let response = await fetch("/register",{
-                    method:"POST",
-                    headers:{"Content-Type":"application/json"},
-                    body:JSON.stringify({
-                        "username":name,
-                        "mailid":mail,
-                        "password":password
-
-                    })
-
-            })
-                    let data=await response.json()
+                if (isLogin) {
+                    // Login logic
+                    let response = await fetch("/login", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({
+                            "mailid": email,
+                            "password": password
+                        })
+                    });
+                      statusMessage.textContent = 'Verifying Credentials...';
+                        statusMessage.style.color = '#64ffda';
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    let data = await response.json();
                     console.log(data)
-                    if(data.acc){
-                        //show acc already registered
+                    console.log(password)
+                    if (data.auth && data.send_mail) {
+                        statusMessage.textContent = 'Login successful! Redirecting...';
+                        statusMessage.style.color = '#64ffda';
+                        setTimeout(() => {
+                            window.location.href = `verify.html?email=${encodeURIComponent(email)}`;
+                        }, 2000);
+                    } else {
+                        statusMessage.textContent = 'Login failed. Please check your credentials.';
+                        statusMessage.style.color = '#ff6b6b';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Log In';
                     }
-                    if(data.ok){
-                        window.location.replace("verify.html")
+                } else {
+                    // Signup logic
+                    let response = await fetch("/register", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({
+                            "username": name,
+                            "mailid": email,
+                            "password": password
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
-            }catch(error){
-                console.log(error)
+                    
+                    let data = await response.json();
+                    console.log(data);
+                    if (data.ok) {
+                        statusMessage.textContent = 'Account created successfully! Redirecting...';
+                        statusMessage.style.color = '#64ffda';
+                        setTimeout(() => {
+                            window.location.href = "verify.html";
+                        }, 2000);
+                    } else {
+                        statusMessage.textContent = 'Registration failed. Please try again.';
+                        statusMessage.style.color = '#ff6b6b';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Sign Up';
+                    }
+                }
+            } catch (error) {
+                console.error('Authentication error:', error);
+                statusMessage.textContent = 'An error occurred during authentication. Please try again.';
+                statusMessage.style.color = '#ff6b6b';
+                submitBtn.disabled = false;
+                submitBtn.textContent = isLogin ? 'Log In' : 'Sign Up';
             }
-        }
-        })
-       
-    </script>   
+        });
+        
+        // Initialize the form
+        updateForm();
+    });
+</script>
 </body>
 </html>

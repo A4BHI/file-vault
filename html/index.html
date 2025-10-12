@@ -478,24 +478,24 @@
     </div>
   </div>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+     document.addEventListener('DOMContentLoaded', function() {
       const loginBtn = document.getElementById('loginBtn');
       const signupBtn = document.getElementById('signupBtn');
       const heroSignupBtn = document.getElementById('heroSignupBtn');
       
       // Redirect to login page
-      loginBtn.addEventListener('click', () => {
-        window.location.href = 'Zentrixlog.html?action=login';
-      });
-      
-      // Redirect to signup page
-      signupBtn.addEventListener('click', () => {
-        window.location.href = 'Zentrixlog.html?action=signup';
-      });
-      
-      heroSignupBtn.addEventListener('click', () => {
-        window.location.href = 'Zentrixlog.html?action=signup';
-      });
+loginBtn.addEventListener('click', () => {
+    window.location.href = 'Zentrixlog.html?action=login';
+});
+
+// Redirect to signup page
+signupBtn.addEventListener('click', () => {
+    window.location.href = 'Zentrixlog.html?action=signup';
+});
+
+heroSignupBtn.addEventListener('click', () => {
+    window.location.href = 'Zentrixlog.html?action=signup';
+});
     });
   </script>
 </body>

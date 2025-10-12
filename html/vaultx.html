@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vaultx Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0a192f;
+      
+      color: #ccd6f6;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(37, 109, 133, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 75% 75%, rgba(100, 255, 218, 0.15) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(10, 25, 47, 0.8), rgba(17, 34, 64, 0.6));
+      background-attachment: fixed;
+    }
+    
+    /* Enhanced link styling */
+    a {
+      color: #64ffda;
+      transition: all 0.3s ease;
+    }
+    a:hover {
+      text-decoration: underline;
+      color: #5be8cc;
+      text-shadow: 0 0 8px rgba(100, 255, 218, 0.4);
+    }
+    
+    /* Enhanced card styling */
+    .card {
+      background: linear-gradient(135deg, #112240, #1a2f5a);
+      border: 1px solid #233554;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    .card:hover::before {
+      left: 100%;
+    }
+    .card:hover {
+      border-color: #64ffda;
+      box-shadow: 0 8px 32px rgba(100, 255, 218, 0.1);
+      transform: translateY(-5px);
+    }
+    
+    /* Button enhancements */
+    .btn-primary {
+      background: linear-gradient(135deg, #64ffda, #5be8cc);
+      color: #0a192f;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(100, 255, 218, 0.3);
+    }
+    
+    .btn-secondary {
+      border: 2px solid #64ffda;
+      color: #64ffda;
+      background: rgba(100, 255, 218, 0.05);
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(100, 255, 218, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(100, 255, 218, 0.2);
+    }
+    
+    /* Header enhancement */
+    header {
+      backdrop-filter: blur(20px);
+      background: rgba(10, 25, 47, 0.9);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Sidebar styling */
+    .sidebar {
+      background: linear-gradient(135deg, rgba(10, 25, 47, 0.9), rgba(17, 34, 64, 0.8));
+      backdrop-filter: blur(10px);
+      border-right: 1px solid #233554;
+    }
+    
+    .sidebar-item {
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+      cursor: pointer;
+    }
+    
+    .sidebar-item:hover {
+      background: rgba(100, 255, 218, 0.05);
+      border-left-color: #64ffda;
+    }
+    
+    .sidebar-item.active {
+      background: rgba(100, 255, 218, 0.1);
+      border-left-color: #64ffda;
+    }
+    
+    /* File upload area */
+    .upload-area {
+      border: 2px dashed #64ffda;
+      background: rgba(100, 255, 218, 0.05);
+      transition: all 0.3s ease;
+    }
+    
+    .upload-area:hover {
+      background: rgba(100, 255, 218, 0.1);
+      box-shadow: 0 8px 25px rgba(100, 255, 218, 0.1);
+    }
+    
+    /* Progress bar */
+    .progress-bar {
+      background: rgba(100, 255, 218, 0.2);
+    }
+    
+    .progress-fill {
+      background: linear-gradient(90deg, #64ffda, #5be8cc);
+      transition: width 0.5s ease;
+    }
+    
+    /* File list items */
+    .file-item {
+      border-bottom: 1px solid #233554;
+      transition: all 0.3s ease;
+    }
+    
+    .file-item:hover {
+      background: rgba(100, 255, 218, 0.05);
+    }
+    
+    /* Status badges */
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+    }
+    
+    .badge-active {
+      background: rgba(100, 255, 218, 0.1);
+      color: #64ffda;
+      border: 1px solid #64ffda;
+    }
+   
+    
+    .badge-expired {
+      background: rgba(255, 107, 107, 0.1);
+      color: #ff6b6b;
+      border: 1px solid #ff6b6b;
+    }
+    
+    /* Text glow effect */
+    .glow-text {
+      text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+    }
+    
+    /* Smooth animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    /* Chart container */
+    .chart-container {
+      background: linear-gradient(135deg, #112240, #1a2f5a);
+      border: 1px solid #233554;
+    }
+    
+    /* Content sections */
+    .content-section {
+      display: none;
+    }
+    
+    .content-section.active {
+      display: block;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        z-index: 40;
+        left: -100%;
+        transition: left 0.3s ease;
+      }
+      
+      .sidebar.open {
+        left: 0;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+    }
+    .description {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .upload-container {
+            border: 3px dashed #3498db;
+            border-radius: 12px;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            background: rgba(236, 240, 241, 0.5);
+            cursor: pointer;
+        }
+        
+        .upload-container:hover {
+            background: rgba(236, 240, 241, 0.8);
+            border-color: #2980b9;
+        }
+        
+        .upload-container.dragover {
+            background: rgba(52, 152, 219, 0.2);
+            border-color: #2c3e50;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 60px;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+        
+        .browse-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+        }
+        
+        .browse-btn:hover {
+            background: #2980b9;
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .file-info {
+            text-align: left;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .file-info h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .file-details {
+            margin-top: 10px;
+        }
+        
+        .file-details p {
+            margin: 8px 0;
+            color: #34495e;
+        }
+        
+        .encryption-options {
+            display: none;
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        .option-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option-card.selected {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .option-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .option-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: white;
+        }
+        
+        .frontend-icon {
+            background: #2ecc71;
+        }
+        
+        .backend-icon {
+            background: #e74c3c;
+        }
+        
+        .option-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .option-description {
+            color: #7f8c8d;
+            margin-left: 55px;
+            line-height: 1.5;
+        }
+        
+        .progress-container {
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #2ecc71;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        
+        .upload-btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .upload-btn:hover {
+            background: #27ae60;
+        }
+        
+        .upload-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .status-message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+        }
+        
+        .error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #c0392b;
+        }
+        
+        .info {
+            background: rgba(52, 152, 219, 0.2);
+            color: #2980b9;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .password-section {
+            margin-top: 15px;
+            text-align: left;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 16px;
+        }
+        
+        .password-note {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        /* ...existing styles... */
+.file-info {
+    text-align: left;
+    /* Replace old background and border with Vaultx theme */
+    background: linear-gradient(135deg, #112240, #1a2f5a);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(100, 255, 218, 0.08);
+    border: 1px solid #233554;
+    color: #ccd6f6;
+}
+/* ...existing styles... */
+.file-info h3 {
+    color: #64ffda;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #233554;
+}
+/* ...existing styles... */
+.file-details p {
+    margin: 8px 0;
+    color: #8892b0;
+}
+/* ...existing styles... */
+  </style>
+</head>
+<body>
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 flex-shrink-0 hidden md:block">
+      <div class="p-4 border-b border-[#233554]">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-gradient-to-br flex items-center justify-center">
+            <span><img src="logo.png"></span>
+          </div>
+          <span class="font-semibold text-lg text-[#64ffda] glow-text">Vaultx</span>
+        </div>
+      </div>
+      
+      <div class="p-4">
+        <div class="flex items-center gap-3 mb-6 p-3 rounded-lg bg-[#112240]">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#64ffda] to-[#5be8cc] flex items-center justify-center">
+            <span class="text-[#0a192f] font-bold">JD</span>
+          </div>
+          <div>
+            <p class="font-medium">John Doe</p>
+            <p class="text-xs text-[#64ffda]">Free Plan</p>
+          </div>
+        </div>
+        
+        <nav class="space-y-1">
+          <a data-target="dashboard" class="sidebar-item active flex items-center gap-3 p-3 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            Dashboard
+          </a>
+          
+          <a data-target="upload" class="sidebar-item flex items-center gap-3 p-3 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+            </svg>
+            Upload Files
+          </a>
+          
+          <a data-target="files" class="sidebar-item flex items-center gap-3 p-3 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            My Files
+          </a>
+          
+          <a data-target="share" class="sidebar-item flex items-center gap-3 p-3 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            Share
+          </a>
+          
+          <a data-target="settings" class="sidebar-item flex items-center gap-3 p-3 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Settings
+          </a>
+        </nav>
+      </div>
+      
+      <div class="p-4 border-t border-[#233554] mt-auto">
+        <button class="btn-secondary w-full px-4 py-2 rounded-md flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Logout
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile sidebar toggle -->
+    <button class="mobile-menu-btn fixed bottom-4 right-4 z-50 md:hidden w-12 h-12 bg-[#64ffda] text-[#0a192f] rounded-full flex items-center justify-center shadow-lg">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    
+    <!-- Main content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Top header -->
+      <header class="flex justify-between items-center px-6 py-4 border-b border-[#233554] sticky top-0 z-30">
+        <div class="flex items-center gap-4">
+          <h1 class="font-bold text-xl text-[#64ffda] glow-text" id="page-title">Dashboard</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer">
+              
+            </div>
+           
+          </div>
+          
+         
+        </div>
+      </header>
+      
+      <!-- Content area -->
+      <div class="flex-1 overflow-y-auto p-6">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="content-section active">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="card p-6 rounded-xl">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-medium">Storage Usage</h3>
+                <span class="text-xs bg-[#64ffda] text-[#0a192f] px-2 py-1 rounded-full">2.5/5 GB</span>
+              </div>
+              <div class="progress-bar h-2 rounded-full mb-2">
+                <div class="progress-fill h-full rounded-full" style="width: 50%"></div>
+              </div>
+              <p class="text-sm text-[#8892b0]">50% of storage used</p>
+            </div>
+            
+            <div class="card p-6 rounded-xl">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-medium">Files Uploaded</h3>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <p class="text-3xl font-bold">127</p>
+              <p class="text-sm text-[#8892b0]">+12 this week</p>
+            </div>
+            
+            <div class="card p-6 rounded-xl">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-medium">Shared Files</h3>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+              </div>
+              <p class="text-3xl font-bold">42</p>
+              <p class="text-sm text-[#8892b0]">+3 this week</p>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="card p-6 rounded-xl">
+              <h3 class="font-medium mb-4">Recent Files</h3>
+              <div class="space-y-4">
+                <div class="file-item p-3 rounded-lg flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#112240] rounded-lg flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium">Annual Report.pdf</p>
+                      <p class="text-xs text-[#8892b0]">12 MB • 2 days ago</p>
+                    </div>
+                  </div>
+                  <span class="badge badge-active">Active</span>
+                </div>
+                
+                <div class="file-item p-3 rounded-lg flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#112240] rounded-lg flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium">Project Presentation.pptx</p>
+                      <p class="text-xs text-[#8892b0]">8.5 MB • 5 days ago</p>
+                    </div>
+                  </div>
+                  <span class="badge badge-active">Active</span>
+                </div>
+                
+                <div class="file-item p-3 rounded-lg flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#112240] rounded-lg flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium">Budget.xlsx</p>
+                      <p class="text-xs text-[#8892b0]">3.2 MB • 1 week ago</p>
+                    </div>
+                  </div>
+                  <span class="badge badge-expired">Expired</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card p-6 rounded-xl">
+              <h3 class="font-medium mb-4">Quick Actions</h3>
+                <button class="btn-secondary w-full px-4 py-3 rounded-lg flex flex-col items-center justify-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
+                  <span>Upload</span>
+                </button><br>
+                
+                <button class="btn-secondary w-full px-4 py-3 rounded-lg flex flex-col items-center justify-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                  <span>Share</span>
+                </button>
+              
+            </div>
+          </div>
+          
+          <div class="card p-6 rounded-xl">
+            <h3 class="font-medium mb-4">Storage Overview</h3>
+            <div class="chart-container h-64 rounded-lg flex items-center justify-center">
+              <p class="text-[#8892b0]">Storage visualization chart would appear here</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Upload Files Section -->
+        <div id="upload" class="content-section">
+          <div class="card p-6 rounded-xl mb-6">
+            <h2 class="font-bold text-xl mb-6">Upload Files</h2>
+            
+            <div class="upload-area p-8 rounded-lg text-center mb-6" id="dropArea">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-[#64ffda] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+              </svg>
+              <p class="mb-2">Drag & drop files here or click to browse</p>
+              <input type="file" id="fileInput" style="display:none;">
+              <button class="btn-primary px-4 py-2 rounded-md" id="browseBtn">Browse Files</button>
+              <div class="file-info hidden" id="file-info">
+            <h3>Selected File</h3>
+            <div class="file-details">
+                <p><strong>Name:</strong> <span id="file-name"></span></p>
+                <p><strong>Size:</strong> <span id="file-size"></span></p>
+                <p><strong>Type:</strong> <span id="file-type"></span></p>
+            </div>
+            
+<div class="encryption-options" id="encryption-options">
+    <h3>Choose Encryption Method</h3>
+    <div class="option-card" id="frontend-option">
+        <div class="option-header">
+            <div class="option-icon frontend-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <div class="option-title">Frontend Encryption</div>
+        </div>
+        <div class="option-description">
+            File is encrypted in your browser before being sent to the server. More secure as the server never sees your unencrypted data.
+            <div class="password-section">
+                <label for="frontend-password">Encryption Password:</label>
+                <input type="password" id="frontend-password" class="password-input" placeholder="Enter a strong password">
+                <div class="password-note">Remember this password! You'll need it to decrypt the file later.</div>
+            </div>
+        </div>
+    </div>
+    <div class="option-card" id="backend-option"><!-- FIXED: was id="frontend-option" -->
+        <div class="option-header">
+            <div class="option-icon backend-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <div class="option-title">Backend Encryption</div>
+        </div>
+        <div class="option-description">
+            File is encrypted on the server after being uploaded. The server handles the encryption process.
+            <div class="password-section">
+                <label for="backend-password">Encryption Password:</label>
+                <input type="password" id="backend-password" class="password-input" placeholder="Enter a strong password">
+                <div class="password-note">Remember this password! You'll need it to decrypt the file later.</div>
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <button class="upload-btn" id="upload-btn" disabled>Upload & Encrypt File</button>
+        </div>
+        
+            <div class="status-message hidden" id="status-message"></div>
+            </div>
+          
+            <div class="mb-6">
+              <h3 class="font-medium mb-4">Upload Settings</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">                
+                <div>
+                  <label class="block text-sm mb-2">Auto-expire After</label>
+                  <select class="w-full bg-[#112240] border border-[#233554] rounded-md px-4 py-2 focus:border-[#64ffda] focus:outline-none">
+                    <option>Never</option>
+                    <option>1 day</option>
+                    <option>7 days</option>
+                    <option>30 days</option>
+                    <option>Custom date</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 class="font-medium mb-4">Recent Uploads</h3>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-[#112240] rounded-lg">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#0a192f] rounded-lg flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium">Document.pdf</p>
+                      <p class="text-xs text-[#8892b0]">12 MB • Uploading...</p>
+                    </div>
+                  </div>
+                  <div class="w-24 bg-[#0a192f] rounded-full h-2">
+                    <div class="progress-fill h-2 rounded-full" style="width: 65%"></div>
+                  </div>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-[#112240] rounded-lg">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#0a192f] rounded-lg flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium">Image.png</p>
+                      <p class="text-xs text-[#8892b0]">4.2 MB • Complete</p>
+                    </div>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- My Files Section -->
+        <div id="files" class="content-section">
+          <div class="card p-6 rounded-xl mb-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+              <h2 class="font-bold text-xl mb-4 md:mb-0">My Files</h2>
+              
+              <div class="flex gap-3">
+                <div class="relative">
+                  <input type="text" placeholder="Search files..." class="bg-[#112240] border border-[#233554] rounded-md px-4 py-2 pl-10 focus:border-[#64ffda] focus:outline-none w-full md:w-64">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-[#8892b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                
+                <button class="btn-secondary px-4 py-2 rounded-md flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                  </svg>
+                  Filter
+                </button>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <div class="flex gap-2 overflow-x-auto pb-2">
+                <button class="btn-primary px-4 py-2 rounded-md whitespace-nowrap">All Files</button>
+                <button class="btn-secondary px-4 py-2 rounded-md whitespace-nowrap">Documents</button>
+                <button class="btn-secondary px-4 py-2 rounded-md whitespace-nowrap">Images</button>
+                <button class="btn-secondary px-4 py-2 rounded-md whitespace-nowrap">Videos</button>
+                <button class="btn-secondary px-4 py-2 rounded-md whitespace-nowrap">Audio</button>
+                <button class="btn-secondary px-4 py-2 rounded-md whitespace-nowrap">Archives</button>
+              </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="border-b border-[#233554]">
+                    <th class="text-left py-3 px-4">Name</th>
+                    <th class="text-left py-3 px-4">Size</th>
+                    <th class="text-left py-3 px-4">Type</th>
+                    <th class="text-left py-3 px-4">Modified</th>
+                    <th class="text-left py-3 px-4">Status</th>
+                    <th class="text-left py-3 px-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-[#233554] hover:bg-[#112240]">
+                    <td class="py-3 px-4 flex items-center gap-3">
+                      <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      Annual Report.pdf
+                    </td>
+                    <td class="py-3 px-4">12 MB</td>
+                    <td class="py-3 px-4">PDF</td>
+                    <td class="py-3 px-4">2 days ago</td>
+                    <td class="py-3 px-4"><span class="badge badge-active">Active</span></td>
+                    <td class="py-3 px-4">
+                      <div class="flex gap-2">
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 15.5v-11a2 2 0 012-2h16a2 2 0 012 2v11a2 2 0 01-2 2h-16a2 2 0 01-2-2z" />
+                          </svg>
+                        </button>
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                        </button>
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <tr class="border-b border-[#233554] hover:bg-[#112240]">
+                    <td class="py-3 px-4 flex items-center gap-3">
+                      <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      Project Presentation.pptx
+                    </td>
+                    <td class="py-3 px-4">8.5 MB</td>
+                    <td class="py-3 px-4">PowerPoint</td>
+                    <td class="py-3 px-4">5 days ago</td>
+                    <td class="py-3 px-4"><span class="badge badge-active">Active</span></td>
+                    <td class="py-3 px-4">
+                      <div class="flex gap-2">
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 15.5v-11a2 2 0 012-2h16a2 2 0 012 2v11a2 2 0 01-2 2h-16a2 2 0 01-2-2z" />
+                          </svg>
+                        </button>
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                        </button>
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <tr class="border-b border-[#233554] hover:bg-[#112240]">
+                    <td class="py-3 px-4 flex items-center gap-3">
+                      <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      Budget.xlsx
+                    </td>
+                    <td class="py-3 px-4">3.2 MB</td>
+                    <td class="py-3 px-4">Excel</td>
+                    <td class="py-3 px-4">1 week ago</td>
+                    <td class="py-3 px-4"><span class="badge badge-expired">Expired</span></td>
+                    <td class="py-3 px-4">
+                      <div class="flex gap-2">
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 15.5v-11a2 2 0 012-2h16a2 2 0 012 2v11a2 2 0 01-2 2h-16a2 2 0 01-2-2z" />
+                          </svg>
+                        </button>
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                        </button>
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <tr class="hover:bg-[#112240]">
+                    <td class="py-3 px-4 flex items-center gap-3">
+                      <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      Vacation Photos.zip
+                    </td>
+                    <td class="py-3 px-4">156 MB</td>
+                    <td class="py-3 px-4">ZIP Archive</td>
+                    <td class="py-3 px-4">2 weeks ago</td>
+                    <td class="py-3 px-4"><span class="badge badge-active">Active</span></td>
+                    <td class="py-3 px-4">
+                      <div class="flex gap-2">
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 15.5v-11a2 2 0 012-2h16a2 2 0 012 2v11a2 2 0 01-2 2h-16a2 2 0 01-2-2z" />
+                          </svg>
+                        </button>
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                        </button>
+                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="flex justify-between items-center mt-6">
+              <p class="text-sm text-[#8892b0]">Showing 4 of 127 files</p>
+              <div class="flex gap-2">
+                <button class="btn-secondary px-3 py-1 rounded-md">Previous</button>
+                <button class="btn-primary px-3 py-1 rounded-md">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Share Section -->
+        <div id="share" class="content-section">
+          <div class="card p-6 rounded-xl mb-6">
+            <h2 class="font-bold text-xl mb-6">Share Files</h2>
+          </div>
+        </div>
+        
+        <!-- Settings Section -->
+        <div id="settings" class="content-section">
+          <div class="card p-6 rounded-xl mb-6">
+            <h2 class="font-bold text-xl mb-6">Settings</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div class="md:col-span-1">
+                <div class="space-y-1">
+                  <button class="settings-tab w-full text-left px-4 py-2 rounded-lg bg-[#112240] text-[#64ffda]">Account</button>
+                  <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-[#112240]">Security</button>
+                  <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-[#112240]">Notifications</button>
+                  <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-[#112240]">Billing</button>
+                  <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-[#112240]">Appearance</button>
+                </div>
+              </div>
+              
+              <div class="md:col-span-2">
+                <div class="settings-content">
+                  <h3 class="font-medium mb-4">Account Information</h3>
+                  
+                  <div class="mb-6">
+                    <div class="flex items-center gap-4 mb-6">
+                      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#64ffda] to-[#5be8cc] flex items-center justify-center">
+                        <span class="text-[#0a192f] font-bold text-xl">JD</span>
+                      </div>
+                      <div>
+                        <button class="btn-secondary px-4 py-2 rounded-md text-sm">Change Avatar</button>
+                      </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label class="block text-sm mb-2">First Name</label>
+                        <input type="text" placeholder="John" class="w-full bg-[#112240] border border-[#233554] rounded-md px-4 py-2 focus:border-[#64ffda] focus:outline-none">
+                      </div>
+                      
+                      <div>
+                        <label class="block text-sm mb-2">Last Name</label>
+                        <input type="text" placeholder="Doe" class="w-full bg-[#112240] border border-[#233554] rounded-md px-4 py-2 focus:border-[#64ffda] focus:outline-none">
+                      </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                      <label class="block text-sm mb-2" >Email Address</label>
+                      <input type="email" placeholder="john.doe@example.com" class="w-full bg-[#112240] border border-[#233554] rounded-md px-4 py-2 focus:border-[#64ffda] focus:outline-none">
+                    </div>
+                  </div>
+                  
+                  <button class="btn-primary px-4 py-2 rounded-md">Save Changes</button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="border-t border-[#233554] pt-6">
+              
+              <div class="flex flex-col md:flex-row md:items-center gap-4">
+                <div class="flex-1">
+                  <p class="font-medium">Delete Account</p>
+                  <p class="text-sm text-[#8892b0]">Permanently delete your account and all associated data</p>
+                </div>
+                <button class="px-4 py-2 rounded-md border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors">Delete Account</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+    // Mobile sidebar toggle
+    document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+      document.querySelector('.sidebar').classList.toggle('open');
+    });
+
+    // Sidebar navigation
+    const sidebarItems = document.querySelectorAll('.sidebar-item');
+    const contentSections = document.querySelectorAll('.content-section');
+    const pageTitle = document.getElementById('page-title');
+
+    sidebarItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const target = this.getAttribute('data-target');
+        
+        // Update active sidebar item
+        sidebarItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Show corresponding content section
+        contentSections.forEach(section => {
+          section.classList.remove('active');
+          if (section.id === target) {
+            section.classList.add('active');
+            pageTitle.textContent = this.textContent.trim();
+          }
+        });
+        
+        // Close mobile sidebar after selection
+        if (window.innerWidth < 768) {
+          document.querySelector('.sidebar').classList.remove('open');
+        }
+      });
+    });
+
+    // Settings tabs (basic implementation)
+    const settingsTabs = document.querySelectorAll('.settings-tab');
+    settingsTabs.forEach((tab, index) => {
+      tab.addEventListener('click', function() {
+        settingsTabs.forEach(t => t.classList.remove('bg-[#112240]', 'text-[#64ffda]'));
+        this.classList.add('bg-[#112240]', 'text-[#64ffda]');
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+        const browseBtn = document.getElementById('browseBtn'); // FIXED: was querySelector('browseBtn')
+        const fileInfo = document.getElementById('file-info');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileType = document.getElementById('file-type');
+        const encryptionOptions = document.getElementById('encryption-options');
+        // FIXED: Use unique IDs for frontend/backend options and passwords
+        const frontendOption = document.getElementById('frontend-option');
+        // Backend option: fix duplicate ID in HTML, use unique ID
+        const backendOption = document.getElementById('backend-option');
+        // Backend password: fix duplicate ID in HTML, use unique ID
+        const frontendPassword = document.getElementById('frontend-password');
+        const backendPassword = document.getElementById('backend-password');
+        const progressBar = document.getElementById('progress-bar');
+        const uploadBtn = document.getElementById('upload-btn');
+        const statusMessage = document.getElementById('status-message');
+        
+        let selectedFile = null;
+        let selectedEncryptionType = null;
+
+        // Click on drop area to trigger file input
+        browseBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                selectedFile = this.files[0];
+                displayFileInfo(selectedFile);
+            }
+        });
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('dragover');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                selectedFile = files[0];
+                displayFileInfo(selectedFile);
+            }
+        }
+
+        // Display file information
+        function displayFileInfo(file) {
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileType.textContent = file.type || 'Unknown';
+
+            fileInfo.classList.remove('hidden');
+            encryptionOptions.style.display = 'block';
+            uploadBtn.style.display = 'block';
+            uploadBtn.disabled = true;
+
+            // Reset progress and status message
+            progressBar.style.width = '0%';
+            statusMessage.classList.add('hidden');
+
+            // Reset encryption selection
+            resetEncryptionSelection();
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Encryption option selection
+        frontendOption.addEventListener('click', function() {
+            selectEncryptionOption('frontend');
+        });
+
+        backendOption.addEventListener('click', function() {
+            selectEncryptionOption('backend');
+        });
+
+        function selectEncryptionOption(type) {
+            resetEncryptionSelection();
+            selectedEncryptionType = type;
+
+            if (type === 'frontend') {
+                frontendOption.classList.add('selected');
+                frontendPassword.focus();
+            } else {
+                backendOption.classList.add('selected');
+            }
+
+            // Enable upload button if frontend password is provided or backend is selected
+            if (type === 'backend' || (type === 'frontend' && frontendPassword.value.length >= 4)) {
+                uploadBtn.disabled = false;
+            }
+        }
+
+        function resetEncryptionSelection() {
+            frontendOption.classList.remove('selected');
+            backendOption.classList.remove('selected');
+            selectedEncryptionType = null;
+            uploadBtn.disabled = true;
+        }
+
+        // Check password when typing for frontend encryption
+        frontendPassword.addEventListener('input', function() {
+            if (selectedEncryptionType === 'frontend') {
+                if (this.value.length >= 4) {
+                    uploadBtn.disabled = false;
+                } else {
+                    uploadBtn.disabled = true;
+                }
+            }
+        });
+
+        // Upload button click
+        uploadBtn.addEventListener('click', function() {
+            if (!selectedFile || !selectedEncryptionType) return;
+
+            // Disable upload button during upload
+            uploadBtn.disabled = true;
+            statusMessage.classList.add('hidden');
+
+            // Show appropriate status message
+            if (selectedEncryptionType === 'frontend') {
+                statusMessage.textContent = 'Encrypting file in your browser...';
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.remove('error', 'success');
+                statusMessage.classList.add('info');
+            } else {
+                statusMessage.textContent = 'Sending file to server for encryption...';
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.remove('error', 'success');
+                statusMessage.classList.add('info');
+            }
+
+            // Simulate encryption and upload process
+            simulateEncryptionAndUpload();
+        });
+
+        // Simulate encryption and upload
+        function simulateEncryptionAndUpload() {
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    completeUpload();
+                } else {
+                    width += 2;
+                    progressBar.style.width = width + '%';
+
+                    // Update status message based on progress
+                    if (selectedEncryptionType === 'frontend') {
+                        if (width < 40) {
+                            statusMessage.textContent = 'Encrypting file in your browser...';
+                        } else if (width < 80) {
+                            statusMessage.textContent = 'Sending encrypted file to server...';
+                        } else {
+                            statusMessage.textContent = 'Finalizing upload...';
+                        }
+                    } else {
+                        if (width < 30) {
+                            statusMessage.textContent = 'Sending file to server...';
+                        } else if (width < 70) {
+                            statusMessage.textContent = 'Server is encrypting your file...';
+                        } else {
+                            statusMessage.textContent = 'Finalizing encryption...';
+                        }
+                    }
+                }
+            }, 100);
+        }
+
+        // Complete the upload process
+        function completeUpload() {
+            let message = '';
+
+            if (selectedEncryptionType === 'frontend') {
+                message = `File "${selectedFile.name}" encrypted in your browser and uploaded successfully!`;
+            } else {
+                message = `File "${selectedFile.name}" uploaded and encrypted on the server successfully!`;
+            }
+
+            statusMessage.textContent = message + ' (Simulated)';
+            statusMessage.classList.remove('hidden');
+            statusMessage.classList.remove('error', 'info');
+            statusMessage.classList.add('success');
+
+            // Reset after 5 seconds
+            setTimeout(() => {
+                fileInfo.classList.add('hidden');
+                encryptionOptions.style.display = 'none';
+                uploadBtn.style.display = 'none';
+                statusMessage.classList.add('hidden');
+                fileInput.value = '';
+                selectedFile = null;
+                resetEncryptionSelection();
+                frontendPassword.value = '';
+            }, 5000);
+        }
+
+        // Simple encryption simulation (for demonstration only)
+        function simulateEncryption(file, password) {
+            // In a real application, you would use a proper encryption library like CryptoJS
+            // This is just a simulation for demonstration purposes
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Simulate encryption by creating a simple "encrypted" version
+                    const encryptedFile = new File(
+                        [file], 
+                        `encrypted_${file.name}`, 
+                        { type: 'application/encrypted' }
+                    );
+                    resolve(encryptedFile);
+                }, 1000);
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
