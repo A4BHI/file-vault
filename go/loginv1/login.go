@@ -48,6 +48,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("check1")
 			fmt.Println(password)
 			fmt.Println(creds.Mailid)
+			fmt.Println(creds.Password)
 			fmt.Println(mailid)
 			err = bcrypt.CompareHashAndPassword([]byte(password), []byte(creds.Password))
 			if err == nil {
