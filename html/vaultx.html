@@ -1353,12 +1353,29 @@
         }
 
         // Complete the upload process
-        function completeUpload() {
+        async function completeUpload() {
             let message = '';
 
             if (selectedEncryptionType === 'frontend') {
                 message = `File "${selectedFile.name}" encrypted in your browser and uploaded successfully!`;
             } else {
+              const finput=document.getElementById('fileInput')
+              const file=finput.files[0]
+              const formdata= new FormData()
+              formdata.append('file',file)
+              try{
+                  let  res = await fetch("encrypt-file",{
+                method:"POST",
+                body:formdata
+              })
+
+              let data = await res.json()
+              console.log(data)
+              }catch(error){
+                console.log(error)
+              }
+           
+
                 message = `File "${selectedFile.name}" uploaded and encrypted on the server successfully!`;
             }
 
