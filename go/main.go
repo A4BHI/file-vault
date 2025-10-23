@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"time"
+	"vaultx/encryption"
 	auth "vaultx/loginv1"
 	"vaultx/registerv1"
 	"vaultx/session"
@@ -24,6 +25,7 @@ func main() {
 	http.HandleFunc("/verifyotp", verify.Verify)
 	http.HandleFunc("/resendotp", verify.ResendOtp)
 	http.HandleFunc("/checksession", session.Check)
+	http.HandleFunc("/encrypt-file", encryption.Backend_Encryption)
 	http.ListenAndServe(":8080", nil)
 
 }
