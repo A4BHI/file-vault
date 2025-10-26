@@ -26,6 +26,7 @@ func main() {
 	http.HandleFunc("/resendotp", verify.ResendOtp)
 	http.HandleFunc("/checksession", session.Check)
 	http.HandleFunc("/encrypt-file", encryption.Backend_Encryption)
+	http.HandleFunc("/jwt", auth.Setjwtkey)
 	http.ListenAndServe(":8080", nil)
 
 }
