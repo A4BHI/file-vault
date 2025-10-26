@@ -1,17 +1,22 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
-var key string = os.Getenv("JWT_KEY")
+type Claims struct {
+	username string
+	jwt.RegisteredClaims
+}
 
-func Setjwtkey(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, os.Getenv("JWT_KEY"))
-	fmt.Print(key)
-	fmt.Print("test")
-	fmt.Fprint(w, "test")
-
+func Setjwtkey(w http.ResponseWriter, r *http.Request, username string) {
+	var key string = os.Getenv("JWT_KEY")
+	expat := time.Now().UTC().Add(1 * time.Hour)
+	claims := Claims{}
+	claims.username = username
+	claims.ExpiresAt = expat
 }

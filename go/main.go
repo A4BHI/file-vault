@@ -8,9 +8,12 @@ import (
 	"vaultx/registerv1"
 	"vaultx/session"
 	"vaultx/verify"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load()
 
 	go func() {
 		for {
