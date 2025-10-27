@@ -10,7 +10,7 @@ import (
 )
 
 type Claims struct {
-	username string `json:"username"`
+	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
@@ -19,7 +19,7 @@ func Setjwtkey(w http.ResponseWriter, r *http.Request) {
 	key := []byte(keystring)
 	expat := time.Now().UTC().Add(1 * time.Hour)
 	claims := Claims{}
-	claims.username = "TEST"
+	claims.Username = "TEST"
 	claims.ExpiresAt = jwt.NewNumericDate(expat)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -28,5 +28,14 @@ func Setjwtkey(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Errror creating token in jwt.go", err)
 	}
 	fmt.Fprintf(w, tk)
+
+	t, err := jwt.ParseWithClaims(tk, &Claims{}, func(t *jwt.Token) (any, error) {
+		return key, nil
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+	c, _ := t.Claims.(*Claims)
+	fmt.Fprintf(w, c.Username)
 
 }
