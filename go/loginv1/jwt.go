@@ -10,7 +10,7 @@ import (
 )
 
 type Claims struct {
-	Username string `json:"username"`
+	Username string `json:"Username"`
 	jwt.RegisteredClaims
 }
 
@@ -34,6 +34,9 @@ func Setjwtkey(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		fmt.Println(err)
+	}
+	if !t.Valid {
+		fmt.Println("Invalid")
 	}
 	c, _ := t.Claims.(*Claims)
 	fmt.Fprintf(w, c.Username)
