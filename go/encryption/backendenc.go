@@ -9,6 +9,7 @@ import (
 )
 
 func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodPost {
 		fmt.Println("Requested method is not POST")
 		return
@@ -20,7 +21,7 @@ func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
 	}
 	filename := header.Filename
 
-	uploadpath := "/home/a4bhi/file-vault-test"
+	uploadpath := "/home/a4bhi/{}"
 
 	os.MkdirAll(uploadpath, os.ModePerm)
 
