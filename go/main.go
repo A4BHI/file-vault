@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"time"
 	"vaultx/encryption"
 	auth "vaultx/loginv1"
@@ -11,6 +12,9 @@ import (
 
 	"github.com/joho/godotenv"
 )
+
+var Keystring string = os.Getenv("JWT_KEY")
+var Key []byte = []byte(Keystring)
 
 func main() {
 	godotenv.Load()
