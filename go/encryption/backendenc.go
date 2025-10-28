@@ -48,3 +48,7 @@ func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func AesEnc() {
+
+}
