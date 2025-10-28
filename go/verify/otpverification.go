@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"vaultx/db"
 	"vaultx/errorcheck"
+	auth "vaultx/loginv1"
 	"vaultx/masterkeys"
 	"vaultx/otps"
 	"vaultx/registerv1"
@@ -102,6 +103,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 				m := masterkeys.GenerateKey(mailid, password.(string))
 				fmt.Println("MasterKey:", m)
 				masterkeys.DeletePassword(mailid)
+				auth.Setjwtkey(w, GetUserName(mailid)) //jwt ivide
 				res.Login = true
 				res.Verified = true
 				json.NewEncoder(w).Encode(res)

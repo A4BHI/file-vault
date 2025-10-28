@@ -17,11 +17,11 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func Setjwtkey(w http.ResponseWriter) {
+func Setjwtkey(w http.ResponseWriter, username string) {
 
 	expat := time.Now().UTC().Add(1 * time.Hour)
 	claims := Claims{}
-	claims.Username = "TEST"
+	claims.Username = username
 	claims.ExpiresAt = jwt.NewNumericDate(expat)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -38,6 +38,7 @@ func Setjwtkey(w http.ResponseWriter) {
 		Expires:  expat,
 		HttpOnly: true,
 		Path:     "/",
+		Secure:   true,
 	})
 
 }
