@@ -17,7 +17,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func Setjwtkey(w http.ResponseWriter, r *http.Request) {
+func Setjwtkey(w http.ResponseWriter) {
 
 	expat := time.Now().UTC().Add(1 * time.Hour)
 	claims := Claims{}
@@ -29,8 +29,16 @@ func Setjwtkey(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Errror creating token in jwt.go", err)
 	}
-	fmt.Fprintf(w, tk)
-	fmt.Println(VerifyJWT(tk))
+	// fmt.Fprintf(w, tk)
+	// fmt.Println(VerifyJWT(tk))
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    tk,
+		Expires:  expat,
+		HttpOnly: true,
+		Path:     "/",
+	})
 
 }
 

@@ -1,10 +1,12 @@
 package verify
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"vaultx/db"
 	"vaultx/errorcheck"
 	"vaultx/masterkeys"
 	"vaultx/otps"
@@ -39,6 +41,14 @@ func getSession(r *http.Request) string {
 	}
 
 	return b
+}
+
+func GetUserName(mailid string) string {
+	conn, err := db.Connect()
+	errorcheck.PrintError("Error connecting db in GetUserName() in otpverification.go", err)
+	var username string
+	conn.QueryRow(context.TODO(), "Select username from users where mailid=$1", mailid).Scan(&username)
+	return username
 }
 
 func Verify(w http.ResponseWriter, r *http.Request) {
