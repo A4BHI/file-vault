@@ -3,6 +3,7 @@ package encryption
 import (
 	"context"
 	"crypto/aes"
+	"crypto/cipher"
 	"crypto/rand"
 	"fmt"
 	"io"
@@ -34,9 +35,13 @@ func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
 	}
 	filename := header.Filename
 
-	uploadpath := "/home/a4bhi/rawfiles" + username
+	uploadpath := "/home/a4bhi/rawfiles/" + username
+
+	outputpath := "/home/a4bhi/encrypted_files/" + username
 
 	os.MkdirAll(uploadpath, os.ModePerm)
+
+	os.MkdirAll(outputpath, os.ModePerm)
 
 	dstpath := filepath.Join(uploadpath, filename)
 	dst, err := os.Create(dstpath)
@@ -44,17 +49,20 @@ func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error creating dstpath", err)
 	}
 
+	defer file.Close()
+	defer dst.Close()
+
 	_, err = io.Copy(dst, file)
 
 	if err != nil {
 		fmt.Println("Error copying file.", err)
 	}
 
-	AesEnc(dstpath, mailid)
+	AesEnc(dstpath, outputpath, mailid, filename)
 
 }
 
-func AesEnc(rawfilepath string, mailid string) {
+func AesEnc(rawfilepath string, outputpath string, mailid string, filename string) {
 	rawfile, err := os.ReadFile(rawfilepath)
 	errorcheck.PrintError("Error reading file in Aesaenc() in backendenc.go file", err)
 
@@ -64,6 +72,24 @@ func AesEnc(rawfilepath string, mailid string) {
 
 	block, err := aes.NewCipher(filekey)
 	errorcheck.PrintError("error block in aesenc() backendenc.go:", err)
+
+	gcm, err := cipher.NewGCM(block)
+	errorcheck.PrintError("Error creating cipherblock(gcm) in aesenc() backendenc.go", err)
+
+	iv := make([]byte, gcm.NonceSize())
+	_, err = rand.Read(iv)
+	errorcheck.PrintError("Error creating iv aesenc() backendenc.go", err)
+
+	ciphertext := gcm.Seal(nil, iv, rawfile, nil)
+
+	encfilepath := filepath.Join(outputpath, filename)
+
+	outputfile, err := os.Create(encfilepath)
+	errorcheck.PrintError("Error creating outputfile in aesenc() backendenc.go:", err)
+
+	defer outputfile.Close()
+
+	outputfile.Write(ciphertext)
 
 }
 
