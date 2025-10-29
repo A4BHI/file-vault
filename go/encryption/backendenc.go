@@ -2,6 +2,8 @@ package encryption
 
 import (
 	"context"
+	"crypto/aes"
+	"crypto/rand"
 	"fmt"
 	"io"
 	"net/http"
@@ -48,11 +50,20 @@ func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error copying file.", err)
 	}
 
+	AesEnc(dstpath, mailid)
+
 }
 
-func AesEnc(rawfilepath string) {
+func AesEnc(rawfilepath string, mailid string) {
 	rawfile, err := os.ReadFile(rawfilepath)
 	errorcheck.PrintError("Error reading file in Aesaenc() in backendenc.go file", err)
+
+	filekey := make([]byte, 32)
+	_, err = rand.Read(filekey)
+	errorcheck.PrintError("Error creating file key in aesenc() backendenc.go:", err)
+
+	block, err := aes.NewCipher(filekey)
+	errorcheck.PrintError("error block in aesenc() backendenc.go:", err)
 
 }
 
