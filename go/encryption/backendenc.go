@@ -91,6 +91,8 @@ func AesEnc(rawfilepath string, outputpath string, mailid string, filename strin
 
 	outputfile.Write(ciphertext)
 
+	os.Remove(rawfilepath)
+
 }
 
 func GetMailidFromUsername(username string) string {
