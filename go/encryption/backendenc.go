@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -24,6 +23,8 @@ func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
 	errorcheck.PrintError("Error getting cookie in Backend_Encryption.go", err)
 	tokenstring := cookie.Value
 	username := auth.VerifyJWT(tokenstring) //username from jwt
+	mailid := GetMailidFromUsername(username)
+
 	r.ParseMultipartForm(200 << 20)
 	file, header, err := r.FormFile("file")
 	if err != nil {
@@ -31,7 +32,7 @@ func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
 	}
 	filename := header.Filename
 
-	uploadpath := "/home/a4bhi/" + username
+	uploadpath := "/home/a4bhi/rawfiles" + username
 
 	os.MkdirAll(uploadpath, os.ModePerm)
 
@@ -47,14 +48,11 @@ func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error copying file.", err)
 	}
 
-	if err != nil {
-		fmt.Println("Error getting file in Backend_Encryption.go file")
-		return
-	}
-
 }
 
-func AesEnc(file multipart.File) {
+func AesEnc(rawfilepath string) {
+	rawfile, err := os.ReadFile(rawfilepath)
+	errorcheck.PrintError("Error reading file in Aesaenc() in backendenc.go file", err)
 
 }
 
