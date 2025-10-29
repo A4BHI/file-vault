@@ -36,3 +36,8 @@ func GenerateKey(mailid string, password string) (masterkey []byte) {
 	return masterkey
 
 }
+
+func LoadMasterKey(mailid string) (any, bool) {
+	return master.Load(mailid)
+
+}

@@ -13,6 +13,7 @@ import (
 	"vaultx/db"
 	"vaultx/errorcheck"
 	auth "vaultx/loginv1"
+	"vaultx/masterkeys"
 )
 
 func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
@@ -93,6 +94,8 @@ func AesEnc(rawfilepath string, outputpath string, mailid string, filename strin
 
 	os.Remove(rawfilepath)
 
+	Encrypt_Filekey(mailid)
+
 }
 
 func GetMailidFromUsername(username string) string {
@@ -101,4 +104,13 @@ func GetMailidFromUsername(username string) string {
 	var mailid string
 	conn.QueryRow(context.TODO(), "select mailid from users where username=$1", username).Scan(&mailid)
 	return mailid
+}
+
+func Encrypt_Filekey(mailid string) {
+	masterkey, ok := masterkeys.LoadMasterKey(mailid)
+	if !ok {
+		fmt.Println("Masterkey not found Encrypt_Filekey() backendenc.go")
+	}
+
+	fmt.Println("MasterKey : ", masterkey)
 }
