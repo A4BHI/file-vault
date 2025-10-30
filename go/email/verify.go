@@ -2,6 +2,7 @@ package email
 
 import (
 	"math/rand"
+	"os"
 	"strconv"
 	"vaultx/otps"
 
@@ -15,7 +16,7 @@ func Otp() string {
 
 func SendMail(email string, username string) error {
 
-	dm := mail.NewDialer("smtp.gmail.com", 587, "vaultx000@gmail.com", "rvcm inec dgxh eypu")
+	dm := mail.NewDialer("smtp.gmail.com", 587, "vaultx000@gmail.com", os.Getenv("EMAIL_PASS"))
 	otp := Otp()
 
 	otps.StoreOtp(email, otp)
