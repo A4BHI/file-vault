@@ -22,6 +22,7 @@ func Check(w http.ResponseWriter, r *http.Request) {
 		}
 
 		sessionid := cookie.Value
+		fmt.Println("Cookie: ", cookie.Value)
 		conn, err := db.Connect()
 		fmt.Println(sessionid)
 		if err != nil {

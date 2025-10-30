@@ -37,7 +37,17 @@ func GenerateKey(mailid string, password string) (masterkey []byte) {
 
 }
 
-func LoadMasterKey(mailid string) (any, bool) {
-	return master.Load(mailid)
+func LoadMasterKey(mailid string) []byte {
+	value, ok := master.Load(mailid)
+	if !ok {
+		fmt.Println("Error getting masterkey LoadMasterKey func")
+	}
+
+	masterkey, ok := value.([]byte)
+	if !ok {
+		fmt.Println("Cannot convert any to byte")
+	}
+
+	return masterkey
 
 }

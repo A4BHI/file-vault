@@ -94,7 +94,7 @@ func AesEnc(rawfilepath string, outputpath string, mailid string, filename strin
 
 	os.Remove(rawfilepath)
 
-	Encrypt_Filekey(mailid)
+	Encrypt_Filekey(mailid, filekey)
 
 }
 
@@ -106,11 +106,21 @@ func GetMailidFromUsername(username string) string {
 	return mailid
 }
 
-func Encrypt_Filekey(mailid string) {
-	masterkey, ok := masterkeys.LoadMasterKey(mailid)
-	if !ok {
-		fmt.Println("Masterkey not found Encrypt_Filekey() backendenc.go")
-	}
+func Encrypt_Filekey(mailid string, filekey []byte) {
+	masterkey := masterkeys.LoadMasterKey(mailid)
 
-	fmt.Println("MasterKey : ", masterkey)
+	block, err := aes.NewCipher(masterkey)
+	errorcheck.PrintError("Error creating block for encrypting fiekey", err)
+
+	gcm, err := cipher.NewGCM(block)
+
+	filekeyiv := make([]byte, 32)
+	rand.Read(filekeyiv)
+
+	encrypted_filekey := gcm.Seal(nil, filekeyiv, filekey, nil)
+	fmt.Println(encrypted_filekey)
+	// fmt.Println("MasterKey : ", masterkey)
+
 }
+
+func StoreToFilesTable
