@@ -127,6 +127,8 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 				} else {
 					masterkeys.DeletePassword(mailid)
 					res.Account_Created = false
+					conn, _ := db.Connect()
+					conn.Exec(context.TODO(), "Delete from sessions where sessionid=$1", sessionid)
 				}
 			}
 

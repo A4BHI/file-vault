@@ -1354,83 +1354,150 @@
 
         // Complete the upload process
         async function completeUpload() {
-            let message = '';
 
-            if (selectedEncryptionType === 'frontend') {
-              // Assuming your button and input IDs
+         let password = document.getElementById("frontend-password").value;
+  let message = '';
 
-  const fileInput = document.getElementById('fileInput');
-  const file = fileInput.files[0];
-  if (!file) {
-    alert('Please select a file to encrypt.');
-    return;
-  }
+  if (selectedEncryptionType === 'frontend') {
+    const fileInput = document.getElementById('fileInput');
+    if (!fileInput.files.length) {
+      alert('Please select a file first');
+      return;
+    }
 
-  try {
-    // Encrypt the file
-    const { encryptedBlob, exportedKey, ivBase64 } = await encryptFileForUpload(file);
+    const file = fileInput.files[0];
 
-    // Prepare data for backend (using FormData for file upload)
-    const formData = new FormData();
-    formData.append('encryptedFile', encryptedBlob, file.name); // Name it for backend
-    formData.append('key', exportedKey); // Send key
-    formData.append('iv', ivBase64);     // Send IV
+    // === 0. Get user salt from backend (already stored in DB for this user) ===
+    const saltRes = await fetch('/get-salt');
+    const saltB64 = await saltRes.text(); // backend returns base64 salt
+    const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
 
-    // Send to backend via fetch
-    const response = await fetch('/frontend-enc', { // Replace with your backend URL
-      method: 'POST',
-      body: formData
+    // === 1. Derive masterKey using PBKDF2(password + salt) ===
+    const enc = new TextEncoder();
+    const baseKey = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(password),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveKey']
+    );
+
+    const masterKey = await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: 200000,  // increase for stronger security
+        hash: 'SHA-256'
+      },
+      baseKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+
+    // === 2. Generate random AES-256 key (fileKey) like Go's rand.Read ===
+    const rawKey = crypto.getRandomValues(new Uint8Array(32));
+
+    // === 3. Encrypt the actual file ===
+    const fileIV = crypto.getRandomValues(new Uint8Array(12));
+    const fileBuffer = await file.arrayBuffer();
+
+    const fileKey = await crypto.subtle.importKey(
+      'raw',
+      rawKey,
+      { name: 'AES-GCM' },
+      false,
+      ['encrypt', 'decrypt']
+    );
+
+    const encryptedFileBuffer = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: fileIV },
+      fileKey,
+      fileBuffer
+    );
+
+    // === 4. Encrypt (wrap) the fileKey using the masterKey ===
+    const keyIV = crypto.getRandomValues(new Uint8Array(12));
+    const encryptedFileKey = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: keyIV },
+      masterKey,
+      rawKey
+    );
+
+    // === 5. Prepare data for upload ===
+    const encryptedBlob = new Blob([encryptedFileBuffer], { type: file.type });
+    const encryptedFile = new File([encryptedBlob], file.name, {
+      type: file.type,
+      lastModified: Date.now()
     });
 
-    if (response.ok) {
-      alert('File encrypted and uploaded successfully!');
-      // Optionally, clear inputs or update UI
-    } else {
-      throw new Error('Upload failed: ' + response.statusText);
+    const toBase64 = (arrBuf) =>
+      btoa(String.fromCharCode(...new Uint8Array(arrBuf)));
+
+    const formData = new FormData();
+    formData.append('file', encryptedFile, encryptedFile.name);
+    formData.append('file_iv', toBase64(fileIV));
+    formData.append('enc_file_key', toBase64(encryptedFileKey));
+    formData.append('key_iv', toBase64(keyIV));
+    formData.append('salt', saltB64); // send same salt for reference
+
+    try {
+      const res = await fetch('/frontend-encrypt', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      console.log('Server response:', data);
+    } catch (error) {
+      console.error('Upload failed:', error);
     }
-  } catch (error) {
-    alert('Error: ' + error.message);
+
+    console.log('Raw FileKey (base64):', toBase64(rawKey));
+    console.log('File IV (base64):', toBase64(fileIV));
+    console.log('Encrypted FileKey IV (base64):', toBase64(keyIV));
+
+    message = `File "${file.name}" encrypted in your browser and uploaded securely!`;
+  } 
+  
+  else {
+    // === Server-side encryption path ===
+    const finput = document.getElementById('fileInput');
+    const file = finput.files[0];
+    const formdata = new FormData();
+    formdata.append('file', file);
+
+    try {
+      const res = await fetch("encrypt-file", {
+        method: "POST",
+        body: formdata
+      });
+      const data = await res.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+
+    message = `File "${selectedFile.name}" uploaded and encrypted on the server successfully!`;
   }
 
-                message = `File "${selectedFile.name}" encrypted in your browser and uploaded successfully!`;
-            } else {
-              const finput=document.getElementById('fileInput')
-              const file=finput.files[0]
-              const formdata= new FormData()
-              formdata.append('file',file)
-              try{
-                  let  res = await fetch("encrypt-file",{
-                method:"POST",
-                body:formdata
-              })
+  // === Status message handling ===
+  statusMessage.textContent = message + ' (Simulated)';
+  statusMessage.classList.remove('hidden');
+  statusMessage.classList.remove('error', 'info');
+  statusMessage.classList.add('success');
 
-              let data = await res.json()
-              console.log(data)
-              }catch(error){
-                console.log(error)
-              }
-           
+  setTimeout(() => {
+    fileInfo.classList.add('hidden');
+    encryptionOptions.style.display = 'none';
+    uploadBtn.style.display = 'none';
+    statusMessage.classList.add('hidden');
+    fileInput.value = '';
+    selectedFile = null;
+    resetEncryptionSelection();
+    frontendPassword.value = '';
+  }, 5000);
+}
 
-                message = `File "${selectedFile.name}" uploaded and encrypted on the server successfully!`;
-            }
-
-            statusMessage.textContent = message + ' (Simulated)';
-            statusMessage.classList.remove('hidden');
-            statusMessage.classList.remove('error', 'info');
-            statusMessage.classList.add('success');
-
-            // Reset after 5 seconds
-            setTimeout(() => {
-                fileInfo.classList.add('hidden');
-                encryptionOptions.style.display = 'none';
-                uploadBtn.style.display = 'none';
-                statusMessage.classList.add('hidden');
-                fileInput.value = '';
-                selectedFile = null;
-                resetEncryptionSelection();
-                frontendPassword.value = '';
-            }, 5000);
-        }
 
         // Simple encryption simulation (for demonstration only)
         function simulateEncryption(file, password) {
@@ -1450,129 +1517,6 @@
         }
     });
 
-
-    const FILENAME_DELIMITER = new Uint8Array([0, 0, 0, 0]);
-
-  // Helpers: safe ArrayBuffer <-> Base64 conversions (chunked)
-  function arrayBufferToBase64(buffer) {
-    const bytes = new Uint8Array(buffer);
-    const chunkSize = 0x8000; // 32KB per chunk
-    let binary = '';
-    for (let i = 0; i < bytes.length; i += chunkSize) {
-      const chunk = bytes.subarray(i, i + chunkSize);
-      binary += String.fromCharCode.apply(null, chunk);
-    }
-    return btoa(binary);
-  }
-
-  function base64ToArrayBuffer(base64) {
-    const binary = atob(base64);
-    const len = binary.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes.buffer;
-  }
-
-  // Export/import AES key for persistence
-  async function exportKeyToBase64(key) {
-    const raw = await crypto.subtle.exportKey('raw', key);
-    return arrayBufferToBase64(raw);
-  }
-
-  async function importKeyFromBase64(b64) {
-    const raw = base64ToArrayBuffer(b64);
-    return crypto.subtle.importKey(
-      'raw',
-      raw,
-      { name: 'AES-GCM' },
-      true,
-      ['encrypt', 'decrypt']
-    );
-  }
-
-  // Simple file download helper
-  // function downloadBlob(blob, filename) {
-  //   const url = URL.createObjectURL(blob);
-  //   const a = document.createElement('a');
-  //   a.href = url;
-  //   a.download = filename;
-  //   document.body.appendChild(a);
-  //   a.click();
-  //   a.remove();
-  //   URL.revokeObjectURL(url);
-  // }
-
- 
-
-  // Main encryption/decryption state (you can store key/iv externally too)
-  let lastExportedKeyBase64 = null;
-  let lastIvBase64 = null;
-
-  async function generateRandomKey() {
-    return crypto.subtle.generateKey(
-      { name: 'AES-GCM', length: 256 },
-      true,
-      ['encrypt', 'decrypt']
-    );
-  }
-
-
-
-
-
-
-
-     async function encryptFile(file) {
-    const key = await generateRandomKey();
-    const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV recommended for GCM
-
-    const fileBytes = await file.arrayBuffer();
-
-    // Encrypt the file content
-    const encrypted = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv: iv },
-      key,
-      fileBytes
-    );
-
-    // Prepend original filename as metadata (UTF-8 bytes + delimiter)
-    const encoder = new TextEncoder();
-    const filenameBytes = encoder.encode(file.name);
-    const combined = new Uint8Array(filenameBytes.length + FILENAME_DELIMITER.length + encrypted.byteLength);
-    combined.set(filenameBytes, 0);
-    combined.set(FILENAME_DELIMITER, filenameBytes.length);
-    combined.set(new Uint8Array(encrypted), filenameBytes.length + FILENAME_DELIMITER.length);
-
-    // Convert to Base64 safely (chunked)
-    const encryptedBase64 = arrayBufferToBase64(combined.buffer);
-    const ivBase64 = arrayBufferToBase64(iv.buffer);
-    const exportedKey = await exportKeyToBase64(key);
-
-    // Save state (so UI can pre-fill)
-    lastExportedKeyBase64 = exportedKey;
-    lastIvBase64 = ivBase64;
-
-    // Download the combined bytes as a .enc file (binary)
-    const blob = new Blob([combined], { type: 'application/octet-stream' });
-    downloadBlob(blob, file.name + '.enc');
-
-    // Display key/iv for user to copy/save
-    setStatus(
-`Encrypted file downloaded as: ${file.name}.enc
-
-IMPORTANT: Save these values to decrypt later!
-
-Base64 AES key:
-${exportedKey}
-
-Base64 IV:
-${ivBase64}
-
-(You can paste them into the key/iv fields to decrypt the file.)`
-    );
-  }
 
  
 </script>
