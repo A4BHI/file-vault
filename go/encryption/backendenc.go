@@ -120,7 +120,7 @@ func Encrypt_Filekey(mailid string, filekey []byte, fileiv []byte) (string, stri
 	gcm, err := cipher.NewGCM(block)
 	errorcheck.PrintError("Error getting gcm in Encrypt_Filekey() in backendenc.go : ", err)
 
-	filekeyiv := make([]byte, 32)
+	filekeyiv := make([]byte, gcm.NonceSize())
 	rand.Read(filekeyiv)
 
 	encrypted_filekey := gcm.Seal(nil, filekeyiv, filekey, nil)
