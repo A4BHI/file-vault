@@ -106,6 +106,8 @@ func AesEnc(rawfilepath string, outputpath string, mailid string, filename strin
 func GetMailidFromUsername(username string) string {
 	conn, err := db.Connect()
 	errorcheck.PrintError("Error connecting to db in backendenc.go file ", err)
+	defer conn.Close(context.TODO())
+
 	var mailid string
 	conn.QueryRow(context.TODO(), "select mailid from users where username=$1", username).Scan(&mailid)
 	return mailid
@@ -139,6 +141,8 @@ func StoreToFilesTable(file_iv string, enc_filekey_hex string, enc_filekey_iv st
 
 	conn, err := db.Connect()
 	errorcheck.PrintError("Error connecting to db in backendenc.go Storetofilestable(): ", err)
+	defer conn.Close(context.TODO())
+
 	Uploaded_At := time.Now().UTC()
 	var ownerID int
 	conn.QueryRow(context.TODO(), "Select userid from users where username=$1", username).Scan(&ownerID)

@@ -38,7 +38,7 @@ func Setjwtkey(w http.ResponseWriter, username string) {
 		Expires:  expat,
 		HttpOnly: true,
 		Path:     "/",
-		Secure:   true,
+		Secure:   false,
 	})
 
 }

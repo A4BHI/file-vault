@@ -19,6 +19,7 @@ func Check(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("sessionid")
 		if err != nil {
 			fmt.Println("error from sessioncheck cant read cookie:", err)
+			return
 		}
 
 		sessionid := cookie.Value

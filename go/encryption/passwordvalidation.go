@@ -30,6 +30,8 @@ func ValidatePass(w http.ResponseWriter, r *http.Request) {
 	var hashedpass []byte
 	conn, err := db.Connect()
 	errorcheck.PrintError("Error connecting to db in ValidatePass() passwordvalidation.go", err)
+	defer conn.Close(context.TODO())
+
 	conn.QueryRow(context.TODO(), "select hashed_passed from users where username=$1", username).Scan(&hashedpass)
 
 	err = bcrypt.CompareHashAndPassword(hashedpass, []byte(password))
