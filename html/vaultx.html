@@ -1356,9 +1356,27 @@
         async function completeUpload() {
 
          let password = document.getElementById("frontend-password").value;
+         let reply 
   let message = '';
+  let formdata=new FormData()
+  formdata.append("password",password)
+  try{
+      let response=await fetch("/Validatepass",{
+       method:"POST",
+       body:formdata
 
-  if (selectedEncryptionType === 'frontend') {
+      })
+
+      let data =await  response.text()
+      reply=data
+      console.log(data)
+  }catch(error){
+    console.log(error)
+  }
+
+  if(reply=="Pass"){
+
+      if (selectedEncryptionType === 'frontend') {
     const fileInput = document.getElementById('fileInput');
     if (!fileInput.files.length) {
       alert('Please select a file first');
@@ -1490,8 +1508,14 @@
     message = `File "${selectedFile.name}" uploaded and encrypted on the server successfully!`;
   }
 
+  
+
+  }else{
+    message="Incorrect Password"
+
+  }
   // === Status message handling ===
-  statusMessage.textContent = message + ' (Simulated)';
+  statusMessage.textContent = message;
   statusMessage.classList.remove('hidden');
   statusMessage.classList.remove('error', 'info');
   statusMessage.classList.add('success');
@@ -1506,6 +1530,8 @@
     resetEncryptionSelection();
     frontendPassword.value = '';
   }, 5000);
+
+  
 }
 
 
