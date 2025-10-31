@@ -30,6 +30,7 @@ func main() {
 	http.HandleFunc("/checksession", session.Check)
 	http.HandleFunc("/encrypt-file", encryption.Backend_Encryption)
 	http.HandleFunc("/frontend-encrypt", encryption.Frontend_Enc)
+	http.HandleFunc("/get-salt", encryption.GetSalt)
 	// http.HandleFunc("/jwt", auth.Setjwtkey)
 	http.ListenAndServe(":8080", nil)
 
