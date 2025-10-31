@@ -54,7 +54,7 @@ func Frontend_Enc(w http.ResponseWriter, r *http.Request) {
 
 	masterkey := masterkeys.LoadMasterKey(mailid)
 
-	// filepath := "/home/a4bhi/rawfiles/" + username + "/" + filename
+	filepath := "/home/a4bhi/rawfiles/" + username + "/" + filename
 
 	block, err := aes.NewCipher(masterkey)
 	if err != nil {
@@ -66,12 +66,36 @@ func Frontend_Enc(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error creating gcm:", err)
 	}
 
-	fiekey, err := gcm.Open(nil, key_iv, enc_file_key, nil)
+	filekey, err := gcm.Open(nil, key_iv, enc_file_key, nil)
 	if err != nil {
 		fmt.Println("Error decrypting filekey: ", err)
 	}
+	//####################################################################
+	block2, err := aes.NewCipher(filekey)
+	if err != nil {
+		fmt.Println("Error creating block:", err)
+	}
 
-	fmt.Println("Decrypted FILE KEY : ", fiekey)
+	gcm2, err := cipher.NewGCM(block2)
+	if err != nil {
+		fmt.Println("Error creating gcm:", err)
+	}
+
+	decfile, err := os.Open(filepath)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+	}
+
+	cipherText, err := io.ReadAll(decfile)
+
+	finalfile, err := gcm2.Open(nil, iv, cipherText, nil)
+	if err != nil {
+		fmt.Println("Error decrypting file:", err)
+	}
+
+	os.WriteFile(filepath, finalfile, 0644)
+
+	fmt.Println("Decrypted FILE KEY : ", filekey)
 
 	fmt.Println("IV FROM FRONTEND: ", iv)
 	fmt.Println("ENC FILE KEY: ", enc_file_key)
