@@ -1366,12 +1366,22 @@
     }
 
     const file = fileInput.files[0];
-
+    let saltB64;
+    let salt;
     // === 0. Get user salt from backend (already stored in DB for this user) ===
-    const saltRes = await fetch('/get-salt');
-    const saltB64 = await saltRes.text(); // backend returns base64 salt
-    const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+    try{ const saltRes = await fetch('/get-salt',{
+      method:"GET"
+    })
+       saltB64 = await saltRes.text();
+      console.log("Salt from the backend",saltB64)
+  }catch(error){
 
+    console.log(error)
+    }
+   
+   // backend returns base64 salt
+    salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+    console.log(salt)
     // === 1. Derive masterKey using PBKDF2(password + salt) ===
     const enc = new TextEncoder();
     const baseKey = await crypto.subtle.importKey(
@@ -1386,7 +1396,7 @@
       {
         name: 'PBKDF2',
         salt: salt,
-        iterations: 200000,  // increase for stronger security
+        iterations: 10000,  // increase for stronger security
         hash: 'SHA-256'
       },
       baseKey,
