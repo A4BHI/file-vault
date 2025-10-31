@@ -2,9 +2,8 @@ package encryption
 
 import (
 	"context"
-	"crypto/aes"
-	"crypto/cipher"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,7 +13,6 @@ import (
 
 	"vaultx/errorcheck"
 	auth "vaultx/loginv1"
-	"vaultx/masterkeys"
 )
 
 func Frontend_Enc(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +30,7 @@ func Frontend_Enc(w http.ResponseWriter, r *http.Request) {
 	}
 	filename := header.Filename
 	username := auth.VerifyJWT(tokenstring)
-	uploadpath := "/home/a4bhi/rawfiles/" + username
+	uploadpath := "/home/a4bhi/encrypted_files/" + username
 	os.MkdirAll(uploadpath, os.ModePerm)
 	dstpath := filepath.Join(uploadpath, filename)
 	dst, err := os.Create(dstpath)
@@ -46,61 +44,76 @@ func Frontend_Enc(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println(base64.StdEncoding.DecodeString(r.FormValue("file_iv")))
 	iv, err := base64.StdEncoding.DecodeString(r.FormValue("file_iv"))
+	errorcheck.PrintError("Error Decoding From BASE64 to BYTES in frontendenc.go {iv}", err)
+
 	enc_file_key, err := base64.StdEncoding.DecodeString(r.FormValue("enc_file_key"))
+	errorcheck.PrintError("Error Decoding From BASE64 to BYTES in frontendenc.go {enc_file_key}", err)
+
 	key_iv, err := base64.StdEncoding.DecodeString(r.FormValue("key_iv"))
+	errorcheck.PrintError("Error Decoding From BASE64 to BYTES in frontendenc.go {key_iv}", err)
+
 	salt, err := base64.StdEncoding.DecodeString(r.FormValue("salt"))
+	errorcheck.PrintError("Error Decoding From BASE64 to BYTES in frontendenc.go {salt}", err)
 
-	mailid := GetMailidFromUsername(username)
+	fmt.Println("Salt from Frontend: ", salt)
 
-	masterkey := masterkeys.LoadMasterKey(mailid)
+	iv_hex := hex.EncodeToString(iv)
+	enc_file_key_hex := hex.EncodeToString(enc_file_key)
+	enc_file_key_iv_hex := hex.EncodeToString(key_iv)
 
-	filepath := "/home/a4bhi/rawfiles/" + username + "/" + filename
+	StoreToFilesTable(iv_hex, enc_file_key_hex, enc_file_key_iv_hex, filename, dstpath, username)
 
-	block, err := aes.NewCipher(masterkey)
-	if err != nil {
-		fmt.Println("Error creating block:", err)
-	}
+	// mailid := GetMailidFromUsername(username)
 
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		fmt.Println("Error creating gcm:", err)
-	}
+	// masterkey := masterkeys.LoadMasterKey(mailid)
 
-	filekey, err := gcm.Open(nil, key_iv, enc_file_key, nil)
-	if err != nil {
-		fmt.Println("Error decrypting filekey: ", err)
-	}
-	//####################################################################
-	block2, err := aes.NewCipher(filekey)
-	if err != nil {
-		fmt.Println("Error creating block:", err)
-	}
+	// filepath := "/home/a4bhi/rawfiles/" + username + "/" + filename
 
-	gcm2, err := cipher.NewGCM(block2)
-	if err != nil {
-		fmt.Println("Error creating gcm:", err)
-	}
+	// block, err := aes.NewCipher(masterkey)
+	// if err != nil {
+	// 	fmt.Println("Error creating block:", err)
+	// }
 
-	decfile, err := os.Open(filepath)
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-	}
+	// gcm, err := cipher.NewGCM(block)
+	// if err != nil {
+	// 	fmt.Println("Error creating gcm:", err)
+	// }
 
-	cipherText, err := io.ReadAll(decfile)
+	// filekey, err := gcm.Open(nil, key_iv, enc_file_key, nil)
+	// if err != nil {
+	// 	fmt.Println("Error decrypting filekey: ", err)
+	// }
+	// //####################################################################
+	// block2, err := aes.NewCipher(filekey)
+	// if err != nil {
+	// 	fmt.Println("Error creating block:", err)
+	// }
 
-	finalfile, err := gcm2.Open(nil, iv, cipherText, nil)
-	if err != nil {
-		fmt.Println("Error decrypting file:", err)
-	}
+	// gcm2, err := cipher.NewGCM(block2)
+	// if err != nil {
+	// 	fmt.Println("Error creating gcm:", err)
+	// }
 
-	os.WriteFile(filepath, finalfile, 0644)
+	// decfile, err := os.Open(filepath)
+	// if err != nil {
+	// 	fmt.Println("Error opening file:", err)
+	// }
 
-	fmt.Println("Decrypted FILE KEY : ", filekey)
+	// cipherText, err := io.ReadAll(decfile)
 
-	fmt.Println("IV FROM FRONTEND: ", iv)
-	fmt.Println("ENC FILE KEY: ", enc_file_key)
-	fmt.Println("KEY IV", key_iv)
-	fmt.Println("SALT FROM FRONTEND", salt)
+	// finalfile, err := gcm2.Open(nil, iv, cipherText, nil)
+	// if err != nil {
+	// 	fmt.Println("Error decrypting file:", err)
+	// }
+
+	// os.WriteFile(filepath, finalfile, 0644)
+
+	// fmt.Println("Decrypted FILE KEY : ", filekey)
+
+	// fmt.Println("IV FROM FRONTEND: ", iv)
+	// fmt.Println("ENC FILE KEY: ", enc_file_key)
+	// fmt.Println("KEY IV", key_iv)
+	// fmt.Println("SALT FROM FRONTEND", salt)
 
 }
 
