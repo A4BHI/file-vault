@@ -19,6 +19,7 @@ func ValidatePass(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/plain")
 
 	password := r.FormValue("password")
+	fmt.Println(password)
 
 	cookie, err := r.Cookie("token")
 	errorcheck.PrintError("Error Getting Cookie in ValidatePass() passwordvalidation.go", err)

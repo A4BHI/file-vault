@@ -19,8 +19,8 @@ import (
 )
 
 type FileDetails struct {
-	FileID   int    `json:"FileID"`
-	FileName string `json:"FileName"`
+	FileID         int    `json:"FileID"`
+	DecryptionType string `json:"Mode"`
 }
 
 func Backend_Decryption(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +31,8 @@ func Backend_Decryption(w http.ResponseWriter, r *http.Request) {
 	fd := FileDetails{}
 	// body , _ := io.ReadAll(r.Body)
 	json.NewDecoder(r.Body).Decode(&fd)
+	fmt.Println("File Id  : ", fd.FileID)
+	fmt.Println("File Path", fd.DecryptionType)
 	cookie, err := r.Cookie("token")
 	errorcheck.PrintError("Error getting jwt cookie in Backend_Decryption() backenddec.go: ", err)
 	tokenstring := cookie.Value
@@ -40,40 +42,50 @@ func Backend_Decryption(w http.ResponseWriter, r *http.Request) {
 
 	masterkey := masterkeys.LoadMasterKey(mailid)
 
-	ciphertext, err, file_iv, enc_file_key, enc_file_key_iv := GetFileFromDB(fd.FileID, fd.FileName, username)
+	ciphertext, err, file_iv, enc_file_key, enc_file_key_iv, FileName := GetFileFromDB(fd.FileID, username)
 	if err != nil {
 		fmt.Println("Error from GetFileFromDb() backenddec.go", err)
 		return
 	}
 
+	if fd.DecryptionType == "backend" {
+		block, err := aes.NewCipher(masterkey)
+		if err != nil {
+			fmt.Println("Error creating block backend decryption:", err)
+			return
+		}
+
+		gcm, err := cipher.NewGCM(block)
+		if err != nil {
+			fmt.Println("Error creating gcm backend decryption:", err)
+			return
+		}
+
+		filekey, err := gcm.Open(nil, enc_file_key_iv, enc_file_key, nil)
+		if err != nil {
+			fmt.Println("Error decrypting filekey backend decryption: ", err)
+			return
+		}
+
+		//##########################################
+		AesDec(ciphertext, filekey, file_iv, w, FileName)
+	} else {
+		fmt.Println("Different Mode ")
+	}
+
 	//#####FILE KEY DECRRYPTION############
-	block, err := aes.NewCipher(masterkey)
-	if err != nil {
-		fmt.Println("Error creating block backend decryption:", err)
-	}
-
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		fmt.Println("Error creating gcm backend decryption:", err)
-	}
-
-	filekey, err := gcm.Open(nil, enc_file_key_iv, enc_file_key, nil)
-	if err != nil {
-		fmt.Println("Error decrypting filekey backend decryption: ", err)
-	}
-
-	//##########################################
-	AesDec(ciphertext, filekey, file_iv, w, fd.FileName)
 
 }
 
-func GetFileFromDB(Fileid int, FileName string, Username string) (ciphertext []byte, err error, fileiv []byte, encfilekey []byte, encfilekey_iv []byte) {
+func GetFileFromDB(Fileid int, Username string) (ciphertext []byte, err error, fileiv []byte, encfilekey []byte, encfilekey_iv []byte, FileName string) {
 	conn, err := db.Connect()
 	errorcheck.PrintError("Error connecting to db in FetFileFromDB() backenddec.go: ", err)
 	defer conn.Close(context.TODO())
 	var filepath string
 	var file_iv, enc_file_key, enc_file_key_iv string
-	conn.QueryRow(context.TODO(), "select filepath,file_iv,enc_file_key,enc_file_key_iv from files where file_id=$1 and filename=$2 and username=$3", Fileid, FileName, Username).Scan(&filepath, &file_iv, &enc_file_key, &enc_file_key_iv)
+	conn.QueryRow(context.TODO(), "select filepath,file_iv,enc_file_key,enc_file_key_iv,filename from files where file_id=$1  and username=$2", Fileid, Username).Scan(&filepath, &file_iv, &enc_file_key, &enc_file_key_iv, &FileName)
+	fmt.Println(filepath)
+	fmt.Println(Fileid)
 	file, err := os.Open(filepath)
 	errorcheck.PrintError("Error Opening file in GetFileFromDB() backenddec.go: ", err)
 	ciphertext, err = io.ReadAll(file)
@@ -82,14 +94,14 @@ func GetFileFromDB(Fileid int, FileName string, Username string) (ciphertext []b
 	encfilekey, err = hex.DecodeString(enc_file_key)
 	encfilekey_iv, err = hex.DecodeString(enc_file_key_iv)
 
-	return ciphertext, err, fileiv, encfilekey, encfilekey_iv
+	return ciphertext, err, fileiv, encfilekey, encfilekey_iv, FileName
 
 }
 
 func AesDec(ciphertext []byte, filekey []byte, fileiv []byte, w http.ResponseWriter, filename string) {
 	block, err := aes.NewCipher(filekey)
 	if err != nil {
-		fmt.Println("Error creating block:", err)
+		fmt.Println("Error creating block AESDEC:", err)
 		return
 	}
 

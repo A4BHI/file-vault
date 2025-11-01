@@ -461,10 +461,8 @@
             margin-top: 5px;
         }
         
-        /* ...existing styles... */
 .file-info {
     text-align: left;
-    /* Replace old background and border with Vaultx theme */
     background: linear-gradient(135deg, #112240, #1a2f5a);
     border-radius: 8px;
     padding: 20px;
@@ -473,19 +471,58 @@
     border: 1px solid #233554;
     color: #ccd6f6;
 }
-/* ...existing styles... */
+
 .file-info h3 {
     color: #64ffda;
     margin-bottom: 15px;
     padding-bottom: 10px;
     border-bottom: 1px solid #233554;
 }
-/* ...existing styles... */
+
 .file-details p {
     margin: 8px 0;
     color: #8892b0;
 }
-/* ...existing styles... */
+
+.badge-processing {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid #ffc107;
+}
+
+.sortable {
+    user-select: none;
+}
+
+.sortable:hover {
+    background: rgba(100, 255, 218, 0.05);
+}
+
+.file-item {
+    transition: all 0.3s ease;
+}
+
+.file-action {
+    transition: all 0.2s ease;
+}
+
+.file-action:hover {
+    transform: scale(1.1);
+}
+
+
+#filesLoading, #filesEmpty {
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #64ffda, #5be8cc);
+    color: #0a192f;
+}
   </style>
 </head>
 <body>
@@ -533,21 +570,6 @@
             </svg>
             My Files
           </a>
-          
-          <a data-target="share" class="sidebar-item flex items-center gap-3 p-3 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-            Share
-          </a>
-          
-          <a data-target="settings" class="sidebar-item flex items-center gap-3 p-3 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Settings
-          </a>
         </nav>
       </div>
       
@@ -592,16 +614,12 @@
       <div class="flex-1 overflow-y-auto p-6">
         <!-- Dashboard Section -->
         <div id="dashboard" class="content-section active">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols- gap-6 mb-6">
             <div class="card p-6 rounded-xl">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="font-medium">Storage Usage</h3>
-                <span class="text-xs bg-[#64ffda] text-[#0a192f] px-2 py-1 rounded-full">2.5/5 GB</span>
+                <h3 class="font-medium">Storage Used</h3>
               </div>
-              <div class="progress-bar h-2 rounded-full mb-2">
-                <div class="progress-fill h-full rounded-full" style="width: 50%"></div>
-              </div>
-              <p class="text-sm text-[#8892b0]">50% of storage used</p>
+              <span class="text-2xs bg-[#64ffda] text-[#0a192f] px-3 py-2 rounded-full">5 GB</span>
             </div>
             
             <div class="card p-6 rounded-xl">
@@ -612,103 +630,32 @@
                 </svg>
               </div>
               <p class="text-3xl font-bold">127</p>
-              <p class="text-sm text-[#8892b0]">+12 this week</p>
             </div>
             
-            <div class="card p-6 rounded-xl">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="font-medium">Shared Files</h3>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                </svg>
-              </div>
-              <p class="text-3xl font-bold">42</p>
-              <p class="text-sm text-[#8892b0]">+3 this week</p>
-            </div>
           </div>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div class="card p-6 rounded-xl">
-              <h3 class="font-medium mb-4">Recent Files</h3>
-              <div class="space-y-4">
-                <div class="file-item p-3 rounded-lg flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-[#112240] rounded-lg flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="font-medium">Annual Report.pdf</p>
-                      <p class="text-xs text-[#8892b0]">12 MB • 2 days ago</p>
-                    </div>
-                  </div>
-                  <span class="badge badge-active">Active</span>
-                </div>
-                
-                <div class="file-item p-3 rounded-lg flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-[#112240] rounded-lg flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="font-medium">Project Presentation.pptx</p>
-                      <p class="text-xs text-[#8892b0]">8.5 MB • 5 days ago</p>
-                    </div>
-                  </div>
-                  <span class="badge badge-active">Active</span>
-                </div>
-                
-                <div class="file-item p-3 rounded-lg flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-[#112240] rounded-lg flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="font-medium">Budget.xlsx</p>
-                      <p class="text-xs text-[#8892b0]">3.2 MB • 1 week ago</p>
-                    </div>
-                  </div>
-                  <span class="badge badge-expired">Expired</span>
-                </div>
-              </div>
-            </div>
+          <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
+            
             
             <div class="card p-6 rounded-xl">
               <h3 class="font-medium mb-4">Quick Actions</h3>
-                <button class="btn-secondary w-full px-4 py-3 rounded-lg flex flex-col items-center justify-center gap-2">
+                <button class="btn-secondary w-full px-4 py-3 rounded-lg flex flex-col items-center justify-center gap-2" onclick="showUploadSection()">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                   </svg>
                   <span>Upload</span>
                 </button><br>
                 
-                <button class="btn-secondary w-full px-4 py-3 rounded-lg flex flex-col items-center justify-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                  </svg>
-                  <span>Share</span>
-                </button>
+
               
-            </div>
-          </div>
-          
-          <div class="card p-6 rounded-xl">
-            <h3 class="font-medium mb-4">Storage Overview</h3>
-            <div class="chart-container h-64 rounded-lg flex items-center justify-center">
-              <p class="text-[#8892b0]">Storage visualization chart would appear here</p>
             </div>
           </div>
         </div>
         
         <!-- Upload Files Section -->
         <div id="upload" class="content-section">
-          <div class="card p-6 rounded-xl mb-6">
-            <h2 class="font-bold text-xl mb-6">Upload Files</h2>
+          <div class="card p-11 rounded-2xl mb-11">
+            <h2 class="font-bold text-xl mb-6">Secure File Upload</h2>
             
             <div class="upload-area p-8 rounded-lg text-center mb-6" id="dropArea">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-[#64ffda] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -743,7 +690,7 @@
             </div>
         </div>
     </div>
-    <div class="option-card" id="backend-option"><!-- FIXED: was id="frontend-option" -->
+    <div class="option-card" id="backend-option">
         <div class="option-header">
             <div class="option-icon backend-icon">
                 <i class="fas fa-lock"></i>
@@ -771,338 +718,99 @@
             <div class="status-message hidden" id="status-message"></div>
             </div>
           
-            <div class="mb-6">
-              <h3 class="font-medium mb-4">Upload Settings</h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">                
-                <div>
-                  <label class="block text-sm mb-2">Auto-expire After</label>
-                  <select class="w-full bg-[#112240] border border-[#233554] rounded-md px-4 py-2 focus:border-[#64ffda] focus:outline-none">
-                    <option>Never</option>
-                    <option>1 day</option>
-                    <option>7 days</option>
-                    <option>30 days</option>
-                    <option>Custom date</option>
-                  </select>
-                </div>
-              </div>
-            </div>
             
-            <div>
-              <h3 class="font-medium mb-4">Recent Uploads</h3>
-              <div class="space-y-3">
-                <div class="flex items-center justify-between p-3 bg-[#112240] rounded-lg">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-[#0a192f] rounded-lg flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="font-medium">Document.pdf</p>
-                      <p class="text-xs text-[#8892b0]">12 MB • Uploading...</p>
-                    </div>
-                  </div>
-                  <div class="w-24 bg-[#0a192f] rounded-full h-2">
-                    <div class="progress-fill h-2 rounded-full" style="width: 65%"></div>
-                  </div>
-                </div>
-                
-                <div class="flex items-center justify-between p-3 bg-[#112240] rounded-lg">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-[#0a192f] rounded-lg flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="font-medium">Image.png</p>
-                      <p class="text-xs text-[#8892b0]">4.2 MB • Complete</p>
-                    </div>
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+          
           </div>
         </div>
-        
+        <!--My Files Section-->
         <!-- My Files Section -->
-        <div id="files" class="content-section">
-          <div class="card p-6 rounded-xl mb-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-              <h2 class="font-bold text-xl mb-4 md:mb-0">My Files</h2>
-              
-              <div class="flex gap-3">
-                <div class="relative">
-                  <input type="text" placeholder="Search files..." class="bg-[#112240] border border-[#233554] rounded-md px-4 py-2 pl-10 focus:border-[#64ffda] focus:outline-none w-full md:w-64">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-[#8892b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                
-                <button class="btn-secondary px-4 py-2 rounded-md flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                  </svg>
-                  Filter
-                </button>
-              </div>
-            </div>
-            
-            <div class="mb-6">
-              <div class="flex gap-2 overflow-x-auto pb-2">
-                <button class="btn-primary px-4 py-2 rounded-md whitespace-nowrap">All Files</button>
-                <button class="btn-secondary px-4 py-2 rounded-md whitespace-nowrap">Documents</button>
-                <button class="btn-secondary px-4 py-2 rounded-md whitespace-nowrap">Images</button>
-                <button class="btn-secondary px-4 py-2 rounded-md whitespace-nowrap">Videos</button>
-                <button class="btn-secondary px-4 py-2 rounded-md whitespace-nowrap">Audio</button>
-                <button class="btn-secondary px-4 py-2 rounded-md whitespace-nowrap">Archives</button>
-              </div>
-            </div>
-            
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead>
-                  <tr class="border-b border-[#233554]">
-                    <th class="text-left py-3 px-4">Name</th>
-                    <th class="text-left py-3 px-4">Size</th>
-                    <th class="text-left py-3 px-4">Type</th>
-                    <th class="text-left py-3 px-4">Modified</th>
-                    <th class="text-left py-3 px-4">Status</th>
-                    <th class="text-left py-3 px-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="border-b border-[#233554] hover:bg-[#112240]">
-                    <td class="py-3 px-4 flex items-center gap-3">
-                      <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                      </div>
-                      Annual Report.pdf
-                    </td>
-                    <td class="py-3 px-4">12 MB</td>
-                    <td class="py-3 px-4">PDF</td>
-                    <td class="py-3 px-4">2 days ago</td>
-                    <td class="py-3 px-4"><span class="badge badge-active">Active</span></td>
-                    <td class="py-3 px-4">
-                      <div class="flex gap-2">
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 15.5v-11a2 2 0 012-2h16a2 2 0 012 2v11a2 2 0 01-2 2h-16a2 2 0 01-2-2z" />
-                          </svg>
-                        </button>
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                        </button>
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  
-                  <tr class="border-b border-[#233554] hover:bg-[#112240]">
-                    <td class="py-3 px-4 flex items-center gap-3">
-                      <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                      </div>
-                      Project Presentation.pptx
-                    </td>
-                    <td class="py-3 px-4">8.5 MB</td>
-                    <td class="py-3 px-4">PowerPoint</td>
-                    <td class="py-3 px-4">5 days ago</td>
-                    <td class="py-3 px-4"><span class="badge badge-active">Active</span></td>
-                    <td class="py-3 px-4">
-                      <div class="flex gap-2">
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 15.5v-11a2 2 0 012-2h16a2 2 0 012 2v11a2 2 0 01-2 2h-16a2 2 0 01-2-2z" />
-                          </svg>
-                        </button>
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                        </button>
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  
-                  <tr class="border-b border-[#233554] hover:bg-[#112240]">
-                    <td class="py-3 px-4 flex items-center gap-3">
-                      <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                      </div>
-                      Budget.xlsx
-                    </td>
-                    <td class="py-3 px-4">3.2 MB</td>
-                    <td class="py-3 px-4">Excel</td>
-                    <td class="py-3 px-4">1 week ago</td>
-                    <td class="py-3 px-4"><span class="badge badge-expired">Expired</span></td>
-                    <td class="py-3 px-4">
-                      <div class="flex gap-2">
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 15.5v-11a2 2 0 012-2h16a2 2 0 012 2v11a2 2 0 01-2 2h-16a2 2 0 01-2-2z" />
-                          </svg>
-                        </button>
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                        </button>
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  
-                  <tr class="hover:bg-[#112240]">
-                    <td class="py-3 px-4 flex items-center gap-3">
-                      <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                      </div>
-                      Vacation Photos.zip
-                    </td>
-                    <td class="py-3 px-4">156 MB</td>
-                    <td class="py-3 px-4">ZIP Archive</td>
-                    <td class="py-3 px-4">2 weeks ago</td>
-                    <td class="py-3 px-4"><span class="badge badge-active">Active</span></td>
-                    <td class="py-3 px-4">
-                      <div class="flex gap-2">
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 15.5v-11a2 2 0 012-2h16a2 2 0 012 2v11a2 2 0 01-2 2h-16a2 2 0 01-2-2z" />
-                          </svg>
-                        </button>
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                        </button>
-                        <button class="text-[#64ffda] hover:text-[#5be8cc]">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="flex justify-between items-center mt-6">
-              <p class="text-sm text-[#8892b0]">Showing 4 of 127 files</p>
-              <div class="flex gap-2">
-                <button class="btn-secondary px-3 py-1 rounded-md">Previous</button>
-                <button class="btn-primary px-3 py-1 rounded-md">Next</button>
-              </div>
-            </div>
-          </div>
+<div id="files" class="content-section ">
+  <div class="card p-6 rounded-xl mb-6 h-[600px]" id="test">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+      <h2 class="font-bold text-xl mb-4 md:mb-0">My Files</h2>
+      
+      <div class="flex gap-3">
+        <div class="relative">
+          <input type="text" id="fileSearch" placeholder="Search files..." class="bg-[#112240] border border-[#233554] rounded-md px-4 py-2 pl-10 focus:border-[#64ffda] focus:outline-none w-full md:w-64">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-[#8892b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
         </div>
         
-        <!-- Share Section -->
-        <div id="share" class="content-section">
-          <div class="card p-6 rounded-xl mb-6">
-            <h2 class="font-bold text-xl mb-6">Share Files</h2>
-          </div>
-        </div>
-        
-        <!-- Settings Section -->
-        <div id="settings" class="content-section">
-          <div class="card p-6 rounded-xl mb-6">
-            <h2 class="font-bold text-xl mb-6">Settings</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div class="md:col-span-1">
-                <div class="space-y-1">
-                  <button class="settings-tab w-full text-left px-4 py-2 rounded-lg bg-[#112240] text-[#64ffda]">Account</button>
-                  <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-[#112240]">Security</button>
-                  <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-[#112240]">Notifications</button>
-                  <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-[#112240]">Billing</button>
-                  <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-[#112240]">Appearance</button>
-                </div>
-              </div>
-              
-              <div class="md:col-span-2">
-                <div class="settings-content">
-                  <h3 class="font-medium mb-4">Account Information</h3>
-                  
-                  <div class="mb-6">
-                    <div class="flex items-center gap-4 mb-6">
-                      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#64ffda] to-[#5be8cc] flex items-center justify-center">
-                        <span class="text-[#0a192f] font-bold text-xl">JD</span>
-                      </div>
-                      <div>
-                        <button class="btn-secondary px-4 py-2 rounded-md text-sm">Change Avatar</button>
-                      </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label class="block text-sm mb-2">First Name</label>
-                        <input type="text" placeholder="John" class="w-full bg-[#112240] border border-[#233554] rounded-md px-4 py-2 focus:border-[#64ffda] focus:outline-none">
-                      </div>
-                      
-                      <div>
-                        <label class="block text-sm mb-2">Last Name</label>
-                        <input type="text" placeholder="Doe" class="w-full bg-[#112240] border border-[#233554] rounded-md px-4 py-2 focus:border-[#64ffda] focus:outline-none">
-                      </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                      <label class="block text-sm mb-2" >Email Address</label>
-                      <input type="email" placeholder="john.doe@example.com" class="w-full bg-[#112240] border border-[#233554] rounded-md px-4 py-2 focus:border-[#64ffda] focus:outline-none">
-                    </div>
-                  </div>
-                  
-                  <button class="btn-primary px-4 py-2 rounded-md">Save Changes</button>
-                </div>
-              </div>
-            </div>
-            
-            <div class="border-t border-[#233554] pt-6">
-              
-              <div class="flex flex-col md:flex-row md:items-center gap-4">
-                <div class="flex-1">
-                  <p class="font-medium">Delete Account</p>
-                  <p class="text-sm text-[#8892b0]">Permanently delete your account and all associated data</p>
-                </div>
-                <button class="px-4 py-2 rounded-md border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors">Delete Account</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <button class="btn-secondary px-4 py-2 rounded-md flex items-center gap-2" id="filterBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          Filter
+        </button>
       </div>
     </div>
+    
+    <div class="mb-6">
+      <div class="flex gap-2 overflow-x-auto pb-2" id="fileFilters">
+      
+      </div>
+    </div>
+    
+   
+    <!-- Files Table -->
+    <!-- Files Table -->
+<div class="overflow-x-auto" id="filesTable" style="max-height: 400px; overflow-y: auto;" id="filesTable">
+  <table class="w-full">
+    <thead>
+      <tr class="border-b border-[#233554]">
+        <th class="text-left py-3 px-4 cursor-pointer sortable" data-sort="name">
+          Name <span class="sort-icon">↕</span>
+        </th>
+        <th class="text-left py-3 px-4 cursor-pointer sortable" data-sort="size">
+          Size <span class="sort-icon">↕</span>
+        </th>
+        <th class="text-left py-3 px-4 cursor-pointer sortable" data-sort="type">
+          Type <span class="sort-icon">↕</span>
+        </th>
+        <th class="text-left py-3 px-4">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="filesList">
+      <!-- Dynamic files will be inserted here -->
+    </tbody>
+  </table>
+</div>
+    
+    <!-- Pagination -->
+    <div class="flex justify-between items-center mt-6 hidden" id="filesPagination">
+      <p class="text-sm text-[#8892b0]" id="filesCount">Showing 0 of 0 files</p>
+    
+    </div>
   </div>
+</div>
+
+      
+    
+  <div id="decryptModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-[#112240] text-white rounded-xl p-6 w-[90%] max-w-sm shadow-xl">
+    <h2 class="text-lg font-bold mb-4 text-center">Decrypt and Download your File</h2>
+
+    <label class="block mb-2 text-sm">Select Encryption Mode:</label>
+    <select id="encryptionMode" class="w-full mb-4 bg-[#0a192f] border border-[#64ffda] rounded-md p-2">
+      <option value="frontend">Frontend Encryption</option>
+      <option value="backend">Backend Encryption</option>
+    </select>
+
+    <label class="block mb-2 text-sm">Enter your password:</label>
+    <input type="password" id="decryptPassword" placeholder="Enter your password"
+      class="w-full mb-4 bg-[#0a192f] border border-[#64ffda] rounded-md p-2 placeholder-gray-400 text-white">
+
+    <div class="flex justify-end gap-3">
+      <button id="cancelDecrypt" class="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-700">Cancel</button>
+      <button id="confirmDecrypt" class="px-4 py-2 rounded-md bg-[#64ffda] text-[#0a192f] font-bold hover:bg-[#52e6c4]">
+        Decrypt & Download
+      </button>
+    </div>
+  </div>
+</div>
+
+
 
 <script>
     // Mobile sidebar toggle
@@ -1151,17 +859,14 @@
     document.addEventListener('DOMContentLoaded', function() {
         const dropArea = document.getElementById('dropArea');
         const fileInput = document.getElementById('fileInput');
-        const browseBtn = document.getElementById('browseBtn'); // FIXED: was querySelector('browseBtn')
+        const browseBtn = document.getElementById('browseBtn');
         const fileInfo = document.getElementById('file-info');
         const fileName = document.getElementById('file-name');
         const fileSize = document.getElementById('file-size');
         const fileType = document.getElementById('file-type');
         const encryptionOptions = document.getElementById('encryption-options');
-        // FIXED: Use unique IDs for frontend/backend options and passwords
         const frontendOption = document.getElementById('frontend-option');
-        // Backend option: fix duplicate ID in HTML, use unique ID
         const backendOption = document.getElementById('backend-option');
-        // Backend password: fix duplicate ID in HTML, use unique ID
         const frontendPassword = document.getElementById('frontend-password');
         const backendPassword = document.getElementById('backend-password');
         const progressBar = document.getElementById('progress-bar');
@@ -1354,207 +1059,758 @@
 
         // Complete the upload process
         async function completeUpload() {
+         let password 
 
-         let password = document.getElementById("frontend-password").value;
+          let currentpassword=document.getElementById("frontend-password").value;
+          if(currentpassword==""){
+            password=document.getElementById("backend-password").value;
+          }else{
+            password=currentpassword
+          }
          let reply 
-  let message = '';
-  let formdata=new FormData()
-  formdata.append("password",password)
-  try{
-      let response=await fetch("/Validatepass",{
-       method:"POST",
-       body:formdata
+         let message = '';
+         let formdata=new FormData()
+         formdata.append("password",password)
+         try{
+             let response=await fetch("/Validatepass",{
+              method:"POST",
+              body:formdata
+             })
 
-      })
+             let data =await  response.text()
+             reply=data
+             console.log(data)
+         }catch(error){
+           console.log(error)
+         }
 
-      let data =await  response.text()
-      reply=data
-      console.log(data)
-  }catch(error){
-    console.log(error)
-  }
+         if(reply=="Pass"){
+             if (selectedEncryptionType === 'frontend') {
+               const fileInput = document.getElementById('fileInput');
+               if (!fileInput.files.length) {
+                 alert('Please select a file first');
+                 return;
+               }
 
-  if(reply=="Pass"){
+               const file = fileInput.files[0];
+               let saltB64;
+               let salt;
+               try{ 
+                 const saltRes = await fetch('/get-salt',{
+                   method:"GET"
+                 })
+                 saltB64 = await saltRes.text();
+                 console.log("Salt from the backend",saltB64)
+               }catch(error){
+                 console.log(error)
+               }
+              
+               salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+               console.log(salt)
+               
+               const enc = new TextEncoder();
+               const baseKey = await crypto.subtle.importKey(
+                 'raw',
+                 enc.encode(password),
+                 { name: 'PBKDF2' },
+                 false,
+                 ['deriveKey']
+               );
 
-      if (selectedEncryptionType === 'frontend') {
-    const fileInput = document.getElementById('fileInput');
-    if (!fileInput.files.length) {
-      alert('Please select a file first');
-      return;
-    }
+               const masterKey = await crypto.subtle.deriveKey(
+                 {
+                   name: 'PBKDF2',
+                   salt: salt,
+                   iterations: 10000,
+                   hash: 'SHA-256'
+                 },
+                 baseKey,
+                 { name: 'AES-GCM', length: 256 },
+                 false,
+                 ['encrypt', 'decrypt']
+               );
 
-    const file = fileInput.files[0];
-    let saltB64;
-    let salt;
-    // === 0. Get user salt from backend (already stored in DB for this user) ===
-    try{ const saltRes = await fetch('/get-salt',{
-      method:"GET"
-    })
-       saltB64 = await saltRes.text();
-      console.log("Salt from the backend",saltB64)
-  }catch(error){
+               const rawKey = crypto.getRandomValues(new Uint8Array(32));
+               const fileIV = crypto.getRandomValues(new Uint8Array(12));
+               const fileBuffer = await file.arrayBuffer();
 
-    console.log(error)
-    }
-   
-   // backend returns base64 salt
-    salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
-    console.log(salt)
-    // === 1. Derive masterKey using PBKDF2(password + salt) ===
-    const enc = new TextEncoder();
-    const baseKey = await crypto.subtle.importKey(
-      'raw',
-      enc.encode(password),
-      { name: 'PBKDF2' },
-      false,
-      ['deriveKey']
-    );
+               const fileKey = await crypto.subtle.importKey(
+                 'raw',
+                 rawKey,
+                 { name: 'AES-GCM' },
+                 false,
+                 ['encrypt', 'decrypt']
+               );
 
-    const masterKey = await crypto.subtle.deriveKey(
-      {
-        name: 'PBKDF2',
-        salt: salt,
-        iterations: 10000,  // increase for stronger security
-        hash: 'SHA-256'
-      },
-      baseKey,
-      { name: 'AES-GCM', length: 256 },
-      false,
-      ['encrypt', 'decrypt']
-    );
+               const encryptedFileBuffer = await crypto.subtle.encrypt(
+                 { name: 'AES-GCM', iv: fileIV },
+                 fileKey,
+                 fileBuffer
+               );
 
-    // === 2. Generate random AES-256 key (fileKey) like Go's rand.Read ===
-    const rawKey = crypto.getRandomValues(new Uint8Array(32));
+               const keyIV = crypto.getRandomValues(new Uint8Array(12));
+               const encryptedFileKey = await crypto.subtle.encrypt(
+                 { name: 'AES-GCM', iv: keyIV },
+                 masterKey,
+                 rawKey
+               );
 
-    // === 3. Encrypt the actual file ===
-    const fileIV = crypto.getRandomValues(new Uint8Array(12));
-    const fileBuffer = await file.arrayBuffer();
+               const encryptedBlob = new Blob([encryptedFileBuffer], { type: file.type });
+               const encryptedFile = new File([encryptedBlob], file.name, {
+                 type: file.type,
+                 lastModified: Date.now()
+               });
 
-    const fileKey = await crypto.subtle.importKey(
-      'raw',
-      rawKey,
-      { name: 'AES-GCM' },
-      false,
-      ['encrypt', 'decrypt']
-    );
+               const toBase64 = (arrBuf) =>
+                 btoa(String.fromCharCode(...new Uint8Array(arrBuf)));
 
-    const encryptedFileBuffer = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv: fileIV },
-      fileKey,
-      fileBuffer
-    );
+               const formData = new FormData();
+               formData.append('file', encryptedFile, encryptedFile.name);
+               formData.append('file_iv', toBase64(fileIV));
+               formData.append('enc_file_key', toBase64(encryptedFileKey));
+               formData.append('key_iv', toBase64(keyIV));
+               formData.append('salt', saltB64);
 
-    // === 4. Encrypt (wrap) the fileKey using the masterKey ===
-    const keyIV = crypto.getRandomValues(new Uint8Array(12));
-    const encryptedFileKey = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv: keyIV },
-      masterKey,
-      rawKey
-    );
+               try {
+                 const res = await fetch('/frontend-encrypt', {
+                   method: 'POST',
+                   body: formData
+                 });
+                 const data = await res.json();
+                 console.log('Server response:', data);
+               } catch (error) {
+                 console.error('Upload failed:', error);
+               }
 
-    // === 5. Prepare data for upload ===
-    const encryptedBlob = new Blob([encryptedFileBuffer], { type: file.type });
-    const encryptedFile = new File([encryptedBlob], file.name, {
-      type: file.type,
-      lastModified: Date.now()
+               console.log('Raw FileKey (base64):', toBase64(rawKey));
+               console.log('File IV (base64):', toBase64(fileIV));
+               console.log('Encrypted FileKey IV (base64):', toBase64(keyIV));
+
+               message = `File "${file.name}" encrypted in your browser and uploaded securely!`;
+             } 
+             else {
+               const finput = document.getElementById('fileInput');
+               const file = finput.files[0];
+               const formdata = new FormData();
+               formdata.append('file', file);
+
+               try {
+                 const res = await fetch("encrypt-file", {
+                   method: "POST",
+                   body: formdata
+                 });
+                 const data = await res.json();
+                 console.log(data);
+               } catch (error) {
+                 console.log(error);
+               }
+
+               message = `File "${selectedFile.name}" uploaded and encrypted on the server successfully!`;
+             }
+         }else{
+           message="Incorrect Password"
+         }
+         
+         statusMessage.textContent = message;
+         statusMessage.classList.remove('hidden');
+         statusMessage.classList.remove('error', 'info');
+         statusMessage.classList.add('success');
+
+         setTimeout(() => {
+           fileInfo.classList.add('hidden');
+           encryptionOptions.style.display = 'none';
+           uploadBtn.style.display = 'none';
+           statusMessage.classList.add('hidden');
+           fileInput.value = '';
+           selectedFile = null;
+           resetEncryptionSelection();
+           frontendPassword.value = '';
+           
+           // Reload files after upload
+           FileManager.loadFiles();
+         }, 5000);
+       }
     });
 
-    const toBase64 = (arrBuf) =>
-      btoa(String.fromCharCode(...new Uint8Array(arrBuf)));
+    let downloadf
+    let selectedFile
+ // File Management System
+const FileManager = {
+    currentFiles: [],
+    currentFilter: 'all',
+    currentSort: 'modified',
+    sortDirection: 'desc',
+    currentPage: 1,
+    filesPerPage: 10,
 
-    const formData = new FormData();
-    formData.append('file', encryptedFile, encryptedFile.name);
-    formData.append('file_iv', toBase64(fileIV));
-    formData.append('enc_file_key', toBase64(encryptedFileKey));
-    formData.append('key_iv', toBase64(keyIV));
-    formData.append('salt', saltB64); // send same salt for reference
+    // Initialize file manager
+    init() {
+        this.loadFiles();
+        this.setupEventListeners();
+    },
 
-    try {
-      const res = await fetch('/frontend-encrypt', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      console.log('Server response:', data);
-    } catch (error) {
-      console.error('Upload failed:', error);
-    }
+    // Setup event listeners
+    setupEventListeners() {
+      
 
-    console.log('Raw FileKey (base64):', toBase64(rawKey));
-    console.log('File IV (base64):', toBase64(fileIV));
-    console.log('Encrypted FileKey IV (base64):', toBase64(keyIV));
+        // Pagination
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+                this.displayFiles();
+            }
+        });
 
-    message = `File "${file.name}" encrypted in your browser and uploaded securely!`;
-  } 
-  
-  else {
-    // === Server-side encryption path ===
-    const finput = document.getElementById('fileInput');
-    const file = finput.files[0];
-    const formdata = new FormData();
-    formdata.append('file', file);
+        document.getElementById('nextPage').addEventListener('click', () => {
+            const totalPages = Math.ceil(this.getFilteredFiles().length / this.filesPerPage);
+            if (this.currentPage < totalPages) {
+                this.currentPage++;
+                this.displayFiles();
+            }
+        });
+    },
 
-    try {
-      const res = await fetch("encrypt-file", {
-        method: "POST",
-        body: formdata
-      });
-      const data = await res.json();
-      console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
+    // Load files from backend
+    async loadFiles() {
+        try {
+            // Show loading state
+            
+            
+            // Fetch files from backend API
+            const response = await fetch('/get-files', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch files');
+            }
+            
+            const backendFiles = await response.json();
+            console.log('Files from backend:', backendFiles);
+            
+            // Transform backend data to match frontend format
+            this.currentFiles = backendFiles.map(file => ({
+                id: file.FileID.toString(),
+                name: file.FileName,
+                size: file.FileSize,
+                type: this.detectFileType(file.FileName),
+                modified: new Date().toISOString(),
+                status: 'active',
+                encryption: 'AES-256 Encrypted'
+            }));
+            
+            // Save to localStorage as cache
+            localStorage.setItem('userFiles', JSON.stringify(this.currentFiles));
+            
+            this.displayFiles();
+            this.updateDashboardStats();
+            
+        } catch (error) {
+            console.error('Error loading files:', error);
+            // Try to load from localStorage as fallback
+            const cachedFiles = localStorage.getItem('userFiles');
+            if (cachedFiles) {
+                this.currentFiles = JSON.parse(cachedFiles);
+                this.displayFiles();
+                this.updateDashboardStats();
+            } else {
+                this.currentFiles = [];
+                this.showEmptyState();
+            }
+        }
+    },
 
-    message = `File "${selectedFile.name}" uploaded and encrypted on the server successfully!`;
+    // Display files in the table
+    displayFiles() {
+        const filesList = document.getElementById('filesList');
+        const filteredFiles = this.getFilteredFiles();
+        
+        console.log('Total files:', this.currentFiles.length);
+        // console.log('Filtered files:', filteredFiles.length);
+        
+        // Calculate pagination
+        const startIndex = (this.currentPage - 1) * this.filesPerPage;
+        const endIndex = startIndex + this.filesPerPage;
+        const paginatedFiles = filteredFiles.slice(startIndex, endIndex);
+        
+        console.log('Paginated files:', paginatedFiles.length);
+        
+        // Check if we have any files at all
+       
+        
+        // Force display with a tiny delay to ensure DOM updates
+        setTimeout(() => {
+            document.getElementById('filesTable').classList.remove('hidden');
+            document.getElementById('filesPagination').classList.remove('hidden');
+            
+            // Generate file rows
+            filesList.innerHTML = paginatedFiles.map(file => this.generateFileRow(file)).join('');
+            
+            // Update pagination controls
+            // this.updatePagination(filteredFiles.length);
+            
+            // Update file count
+            document.getElementById('filesCount').textContent = 
+                `Showing ${startIndex + 1}-${Math.min(endIndex, filteredFiles.length)} of ${filteredFiles.length} files`;
+                
+            console.log('Table display updated');
+        }, 10);
+    },
+
+    // Generate HTML for a file row
+    generateFileRow(file) {
+        const fileIcon = this.getFileIcon(file.type);
+        const statusBadge = this.getStatusBadge(file.status);
+        const formattedSize = this.formatFileSize(file.size);
+        const formattedDate = this.formatDate(file.modified);
+        
+        return `
+            <tr class="border-b border-[#233554] hover:bg-[#112240] file-item" data-file-id="${file.id}">
+                <td class="py-3 px-4 flex items-center gap-3">
+                    <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
+                        ${fileIcon}
+                    </div>
+                    <div>
+                        <p class="font-medium">${file.name}</p>
+                        <p class="text-xs text-[#8892b0]">${file.encryption || 'AES-256 Encrypted'}</p>
+                    </div>
+                </td>
+                <td class="py-3 px-4">${formattedSize}</td>
+                <td class="py-3 px-4">${this.getFileType(file.type)}</td>
+              
+                <td class="py-3 px-4">
+                    <div class="flex gap-2">
+                       
+                        <button class="text-[#64ffda] hover:text-[#5be8cc] file-action" data-action="download" data-file-id="${file.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                        </button>
+                       
+                        <button class="text-[#ff6b6b] hover:text-[#ff5252] file-action" data-action="delete" data-file-id="${file.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    },
+
+    // Get file icon based on type
+    getFileIcon(fileType) {
+        const icons = {
+            'pdf': '📄',
+            'document': '📝',
+            'image': '🖼️',
+            'video': '🎬',
+            'audio': '🎵',
+            'archive': '📦',
+            'spreadsheet': '📊',
+            'presentation': '📊'
+        };
+        
+        return icons[fileType] || '📄';
+    },
+
+    // Get status badge HTML
+    getStatusBadge(status) {
+        const badges = {
+            'active': '<span class="badge badge-active">Active</span>',
+            'expired': '<span class="badge badge-expired">Expired</span>',
+            'processing': '<span class="badge badge-processing">Processing</span>'
+        };
+        
+        return badges[status] || '<span class="badge badge-active">Active</span>';
+    },
+
+    // Format file size
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    },
+
+    // Format date
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) return 'Yesterday';
+        if (diffDays < 7) return `${diffDays} days ago`;
+        if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+        
+        return date.toLocaleDateString();
+    },
+
+    // Get file type display name
+    getFileType(fileType) {
+        const types = {
+            'pdf': 'PDF',
+            'document': 'Document',
+            'image': 'Image',
+            'video': 'Video',
+            'audio': 'Audio',
+            'archive': 'Archive',
+            'spreadsheet': 'Spreadsheet',
+            'presentation': 'Presentation'
+        };
+        
+        return types[fileType] || 'File';
+    },
+
+    // Filter files based on search and category
+    filterFiles(searchTerm = '') {
+        this.applyFilters(searchTerm);
+    },
+
+    // Apply all filters
+    applyFilters(searchTerm = '') {
+        this.currentPage = 1;
+        this.displayFiles();
+    },
+
+    // Get filtered files
+    getFilteredFiles() {
+        let filtered = [...this.currentFiles];
+        
+        // Apply category filter
+        if (this.currentFilter !== 'all') {
+            filtered = filtered.filter(file => file.type === this.currentFilter);
+        }
+        
+     
+        // Apply sorting
+        return this.sortFilesArray(filtered);
+    },
+
+    // Sort files array
+    sortFilesArray(files) {
+        return files.sort((a, b) => {
+            let aValue = a[this.currentSort];
+            let bValue = b[this.currentSort];
+            
+            if (this.currentSort === 'size') {
+                aValue = parseInt(aValue);
+                bValue = parseInt(bValue);
+            } else if (this.currentSort === 'modified') {
+                aValue = new Date(aValue);
+                bValue = new Date(bValue);
+            } else if (this.currentSort === 'name') {
+                aValue = aValue.toLowerCase();
+                bValue = bValue.toLowerCase();
+            }
+            
+            if (this.sortDirection === 'asc') {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
+        });
+    },
+
+    // Sort files
+    sortFiles() {
+        this.displayFiles();
+    },
+
+    // Update sort icons
+    updateSortIcons() {
+        document.querySelectorAll('.sortable').forEach(header => {
+            const icon = header.querySelector('.sort-icon');
+            if (header.dataset.sort === this.currentSort) {
+                icon.textContent = this.sortDirection === 'asc' ? '↑' : '↓';
+            } else {
+                icon.textContent = '↕';
+            }
+        });
+    },
+
+    // Update pagination
+    updatePagination(totalFiles) {
+        const totalPages = Math.ceil(totalFiles / this.filesPerPage);
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        
+        prevBtn.disabled = this.currentPage === 1;
+        nextBtn.disabled = this.currentPage === totalPages || totalPages === 0;
+    },
+
+   
+
+    // Update dashboard statistics
+updateDashboardStats() {
+  const totalFiles = this.currentFiles.length;
+  const totalSize = this.currentFiles.reduce((sum, file) => sum + file.size, 0);
+
+  // Update total files count
+  const filesCountElement = document.querySelector('.card p.text-3xl');
+  if (filesCountElement) {
+    filesCountElement.textContent = totalFiles;
   }
 
-  
-
-  }else{
-    message="Incorrect Password"
-
+  // Update storage usage bar
+  const storageElement = document.querySelector('.progress-fill');
+  let storageUsed;
+  if (storageElement) {
+    storageUsed = (totalSize / (5 * 1024 * 1024 * 1024)) * 100;
+    storageElement.style.width = `${Math.min(storageUsed, 100)}%`;
   }
-  // === Status message handling ===
-  statusMessage.textContent = message;
-  statusMessage.classList.remove('hidden');
-  statusMessage.classList.remove('error', 'info');
-  statusMessage.classList.add('success');
 
-  setTimeout(() => {
-    fileInfo.classList.add('hidden');
-    encryptionOptions.style.display = 'none';
-    uploadBtn.style.display = 'none';
-    statusMessage.classList.add('hidden');
-    fileInput.value = '';
-    selectedFile = null;
-    resetEncryptionSelection();
-    frontendPassword.value = '';
-  }, 5000);
+  // Update storage text (was fixed at "5 GB")
+  const storageTextElement = document.querySelector('.card span.text-2xs');
+  if (storageTextElement) {
+    const usedGB = totalSize / (1024 * 1024 * 1024);
+    storageTextElement.textContent = `${usedGB.toFixed(2)} GB / 5 GB`;
+  }
+
+  console.log("Total size (bytes):", totalSize);
+  console.log("Storage used (%):", storageUsed);
+}
+,
+
+    // Detect file type from filename
+    detectFileType(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const typeMap = {
+            'pdf': 'pdf',
+            'doc': 'document', 'docx': 'document',
+            'txt': 'document', 'rtf': 'document',
+            'jpg': 'image', 'jpeg': 'image', 'png': 'image',
+            'gif': 'image', 'bmp': 'image', 'svg': 'image',
+            'mp4': 'video', 'avi': 'video', 'mov': 'video',
+            'wmv': 'video', 'flv': 'video',
+            'mp3': 'audio', 'wav': 'audio', 'ogg': 'audio',
+            'flac': 'audio',
+            'zip': 'archive', 'rar': 'archive', '7z': 'archive',
+            'tar': 'archive',
+            'xls': 'spreadsheet', 'xlsx': 'spreadsheet', 'csv': 'spreadsheet',
+            'ppt': 'presentation', 'pptx': 'presentation'
+        };
+        
+        return typeMap[ext] || 'document';
+    },
+
+    // Save files to localStorage
+    saveFiles() {
+        localStorage.setItem('userFiles', JSON.stringify(this.currentFiles));
+    },
+
+    // Handle file actions
+    handleFileAction(fileId, action) {
+        const file = this.currentFiles.find(f => f.id === fileId);
+        if (!file) return;
+
+        switch (action) {
+            case 'view':
+                this.viewFile(file);
+                break;
+            case 'download':
+                this.downloadFile(file);
+                break;
+            case 'share':
+                this.shareFile(file);
+                break;
+            case 'delete':
+                this.deleteFile(file);
+                break;
+        }
+    },
 
   
+
+    // Download file
+    async downloadFile(file) {
+      console.log("test")
+        downloadf = file;
+  document.getElementById('decryptModal').classList.remove('hidden');
+  document.getElementById('decryptModal').classList.add('flex');
+    },
+   
+    
+
+    // Delete file
+    async deleteFile(file) {
+        if (confirm(`Are you sure you want to delete "${file.id}"? This action cannot be undone.`)) {
+            try {
+                const response = await fetch(`/delete-file/${file.id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to delete file');
+                }
+                
+                this.currentFiles = this.currentFiles.filter(f => f.id !== file.id);
+                this.saveFiles();
+                this.displayFiles();
+                this.updateDashboardStats();
+                
+            } catch (error) {
+                console.error('Delete failed:', error);
+                alert('Failed to delete file. Please try again.');
+            }
+        }
+    }
+};
+ document.getElementById('cancelDecrypt').addEventListener('click', () => {
+  document.getElementById('decryptModal').classList.add('hidden');
+});
+
+
+document.addEventListener('click', (event) => {
+    const btn = event.target.closest('.file-action');
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+    const fileId = btn.dataset.fileId;
+
+    if (action && fileId) {
+       selectedFile = { id: fileId };
+        FileManager.handleFileAction(fileId, action);
+    }
+});
+
+document.getElementById('confirmDecrypt').addEventListener('click', async () => {
+  const mode = document.getElementById('encryptionMode').value;
+  const password = document.getElementById('decryptPassword').value.trim();
+
+  if (!password) {
+    alert('Please enter your password.');
+    return;
+  }
+
+  let backendreply
+let formdata=new FormData()
+  formdata.append("password",password)
+         try{
+             let response=await fetch("/Validatepass",{
+              method:"POST",
+              body:formdata
+             })
+
+             let data =await  response.text()
+             reply=data
+             console.log(data)
+         }catch(error){
+           console.log(error)
+         }
+  
+         if(reply=="Pass"){
+            
+                    try {
+                      if (mode === 'backend') {
+                        // ---- BACKEND DECRYPTION ----
+                        alert(selectedFile.id)
+                        try{
+                              let response=await fetch("/decrypt",{
+                                method:"POST",
+                                headers:{"content-type":"application/json"},
+                                body:JSON.stringify({
+                                    "FileID":parseInt(selectedFile.id),
+                                    "Mode":mode
+                                })
+                              })
+                              const disposition = response.headers.get("Content-Disposition");
+                              let filename = "downloaded_file";
+
+                              if (disposition && disposition.includes("filename=")) {
+                                const match = disposition.match(/filename="([^"]+)"/);
+                                if (match && match[1]) {
+                                  filename = match[1];
+                                }
+                              }
+                              const blob = await response.blob();
+
+                                // 🟩 Trigger immediate browser download
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = filename
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                window.URL.revokeObjectURL(url);
+
+                                // 🟩 Close modal
+                                document.getElementById('decryptModal').classList.add('hidden');
+                                document.getElementById('decryptPassword').value = ''; // clear password
+                          }catch(error){
+                            console.log(error)
+                          }
+
+                       
+
+                        // const blob = await response.blob();
+                        // triggerDownload(blob, selectedFile.name);
+                        // alert(1)
+
+                      } else {
+                        // ---- FRONTEND DECRYPTION ----
+                        const response = await fetch(`/download-file/${selectedFile.id}?encrypted=true`);
+                        if (!response.ok) throw new Error('Failed to fetch encrypted file');
+
+                        const encryptedData = await response.arrayBuffer();
+                        const decrypted = await decryptFileFrontend(encryptedData, password);
+                        triggerDownload(new Blob([decrypted]), selectedFile.name);
+                      }
+
+                      document.getElementById('decryptModal').classList.add('hidden');
+                    } catch (err) {
+                      console.error('Decryption/Download failed:', err);
+                      alert('Failed to decrypt or download file.');
+                    }
+         }else{
+          console.log("Incorrect Password")
+         }
+
+});
+
+// Download helper
+function triggerDownload(blob) {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
 }
 
 
-        // Simple encryption simulation (for demonstration only)
-        function simulateEncryption(file, password) {
-            // In a real application, you would use a proper encryption library like CryptoJS
-            // This is just a simulation for demonstration purposes
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    // Simulate encryption by creating a simple "encrypted" version
-                    const encryptedFile = new File(
-                        [file], 
-                        `encrypted_${file.name}`, 
-                        { type: 'application/encrypted' }
-                    );
-                    resolve(encryptedFile);
-                }, 1000);
-            });
+// Initialize file manager when dashboard loads
+document.addEventListener('DOMContentLoaded', function() {
+    FileManager.init();
+    
+    // Add event delegation for file actions
+    document.getElementById('filesList').addEventListener('click', (e) => {
+        const actionBtn = e.target.closest('.file-action');
+        if (actionBtn) {
+            const fileId = actionBtn.dataset.fileId;
+            const action = actionBtn.dataset.action;
+            FileManager.handleFileAction(fileId, action);
         }
     });
-
-
- 
+    
+    // Function to show upload section
+    window.showUploadSection = function() {
+        document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+        
+        document.querySelector('[data-target="upload"]').classList.add('active');
+        document.getElementById('upload').classList.add('active');
+        document.getElementById('page-title').textContent = 'Upload Files';
+    };
+});
 </script>
 
 </body>
