@@ -125,6 +125,7 @@ func GetSalt(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(username)
 	var salt []byte
 	conn, _ := db.Connect()
+	defer conn.Close(context.TODO())
 	conn.QueryRow(context.TODO(), "select salt from users where username=$1", username).Scan(&salt)
 	fmt.Println("Salt :", salt)
 	// salt, _ := hex.DecodeString(salthex)
