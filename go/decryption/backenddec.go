@@ -23,6 +23,15 @@ type FileDetails struct {
 	DecryptionType string `json:"Mode"`
 }
 
+type FileInfo_FrontendDec struct {
+	CipherText string `json:"CipherText"`
+	FileIV     string `json:"FileIV"`
+	EncFileKey string `json:"EncFileKey"`
+	EncFileIv  string `json:"EncFileIv"`
+	Salt       string `json:"Salt"`
+	FileName   string `json:"FileName"`
+}
+
 func Backend_Decryption(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		fmt.Println("Method is GET expected was POST in backend_dec() ")
@@ -70,7 +79,12 @@ func Backend_Decryption(w http.ResponseWriter, r *http.Request) {
 		//##########################################
 		AesDec(ciphertext, filekey, file_iv, w, FileName)
 	} else {
-		fmt.Println("Different Mode ")
+		ciphertext, err, file_iv, enc_file_key, enc_file_key_iv, FileName := GetFileFromDB(fd.FileID, username)
+		if err != nil {
+			fmt.Println("Error from GetFileFromDb() backenddec.go", err)
+			return
+		}
+
 	}
 
 	//#####FILE KEY DECRRYPTION############
@@ -83,6 +97,7 @@ func GetFileFromDB(Fileid int, Username string) (ciphertext []byte, err error, f
 	defer conn.Close(context.TODO())
 	var filepath string
 	var file_iv, enc_file_key, enc_file_key_iv string
+
 	conn.QueryRow(context.TODO(), "select filepath,file_iv,enc_file_key,enc_file_key_iv,filename from files where file_id=$1  and username=$2", Fileid, Username).Scan(&filepath, &file_iv, &enc_file_key, &enc_file_key_iv, &FileName)
 	fmt.Println(filepath)
 	fmt.Println(Fileid)
