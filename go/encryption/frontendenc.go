@@ -29,7 +29,11 @@ func Frontend_Enc(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error getting file in frontend_enc() frontendenc.go", err)
 	}
 	filename := header.Filename
-	username := auth.VerifyJWT(tokenstring)
+	username, ok := auth.VerifyJWT(tokenstring)
+	if !ok {
+		fmt.Println("Wrong JWT in Frontend_Enc() frontenc.go")
+		return
+	}
 	uploadpath := "/home/a4bhi/encrypted_files/" + username
 	os.MkdirAll(uploadpath, os.ModePerm)
 	dstpath := filepath.Join(uploadpath, filename)
@@ -63,75 +67,26 @@ func Frontend_Enc(w http.ResponseWriter, r *http.Request) {
 
 	StoreToFilesTable(iv_hex, enc_file_key_hex, enc_file_key_iv_hex, filename, dstpath, username)
 
-	// mailid := GetMailidFromUsername(username)
-
-	// masterkey := masterkeys.LoadMasterKey(mailid)
-
-	// filepath := "/home/a4bhi/rawfiles/" + username + "/" + filename
-
-	// block, err := aes.NewCipher(masterkey)
-	// if err != nil {
-	// 	fmt.Println("Error creating block:", err)
-	// }
-
-	// gcm, err := cipher.NewGCM(block)
-	// if err != nil {
-	// 	fmt.Println("Error creating gcm:", err)
-	// }
-
-	// filekey, err := gcm.Open(nil, key_iv, enc_file_key, nil)
-	// if err != nil {
-	// 	fmt.Println("Error decrypting filekey: ", err)
-	// }
-	// //####################################################################
-	// block2, err := aes.NewCipher(filekey)
-	// if err != nil {
-	// 	fmt.Println("Error creating block:", err)
-	// }
-
-	// gcm2, err := cipher.NewGCM(block2)
-	// if err != nil {
-	// 	fmt.Println("Error creating gcm:", err)
-	// }
-
-	// decfile, err := os.Open(filepath)
-	// if err != nil {
-	// 	fmt.Println("Error opening file:", err)
-	// }
-
-	// cipherText, err := io.ReadAll(decfile)
-
-	// finalfile, err := gcm2.Open(nil, iv, cipherText, nil)
-	// if err != nil {
-	// 	fmt.Println("Error decrypting file:", err)
-	// }
-
-	// os.WriteFile(filepath, finalfile, 0644)
-
-	// fmt.Println("Decrypted FILE KEY : ", filekey)
-
-	// fmt.Println("IV FROM FRONTEND: ", iv)
-	// fmt.Println("ENC FILE KEY: ", enc_file_key)
-	// fmt.Println("KEY IV", key_iv)
-	// fmt.Println("SALT FROM FRONTEND", salt)
-
 }
 
 func GetSalt(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("token")
 	errorcheck.PrintError("Error getting cookie in Backend_Encryption.go", err)
 	tokenstring := cookie.Value
-	username := auth.VerifyJWT(tokenstring)
+	username, ok := auth.VerifyJWT(tokenstring)
+	if !ok {
+		fmt.Println("Wrong JWT in GetSalt() frontendenc.go")
+		return
+	}
 	fmt.Println(username)
 	var salt []byte
 	conn, _ := db.Connect()
 	defer conn.Close(context.TODO())
 	conn.QueryRow(context.TODO(), "select salt from users where username=$1", username).Scan(&salt)
 	fmt.Println("Salt :", salt)
-	// salt, _ := hex.DecodeString(salthex)
+
 	salltBase64 := base64.StdEncoding.EncodeToString(salt)
-	// fmt.Println("SALT FROM BACKEND", salt)
-	// fmt.Println("SaltBASE64 : ", salltBase64)
+
 	w.Header().Set("content-type", "text/plain")
 	fmt.Fprint(w, salltBase64)
 

@@ -1648,9 +1648,11 @@ updateDashboardStats() {
     async deleteFile(file) {
         if (confirm(`Are you sure you want to delete "${file.id}"? This action cannot be undone.`)) {
             try {
-                const response = await fetch(`/delete-file/${file.id}`, {
-                    method: 'DELETE'
-                });
+              const response = await fetch(`/deletefile`, {
+              method: 'DELETE',
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: parseInt(file.id) })
+            });
                 
                 if (!response.ok) {
                     throw new Error('Failed to delete file');
@@ -1715,7 +1717,6 @@ let formdata=new FormData()
             
                     try {
                       if (mode === 'backend') {
-                        // ---- BACKEND DECRYPTION ----
                         alert(selectedFile.id)
                         try{
                               let response=await fetch("/decrypt",{
@@ -1737,7 +1738,6 @@ let formdata=new FormData()
                               }
                               const blob = await response.blob();
 
-                                // 🟩 Trigger immediate browser download
                                 const url = window.URL.createObjectURL(blob);
                                 const a = document.createElement('a');
                                 a.href = url;
@@ -1762,11 +1762,8 @@ let formdata=new FormData()
 
                       } else {
                         console.log("HEH")
-                        // ---- FRONTEND DECRYPTION ----
                            function base64ToUint8Array(b64) {
-                            // Fix URL-safe variants
                             b64 = b64.replace(/-/g, "+").replace(/_/g, "/");
-                            // Fix missing padding
                             while (b64.length % 4 !== 0) b64 += "=";
                             const binary = atob(b64);
                             const bytes = new Uint8Array(binary.length);
@@ -1797,7 +1794,7 @@ let formdata=new FormData()
                             // ---------- Main decryption function ----------
                            
                               try {
-                                // Step 1: Fetch encrypted data info from backend
+                                
                                 const response = await fetch("/decrypt", {
                                   method: "POST",
                                   headers: { "Content-Type": "application/json" },
@@ -1812,7 +1809,6 @@ let formdata=new FormData()
                                 const data = await response.json();
                                 console.log("Received from backend:", data);
 
-                                // Step 2: Decode base64 strings into Uint8Arrays
                                 const ciphertext = base64ToUint8Array(data.CipherText);
                                 const fileIV = base64ToUint8Array(data.FileIV);
                                 const encFileKey = base64ToUint8Array(data.EncFileKey);
@@ -1820,7 +1816,6 @@ let formdata=new FormData()
                                 const saltBytes = decodeSalt(data.Salt);
                                 const filename = data.FileName || "decrypted_file";
 
-                                // Step 3: Derive MasterKey from password + salt (PBKDF2)
                                 const pwBytes = new TextEncoder().encode(password);
                                 const baseKey = await crypto.subtle.importKey(
                                   "raw",
@@ -1844,7 +1839,6 @@ let formdata=new FormData()
                                   ["decrypt"]
                                 );
 
-                                // Step 4: Decrypt encrypted file key
                                 const rawFileKey = await crypto.subtle.decrypt(
                                   { name: "AES-GCM", iv: encFileKeyIv },
                                   masterKey,
@@ -1859,14 +1853,12 @@ let formdata=new FormData()
                                   ["decrypt"]
                                 );
 
-                                // Step 5: Decrypt the actual file ciphertext
                                 const decryptedBuffer = await crypto.subtle.decrypt(
                                   { name: "AES-GCM", iv: fileIV },
                                   fileKey,
                                   ciphertext
                                 );
 
-                                // Step 6: Convert decrypted data to Blob and trigger download
                                 const blob = new Blob([decryptedBuffer], { type: "application/octet-stream" });
                                 const url = URL.createObjectURL(blob);
 

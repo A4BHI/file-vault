@@ -46,19 +46,21 @@ func Setjwtkey(w http.ResponseWriter, username string) {
 
 }
 
-func VerifyJWT(tokenstring string) string {
+func VerifyJWT(tokenstring string) (string, bool) {
 	t, err := jwt.ParseWithClaims(tokenstring, &Claims{}, func(t *jwt.Token) (any, error) {
 		return Key, nil
 	})
 	if err != nil {
 		fmt.Println(err)
+		return "", false
 	}
 	if !t.Valid {
 		fmt.Println("Invalid")
+		return "", false
 	}
 	c, _ := t.Claims.(*Claims)
 	fmt.Println("Username from jwt:", c.Username)
-	return c.Username
+	return c.Username, true
 
 	// w.Header().Set("content-type", "application/json")
 	// fmt.Fprintf(w, `{"key":%s,"username":%s}`, tokenstring, c.Username)

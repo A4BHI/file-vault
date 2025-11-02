@@ -30,8 +30,12 @@ func ShowFiles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized: missing token", http.StatusUnauthorized)
 		return
 	}
-
-	username := auth.VerifyJWT(cookie.Value)
+	tokenstring := cookie.Value
+	username, ok := auth.VerifyJWT(tokenstring)
+	if !ok {
+		fmt.Println("Wrong JWT in ShowFiles() myfiles.go")
+		return
+	}
 	fmt.Println("For Debug:", username)
 
 	// Fetch all file details for this user

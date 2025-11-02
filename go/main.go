@@ -36,6 +36,7 @@ func main() {
 	http.HandleFunc("/Validatepass", encryption.ValidatePass)
 	http.HandleFunc("/get-files", showfiles.ShowFiles)
 	http.HandleFunc("/decrypt", decryption.Backend_Decryption)
+	http.HandleFunc("/deletefile", showfiles.DeleteFile)
 	// http.HandleFunc("/jwt", auth.Setjwtkey)
 	http.ListenAndServe(":8080", nil)
 

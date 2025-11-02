@@ -26,7 +26,11 @@ func ValidatePass(w http.ResponseWriter, r *http.Request) {
 
 	tokenstring := cookie.Value
 
-	username := auth.VerifyJWT(tokenstring)
+	username, ok := auth.VerifyJWT(tokenstring)
+	if !ok {
+		fmt.Println("Wrong JWT in ValidatePass() PasswordValidation.go")
+		return
+	}
 
 	var hashedpass []byte
 	conn, err := db.Connect()

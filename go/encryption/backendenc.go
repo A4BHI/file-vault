@@ -28,7 +28,11 @@ func Backend_Encryption(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("token")
 	errorcheck.PrintError("Error getting cookie in Backend_Encryption.go", err)
 	tokenstring := cookie.Value
-	username := auth.VerifyJWT(tokenstring) //username from jwt
+	username, ok := auth.VerifyJWT(tokenstring)
+	if !ok {
+		fmt.Println("Wrong JWT in Backend_Encryption() backendenc.go")
+		return
+	} //username from jwt
 	mailid := GetMailidFromUsername(username)
 
 	r.ParseMultipartForm(200 << 20)

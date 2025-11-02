@@ -47,7 +47,11 @@ func Backend_Decryption(w http.ResponseWriter, r *http.Request) {
 	errorcheck.PrintError("Error getting jwt cookie in Backend_Decryption() backenddec.go: ", err)
 	tokenstring := cookie.Value
 
-	username := auth.VerifyJWT(tokenstring)
+	username, ok := auth.VerifyJWT(tokenstring)
+	if !ok {
+		fmt.Println("Wrong JWT in Backend_Decryption() backenddec.go")
+		return
+	}
 	mailid := encryption.GetMailidFromUsername(username)
 
 	masterkey := masterkeys.LoadMasterKey(mailid)
