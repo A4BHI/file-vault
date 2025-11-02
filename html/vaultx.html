@@ -1242,7 +1242,7 @@ const FileManager = {
     currentSort: 'modified',
     sortDirection: 'desc',
     currentPage: 1,
-    filesPerPage: 10,
+    filesPerPage: 20,
 
     // Initialize file manager
     init() {
@@ -1755,13 +1755,130 @@ let formdata=new FormData()
                         // alert(1)
 
                       } else {
+                        console.log("HEH")
                         // ---- FRONTEND DECRYPTION ----
-                        const response = await fetch(`/download-file/${selectedFile.id}?encrypted=true`);
-                        if (!response.ok) throw new Error('Failed to fetch encrypted file');
+                           function base64ToUint8Array(b64) {
+                            // Fix URL-safe variants
+                            b64 = b64.replace(/-/g, "+").replace(/_/g, "/");
+                            // Fix missing padding
+                            while (b64.length % 4 !== 0) b64 += "=";
+                            const binary = atob(b64);
+                            const bytes = new Uint8Array(binary.length);
+                            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                            return bytes;
+                          }
 
-                        const encryptedData = await response.arrayBuffer();
-                        const decrypted = await decryptFileFrontend(encryptedData, password);
-                        triggerDownload(new Blob([decrypted]), selectedFile.name);
+
+                            function hexToUint8Array(hex) {
+                              const arr = new Uint8Array(hex.length / 2);
+                              for (let i = 0; i < arr.length; i++) arr[i] = parseInt(hex.substr(i * 2, 2), 16);
+                              return arr;
+                            }
+
+                            function decodeSalt(s) {
+                              if (!s) return new Uint8Array();
+                              const hexRegex = /^[0-9a-fA-F]+$/;
+                              if (hexRegex.test(s) && s.length % 2 === 0) return hexToUint8Array(s);
+                              try {
+                                return base64ToUint8Array(s);
+                              } catch (e) {
+                                return new TextEncoder().encode(s);
+                              }
+                            }
+
+
+
+                            // ---------- Main decryption function ----------
+                           
+                              try {
+                                // Step 1: Fetch encrypted data info from backend
+                                const response = await fetch("/decrypt", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    FileID: parseInt(selectedFile.id),
+                                    Mode: mode,
+                                  }),
+                                });
+
+                                if (!response.ok) throw new Error("Failed to fetch file info from server");
+
+                                const data = await response.json();
+                                console.log("Received from backend:", data);
+
+                                // Step 2: Decode base64 strings into Uint8Arrays
+                                const ciphertext = base64ToUint8Array(data.CipherText);
+                                const fileIV = base64ToUint8Array(data.FileIV);
+                                const encFileKey = base64ToUint8Array(data.EncFileKey);
+                                const encFileKeyIv = base64ToUint8Array(data.EncFileIv);
+                                const saltBytes = decodeSalt(data.Salt);
+                                const filename = data.FileName || "decrypted_file";
+
+                                // Step 3: Derive MasterKey from password + salt (PBKDF2)
+                                const pwBytes = new TextEncoder().encode(password);
+                                const baseKey = await crypto.subtle.importKey(
+                                  "raw",
+                                  pwBytes,
+                                  { name: "PBKDF2" },
+                                  false,
+                                  ["deriveKey"]
+                                );
+
+                                const iterations = 10000; // must match backend
+                                const masterKey = await crypto.subtle.deriveKey(
+                                  {
+                                    name: "PBKDF2",
+                                    salt: saltBytes,
+                                    iterations,
+                                    hash: "SHA-256",
+                                  },
+                                  baseKey,
+                                  { name: "AES-GCM", length: 256 },
+                                  false,
+                                  ["decrypt"]
+                                );
+
+                                // Step 4: Decrypt encrypted file key
+                                const rawFileKey = await crypto.subtle.decrypt(
+                                  { name: "AES-GCM", iv: encFileKeyIv },
+                                  masterKey,
+                                  encFileKey
+                                );
+
+                                const fileKey = await crypto.subtle.importKey(
+                                  "raw",
+                                  rawFileKey,
+                                  { name: "AES-GCM" },
+                                  false,
+                                  ["decrypt"]
+                                );
+
+                                // Step 5: Decrypt the actual file ciphertext
+                                const decryptedBuffer = await crypto.subtle.decrypt(
+                                  { name: "AES-GCM", iv: fileIV },
+                                  fileKey,
+                                  ciphertext
+                                );
+
+                                // Step 6: Convert decrypted data to Blob and trigger download
+                                const blob = new Blob([decryptedBuffer], { type: "application/octet-stream" });
+                                const url = URL.createObjectURL(blob);
+
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = filename;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(url);
+
+                                console.log("✅ Decryption successful, file downloaded:", filename);
+                              } catch (err) {
+                                console.error("❌ Frontend decryption failed:", err);
+                                alert(err.message || "Decryption failed — check console for details.");
+                              }
+                            
+
                       }
 
                       document.getElementById('decryptModal').classList.add('hidden');
@@ -1803,7 +1920,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Function to show upload section
-    window.showUploadSection = function() {
+   
+});
+ window.showUploadSection = function() {
+      console.log("Switching to Upload section...");
         document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
         document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
         
@@ -1811,7 +1931,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('upload').classList.add('active');
         document.getElementById('page-title').textContent = 'Upload Files';
     };
-});
 </script>
 
 </body>

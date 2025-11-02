@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -24,12 +25,12 @@ type FileDetails struct {
 }
 
 type FileInfo_FrontendDec struct {
-	CipherText string `json:"CipherText"`
-	FileIV     string `json:"FileIV"`
-	EncFileKey string `json:"EncFileKey"`
-	EncFileIv  string `json:"EncFileIv"`
-	Salt       string `json:"Salt"`
-	FileName   string `json:"FileName"`
+	CipherText   string `json:"CipherText"`
+	FileIV       string `json:"FileIV"`
+	EncFileKey   string `json:"EncFileKey"`
+	EncFileKeyIv string `json:"EncFileIv"`
+	Salt         string `json:"Salt"`
+	FileName     string `json:"FileName"`
 }
 
 func Backend_Decryption(w http.ResponseWriter, r *http.Request) {
@@ -84,6 +85,18 @@ func Backend_Decryption(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error from GetFileFromDb() backenddec.go", err)
 			return
 		}
+		salt := GetSaltFromDb(username)
+
+		Finfo := FileInfo_FrontendDec{
+			CipherText:   base64.StdEncoding.EncodeToString(ciphertext),
+			FileIV:       base64.StdEncoding.EncodeToString(file_iv),
+			EncFileKey:   base64.StdEncoding.EncodeToString(enc_file_key),
+			EncFileKeyIv: base64.StdEncoding.EncodeToString(enc_file_key_iv),
+			Salt:         salt,
+			FileName:     FileName,
+		}
+		w.Header().Set("content-type", "application/json")
+		json.NewEncoder(w).Encode(Finfo)
 
 	}
 
@@ -143,4 +156,17 @@ func AesDec(ciphertext []byte, filekey []byte, fileiv []byte, w http.ResponseWri
 		fmt.Println("Error sending file in AesDec() backenddec.go : ", err)
 		return
 	}
+}
+
+func GetSaltFromDb(username string) (saltb64 string) {
+	conn, err := db.Connect()
+	if err != nil {
+		fmt.Println("Error connecting to db in GetSaltFromDB() backenddec.go: ", err)
+		return
+	}
+
+	var salt []byte
+	conn.QueryRow(context.TODO(), "select salt from users where username=$1", username).Scan(&salt)
+
+	return base64.StdEncoding.EncodeToString(salt)
 }
