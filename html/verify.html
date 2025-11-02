@@ -426,7 +426,8 @@
                         headers:{"content-type":"application/json"},
                         body:JSON.stringify({
                             "otp":code
-                        })
+                        }),
+                        credentials: "include"
                     })
 
                     let data = await response.json()

@@ -108,6 +108,8 @@ func GetMailidFromUsername(username string) string {
 	errorcheck.PrintError("Error connecting to db in backendenc.go file ", err)
 	defer conn.Close(context.TODO())
 
+	fmt.Println(username)
+
 	var mailid string
 	conn.QueryRow(context.TODO(), "select mailid from users where username=$1", username).Scan(&mailid)
 	return mailid

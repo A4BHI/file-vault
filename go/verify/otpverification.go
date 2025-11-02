@@ -121,8 +121,10 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 						fmt.Println("Error getting password from getPassword() in otpverification")
 						return
 					}
+					auth.Setjwtkey(w, GetUserName(mailid)) //jwt set
 					m := masterkeys.GenerateKey(mailid, password.(string))
 					fmt.Println("MasterKey:", m)
+					fmt.Println(GetUserName(mailid))
 					masterkeys.DeletePassword(mailid)
 				} else {
 					masterkeys.DeletePassword(mailid)

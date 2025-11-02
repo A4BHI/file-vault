@@ -35,11 +35,14 @@ func Setjwtkey(w http.ResponseWriter, username string) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
 		Value:    tk,
+		Path:     "/",
 		Expires:  expat,
 		HttpOnly: true,
-		Path:     "/",
-		Secure:   false,
+		Secure:   false,                // set true only if you are using HTTPS
+		SameSite: http.SameSiteLaxMode, // ✅ safer and more consistent than None without HTTPS
 	})
+
+	fmt.Println("✅ New JWT set for user:", username)
 
 }
 
@@ -54,7 +57,9 @@ func VerifyJWT(tokenstring string) string {
 		fmt.Println("Invalid")
 	}
 	c, _ := t.Claims.(*Claims)
+	fmt.Println("Username from jwt:", c.Username)
 	return c.Username
+
 	// w.Header().Set("content-type", "application/json")
 	// fmt.Fprintf(w, `{"key":%s,"username":%s}`, tokenstring, c.Username)
 }

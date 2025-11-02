@@ -30,7 +30,7 @@ func GenerateKey(mailid string, password string) (masterkey []byte) {
 	}
 	conn.QueryRow(context.Background(), "select salt from users where mailid=$1", mailid).Scan(&salt)
 	byteForm := []byte(password)
-	masterkey = pbkdf2.Key(byteForm, salt, 10000, 32, sha256.New)
+	masterkey = pbkdf2.Key(byteForm, salt, 200000, 32, sha256.New)
 	master.Store(mailid, masterkey)
 
 	return masterkey

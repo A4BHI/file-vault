@@ -630,7 +630,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <p class="text-3xl font-bold">127</p>
+              <p class="text-3xl font-bold">0</p>
             </div>
             
           </div>
@@ -792,10 +792,10 @@
   <div class="bg-[#112240] text-white rounded-xl p-6 w-[90%] max-w-sm shadow-xl">
     <h2 class="text-lg font-bold mb-4 text-center">Decrypt and Download your File</h2>
 
-    <label class="block mb-2 text-sm">Select Encryption Mode:</label>
+    <label class="block mb-2 text-sm">Select Decryption Mode:</label>
     <select id="encryptionMode" class="w-full mb-4 bg-[#0a192f] border border-[#64ffda] rounded-md p-2">
-      <option value="frontend">Frontend Encryption</option>
-      <option value="backend">Backend Encryption</option>
+      <option value="frontend">Frontend Decryption</option>
+      <option value="backend">Backend Decryption</option>
     </select>
 
     <label class="block mb-2 text-sm">Enter your password:</label>
@@ -1122,7 +1122,7 @@
                  {
                    name: 'PBKDF2',
                    salt: salt,
-                   iterations: 10000,
+                   iterations: 200000,
                    hash: 'SHA-256'
                  },
                  baseKey,
@@ -1291,6 +1291,12 @@ const FileManager = {
             
             const backendFiles = await response.json();
             console.log('Files from backend:', backendFiles);
+              if (!backendFiles || !Array.isArray(backendFiles) || backendFiles.length === 0) {
+            console.warn("No files found");
+            document.querySelector('.card p').textContent = '0';
+            this.currentFiles = [];
+            return;
+        }
             
             // Transform backend data to match frontend format
             this.currentFiles = backendFiles.map(file => ({
@@ -1824,7 +1830,7 @@ let formdata=new FormData()
                                   ["deriveKey"]
                                 );
 
-                                const iterations = 10000; // must match backend
+                                const iterations = 200000; // must match backend
                                 const masterKey = await crypto.subtle.deriveKey(
                                   {
                                     name: "PBKDF2",

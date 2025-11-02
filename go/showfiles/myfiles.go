@@ -32,6 +32,7 @@ func ShowFiles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	username := auth.VerifyJWT(cookie.Value)
+	fmt.Println("For Debug:", username)
 
 	// Fetch all file details for this user
 	files, err := GetFileDetails(username)
