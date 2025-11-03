@@ -53,14 +53,57 @@ func Check(w http.ResponseWriter, r *http.Request) {
 }
 
 func CheckForVerifyPage(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		cook := Cookie_check{}
-		_, err := r.Cookie("sessionid")
-		if err != nil {
-			fmt.Println("error from CheckForVerifyPage in sessionchecker.go cant read cookie:", err)
-			cook.Active = false
-			json.NewEncoder(w).Encode(&cook)
-			return
-		}
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	cook := Cookie_check{}
+
+	cookie, err := r.Cookie("sessionid")
+	if err != nil || cookie.Value == "" {
+		fmt.Println("No valid session cookie found:", err)
+		cook.Active = false
+		_ = json.NewEncoder(w).Encode(cook)
+		return
+	}
+
+	conn, err := db.Connect()
+	if err != nil {
+		fmt.Println("DB connection error:", err)
+		cook.Active = false
+		_ = json.NewEncoder(w).Encode(cook)
+		return
+	}
+	defer conn.Close(context.Background())
+
+	var expiry time.Time
+	err = conn.QueryRow(context.Background(),
+		"SELECT expires FROM sessions WHERE sessionid=$1",
+		cookie.Value,
+	).Scan(&expiry)
+
+	if err != nil {
+		fmt.Println("Session not found:", err)
+		cook.Active = false
+		_ = json.NewEncoder(w).Encode(cook)
+		return
+	}
+
+	if expiry.After(time.Now().UTC()) {
+		cook.Active = true
+	} else {
+		fmt.Println("Session expired, clearing cookie")
+		http.SetCookie(w, &http.Cookie{
+			Name:     "sessionid",
+			Value:    "",
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: true,
+		})
+		cook.Active = false
+	}
+
+	_ = json.NewEncoder(w).Encode(cook)
 }

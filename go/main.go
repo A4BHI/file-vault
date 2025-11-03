@@ -40,6 +40,7 @@ func main() {
 	http.HandleFunc("/deletefile", showfiles.DeleteFile)
 	http.HandleFunc("/logout", logout.Logout)
 	http.HandleFunc("/verify-jwt", auth.CheckJWT_ONLOAD)
+	http.HandleFunc("/CheckForVerifyPage", session.CheckForVerifyPage)
 	// http.HandleFunc("/jwt", auth.Setjwtkey)
 	http.ListenAndServe(":8080", nil)
 
