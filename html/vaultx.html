@@ -545,11 +545,11 @@
       <div class="p-4">
         <div class="flex items-center gap-3 mb-6 p-3 rounded-lg bg-[#112240]">
           <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#64ffda] to-[#5be8cc] flex items-center justify-center">
-            <!-- <span class="text-[#0a192f] font-bold">JD</span> -->
+            <span class="text-[#0a192f] font-bold" id="pic">JD</span>
           </div>
           <div>
             <p class="font-medium" id="user">Unknown User</p>
-            <p class="text-xs text-[#64ffda]">Vaultx</p>
+            <p class="text-xs text-[#64ffda] id="status">Unknown</p>
           </div>
         </div>
         
@@ -690,7 +690,7 @@
             <div class="password-section">
                 <label for="frontend-password">Encryption Password:</label>
                 <input type="password" id="frontend-password" class="password-input" placeholder="Enter a strong password">
-                <div class="password-note">Remember this password! You'll need it to decrypt the file later.</div>
+                <div class="password-note">Enter your password.</div>
             </div>
         </div>
     </div>
@@ -706,7 +706,7 @@
             <div class="password-section">
                 <label for="backend-password">Encryption Password:</label>
                 <input type="password" id="backend-password" class="password-input" placeholder="Enter a strong password">
-                <div class="password-note">Remember this password! You'll need it to decrypt the file later.</div>
+                <div class="password-note">Enter your password.</div>
             </div>
         </div>
     </div>
@@ -834,6 +834,8 @@
         return
     }
     document.getElementById("user").innerHTML=res.Username
+    document.getElementById("status").innerHTML="Logged-in"
+    document.getElementById("pic").innerHTML=res.Username.slice(0,2)
     console.log(res)
 
     }catch(error){ console.error("JWT verify failed:", error);}

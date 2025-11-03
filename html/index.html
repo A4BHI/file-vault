@@ -359,65 +359,76 @@
   </header>
 
   <!-- Hero Section -->
-  <section class="hero-section px-6 py-20">
-    <div class="max-w-lg hero-content p-8 rounded-xl floating">
-      <h1 class="text-4xl font-bold mb-6 text-[#64ffda] glow-text">Vaultx</h1>
-      <p class="mb-8 text-lg leading-relaxed">
-        Bank-level security for your files.<br>
-        Share them — password-protected, time-limited, fully encrypted.
-      </p>
-      <div class="flex gap-4">
-        <button id="heroSignupBtn" class="btn-primary px-6 py-3 rounded-md font-bold">Get Started</button>
-        <a href="#overview" class="btn-secondary px-6 py-3 rounded-md inline-block">Learn More</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Overview -->
-  <section id="overview" class="px-6 py-16">
-    <h2 class="text-3xl font-bold text-[#64ffda] mb-6 glow-text">Overview</h2>
-    <p class="max-w-2xl mb-10 text-lg leading-relaxed">
-      Vaultx is a simple yet powerful platform to securely share files with end-to-end encryption.  
-      Whether you send via link, QR code, or email, your data stays visible only to you and your recipient.
+ <section class="hero-section px-6 py-20">
+  <div class="max-w-lg hero-content p-8 rounded-xl floating">
+    <h1 class="text-4xl font-bold mb-6 text-[#64ffda] glow-text">Vaultx</h1>
+    <p class="mb-8 text-lg leading-relaxed">
+      Secure your files with powerful encryption.<br>
+      Choose between browser-side or server-side encryption — your data, your control.
     </p>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <div class="card shadow-lg p-6 rounded-xl">
-        <h3 class="font-semibold text-xl text-[#64ffda] mb-3">🔐 End-to-End Encryption</h3>
-        <p class="text-sm leading-relaxed">Your files are encrypted directly in your browser before being uploaded.</p>
-      </div>
-      <div class="card shadow-lg p-6 rounded-xl">
-        <h3 class="font-semibold text-xl text-[#64ffda] mb-3">🧩 Password & Expiry Links</h3>
-        <p class="text-sm leading-relaxed">Add passwords and expiry dates to your shared links for maximum control.</p>
-      </div>
+    <div class="flex gap-4">
+      <button id="heroSignupBtn" class="btn-primary px-6 py-3 rounded-md font-bold">Get Started</button>
+      <a href="#overview" class="btn-secondary px-6 py-3 rounded-md inline-block">Learn More</a>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- How It Works -->
-  <section id="features" class="px-6 py-16">
-    <h2 class="text-3xl font-bold text-[#64ffda] mb-8 glow-text">How It Works</h2>
-    <div class="grid md:grid-cols-4 gap-8">
-      <div class="text-center">
-        <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">1</div>
-        <p class="font-semibold text-lg mb-2">Upload</p>
-        <p class="text-sm leading-relaxed">Select or drag-and-drop your files.</p>
-      </div>
-      <div class="text-center">
-        <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">2</div>
-        <p class="font-semibold text-lg mb-2">Encrypt</p>
-        <p class="text-sm leading-relaxed">Files are encrypted right in your browser.</p>
-      </div>
-      <div class="text-center">
-        <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">3</div>
-        <p class="font-semibold text-lg mb-2">Share</p>
-        <p class="text-sm leading-relaxed">Set password & expiry, then share via link or QR code.</p>
-      </div>
-      <div class="text-center">
-        <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">4</div>
-        <p class="font-semibold text-lg mb-2">Track</p>
-        <p class="text-sm leading-relaxed">Monitor downloads and revoke links anytime.</p>
-      </div>
+<section id="overview" class="px-6 py-16">
+  <h2 class="text-3xl font-bold text-[#64ffda] mb-6 glow-text">Overview</h2>
+  <p class="max-w-2xl mb-10 text-lg leading-relaxed">
+    VaultX is a secure file storage and encryption platform that lets users safeguard their data 
+    using either <b>frontend encryption (browser-based)</b> or <b>backend encryption (server-side)</b>.  
+    Your files remain encrypted — ensuring complete privacy and security.
+  </p>
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="card shadow-lg p-6 rounded-xl">
+      <h3 class="font-semibold text-xl text-[#64ffda] mb-3">🔐 Dual Encryption Options</h3>
+      <p class="text-sm leading-relaxed">
+        Encrypt files directly in your browser for zero server access — or use server-side encryption 
+        for faster processing and secure key handling.
+      </p>
     </div>
-  </section>
+    <div class="card shadow-lg p-6 rounded-xl">
+      <h3 class="font-semibold text-xl text-[#64ffda] mb-3">🛡️ Complete Data Protection</h3>
+      <p class="text-sm leading-relaxed">
+        Every file is stored in encrypted form with unique encryption keys and secure authentication mechanisms.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="px-6 py-16">
+  <h2 class="text-3xl font-bold text-[#64ffda] mb-8 glow-text">How It Works</h2>
+  <div class="grid md:grid-cols-4 gap-8">
+    <div class="text-center">
+      <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">1</div>
+      <p class="font-semibold text-lg mb-2">Upload</p>
+      <p class="text-sm leading-relaxed">Select your file for encryption and upload securely.</p>
+    </div>
+    <div class="text-center">
+      <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">2</div>
+      <p class="font-semibold text-lg mb-2">Encrypt</p>
+      <p class="text-sm leading-relaxed">
+        Choose <b>Frontend Encryption</b> (done in your browser) or 
+        <b>Backend Encryption</b> (handled securely by the server).
+      </p>
+    </div>
+    <div class="text-center">
+      <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">3</div>
+      <p class="font-semibold text-lg mb-2">Store</p>
+      <p class="text-sm leading-relaxed">
+        Files are safely stored in encrypted form with AES-256 GCM for maximum protection.
+      </p>
+    </div>
+    <div class="text-center">
+      <div class="step-circle w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4 font-bold text-xl">4</div>
+      <p class="font-semibold text-lg mb-2">Decrypt</p>
+      <p class="text-sm leading-relaxed">
+        Retrieve and decrypt your files securely using your password — directly on the frontend or backend.
+      </p>
+    </div>
+  </div>
+</section>
 
   <!-- Footer -->
   <footer id="support" class="px-6 py-8 mt-16 border-t border-[#233554]">
