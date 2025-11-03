@@ -545,11 +545,11 @@
       <div class="p-4">
         <div class="flex items-center gap-3 mb-6 p-3 rounded-lg bg-[#112240]">
           <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#64ffda] to-[#5be8cc] flex items-center justify-center">
-            <span class="text-[#0a192f] font-bold">JD</span>
+            <!-- <span class="text-[#0a192f] font-bold">JD</span> -->
           </div>
           <div>
-            <p class="font-medium">John Doe</p>
-            <p class="text-xs text-[#64ffda]">Free Plan</p>
+            <p class="font-medium" id="user">Unknown User</p>
+            <p class="text-xs text-[#64ffda]">Vaultx</p>
           </div>
         </div>
         
@@ -817,6 +817,29 @@
 
 
 <script>
+  window.addEventListener("load",async () =>{
+    try{
+       let response = await fetch("/verify-jwt",{
+      method:"GET",
+      credentials:"include"
+      })
+    if(!response.ok){
+      window.location.replace("/index.html")
+        return
+    }
+
+    let res=await response.json()
+    if(!res.Valid){
+        window.location.replace("/index.html")
+        return
+    }
+    document.getElementById("user").innerHTML=res.Username
+    console.log(res)
+
+    }catch(error){ console.error("JWT verify failed:", error);}
+   
+
+  })
     // Mobile sidebar toggle
     document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
       document.querySelector('.sidebar').classList.toggle('open');
@@ -1901,8 +1924,7 @@ document.getElementById("logout").addEventListener("click" ,async() =>{
     })
     // window.location.replace("index.html")
       if (response.redirected) {
-      // Browser saw a redirect — follow it
-      window.location.replace = response.url;
+      window.location.replace(response.url);
     }
   }catch(error){
     console.log(error)

@@ -51,3 +51,16 @@ func Check(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func CheckForVerifyPage(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		cook := Cookie_check{}
+		_, err := r.Cookie("sessionid")
+		if err != nil {
+			fmt.Println("error from CheckForVerifyPage in sessionchecker.go cant read cookie:", err)
+			cook.Active = false
+			json.NewEncoder(w).Encode(&cook)
+			return
+		}
+	}
+}

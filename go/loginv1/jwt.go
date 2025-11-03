@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -15,6 +16,10 @@ var Key []byte = []byte(Keystring)
 type Claims struct {
 	Username string `json:"username"`
 	jwt.RegisteredClaims
+}
+type OnLoadResponse struct {
+	Valid    bool   `json:"Valid"`
+	Username string `json:"Username"`
 }
 
 func Setjwtkey(w http.ResponseWriter, username string) {
@@ -64,4 +69,35 @@ func VerifyJWT(tokenstring string) (string, bool) {
 
 	// w.Header().Set("content-type", "application/json")
 	// fmt.Fprintf(w, `{"key":%s,"username":%s}`, tokenstring, c.Username)
+}
+
+func CheckJWT_ONLOAD(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		fmt.Println("Expected Method Was GET but GOT : ", r.Method, " In CheckJWT_ONLOAD()")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	check := OnLoadResponse{}
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		fmt.Println("Error No Cookie Found in CheckJWT_ONLOAD():", err)
+		check.Valid = false
+		json.NewEncoder(w).Encode(&check)
+		return
+	}
+
+	tokenstring := cookie.Value
+
+	username, ok := VerifyJWT(tokenstring)
+	if !ok {
+		fmt.Println("Error Invalid JWT TOKEN  in CheckJWT_ONLOAD():", err)
+		check.Valid = false
+		json.NewEncoder(w).Encode(&check)
+		return
+	}
+
+	check.Valid = true
+	check.Username = username
+	json.NewEncoder(w).Encode(&check)
+
 }

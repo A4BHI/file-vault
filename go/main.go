@@ -39,6 +39,7 @@ func main() {
 	http.HandleFunc("/decrypt", decryption.Backend_Decryption)
 	http.HandleFunc("/deletefile", showfiles.DeleteFile)
 	http.HandleFunc("/logout", logout.Logout)
+	http.HandleFunc("/verify-jwt", auth.CheckJWT_ONLOAD)
 	// http.HandleFunc("/jwt", auth.Setjwtkey)
 	http.ListenAndServe(":8080", nil)
 

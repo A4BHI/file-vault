@@ -340,6 +340,26 @@
     </div>
 
     <script>
+
+        window.addEventListener("load",async () => {
+            try{
+                let response= await fetch("/CheckForVerifyPage",{
+                    method:"GET",
+                    credentials:"include"
+                })
+                if(!response.ok){
+                    window.location.replace("/index.html")
+                    return
+                }
+                let data = response.json()
+                if(!data.Active){
+                     window.location.replace("/index.html")
+                    return
+                }
+            }catch(error){
+                console.log(error)
+            }
+        })
         document.addEventListener('DOMContentLoaded', function() {
             // Get the email from URL parameters (you might want to get this from your backend)
            
