@@ -137,7 +137,7 @@ func Verify(w http.ResponseWriter, r *http.Request) {
 		} else {
 			res.Account_Created = false
 			res.Verified = false
-			masterkeys.DeletePassword(mailid)
+			// masterkeys.DeletePassword(mailid)
 
 		}
 		w.Header().Set("Content-Type", "Application/JSON")

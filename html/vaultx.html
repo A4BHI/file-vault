@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
   <title>Vaultx Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -575,7 +578,7 @@
       </div>
       
       <div class="p-4 border-t border-[#233554] mt-auto">
-        <button class="btn-secondary w-full px-4 py-2 rounded-md flex items-center justify-center gap-2">
+        <button class="btn-secondary w-full px-4 py-2 rounded-md flex items-center justify-center gap-2" id="logout">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
@@ -620,7 +623,7 @@
               <div class="flex items-center justify-between mb-4">
                 <h3 class="font-medium">Storage Used</h3>
               </div>
-              <span class="text-2xs bg-[#64ffda] text-[#0a192f] px-3 py-2 rounded-full">5 GB</span>
+              <span class="text-2xs bg-[#64ffda] text-[#0a192f] px-3 py-2 rounded-full">0%</span>
             </div>
             
             <div class="card p-6 rounded-xl">
@@ -694,7 +697,7 @@
     <div class="option-card" id="backend-option">
         <div class="option-header">
             <div class="option-icon backend-icon">
-                <i class="fas fa-lock"></i>
+                <i class="fas fa-server"></i>
             </div>
             <div class="option-title">Backend Encryption</div>
         </div>
@@ -1576,7 +1579,7 @@ updateDashboardStats() {
   const storageTextElement = document.querySelector('.card span.text-2xs');
   if (storageTextElement) {
     const usedGB = totalSize / (1024 * 1024 * 1024);
-    storageTextElement.textContent = `${usedGB.toFixed(2)} GB / 5 GB`;
+    storageTextElement.textContent = `${usedGB.toFixed(2)} GB `;
   }
 
   console.log("Total size (bytes):", totalSize);
@@ -1889,6 +1892,22 @@ let formdata=new FormData()
          }
 
 });
+
+document.getElementById("logout").addEventListener("click" ,async() =>{
+  try{
+   let response =  await fetch("/logout",{
+      method:"POST",
+      credentials:"include"
+    })
+    // window.location.replace("index.html")
+      if (response.redirected) {
+      // Browser saw a redirect — follow it
+      window.location.replace = response.url;
+    }
+  }catch(error){
+    console.log(error)
+  }
+} )
 
 // Download helper
 function triggerDownload(blob) {

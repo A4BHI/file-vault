@@ -34,6 +34,18 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	filepath := GetFilePath(fileid.ID, username)
+	conn, err := db.Connect()
+	if err != nil {
+		fmt.Println("Error connecting to db in deletefile.go: ", err)
+		return
+	}
+
+	_, err = conn.Exec(context.TODO(), "Delete from files where file_id=$1", fileid.ID)
+	if err != nil {
+		fmt.Println("Error Executing Delete Command in deletefile.go : ", err)
+		return
+	}
+
 	fmt.Println(fileid.ID)
 	fmt.Println(filepath)
 	err = os.Remove(filepath)

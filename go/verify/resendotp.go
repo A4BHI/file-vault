@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 	"vaultx/email"
+	"vaultx/otps"
 	"vaultx/session"
 )
 
@@ -46,6 +47,7 @@ func ResendOtp(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Session error in ResendOtp()")
 			return
 		}
+		otps.DeleteOtp(mail)
 
 		c, ok := GetCount(mail)
 		count := 0

@@ -6,6 +6,7 @@ import (
 	"vaultx/decryption"
 	"vaultx/encryption"
 	auth "vaultx/loginv1"
+	"vaultx/logout"
 	"vaultx/registerv1"
 	"vaultx/session"
 	"vaultx/showfiles"
@@ -37,6 +38,7 @@ func main() {
 	http.HandleFunc("/get-files", showfiles.ShowFiles)
 	http.HandleFunc("/decrypt", decryption.Backend_Decryption)
 	http.HandleFunc("/deletefile", showfiles.DeleteFile)
+	http.HandleFunc("/logout", logout.Logout)
 	// http.HandleFunc("/jwt", auth.Setjwtkey)
 	http.ListenAndServe(":8080", nil)
 
