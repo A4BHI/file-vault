@@ -63,8 +63,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				errorcheck.PrintError("error connecting to db in login.go ", err)
-
 				session.SetSession(w, username, mailid, "nil", "login")
 				fmt.Println(username)
 				res.Email = true

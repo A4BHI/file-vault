@@ -867,9 +867,28 @@
   </div>
 </div>
 
+  <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-[#112240] text-white rounded-xl p-6 w-[90%] max-w-sm shadow-xl">
+    <h2 class="text-lg font-bold mb-4 text-center">Are you sure you want to delete the file?<b> This action cannot be undone.</b></h2>
 
+    
+
+   
+    <div class="flex justify-end gap-3">
+      <button id="cancelConfirm" class="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-700">Cancel</button>
+      <button id="confirm" class="px-4 py-2 rounded-md bg-[#64ffda] text-[#0a192f] font-bold hover:bg-[#52e6c4]">
+      Confirm
+      </button>
+    </div>
+  </div>
+</div>
 
 <script>
+
+  document.getElementById("cancelConfirm").addEventListener("click",() =>{
+      document.getElementById('confirmModal').classList.add('hidden')  
+    })
+
   window.addEventListener("load",async () =>{
     try{
        let response = await fetch("/verify-jwt",{
@@ -1727,8 +1746,12 @@ updateDashboardStats() {
 
     // Delete file
     async deleteFile(file) {
-        if (confirm(`Are you sure you want to delete "${file.id}"? This action cannot be undone.`)) {
-            try {
+        document.getElementById('confirmModal').classList.remove('hidden');
+  document.getElementById('confirmModal').classList.add('flex')
+
+  document.getElementById("confirm").addEventListener("click",async () =>{
+      document.getElementById('confirmModal').classList.add('hidden');
+       try {
               const response = await fetch(`/deletefile`, {
               method: 'DELETE',
               headers: { "Content-Type": "application/json" },
@@ -1748,7 +1771,9 @@ updateDashboardStats() {
                 console.error('Delete failed:', error);
                 alert('Failed to delete file. Please try again.');
             }
-        }
+  })
+           
+        
     }
 };
  document.getElementById('cancelDecrypt').addEventListener('click', () => {
@@ -1774,7 +1799,8 @@ document.getElementById('confirmDecrypt').addEventListener('click', async () => 
   const password = document.getElementById('decryptPassword').value.trim();
 
   if (!password) {
-    alert('Please enter your password.');
+    document.getElementById('incorrectModal').classList.remove('hidden');
+  document.getElementById('incorrectModal').classList.add('flex');
     return;
   }
 
@@ -1798,7 +1824,7 @@ let formdata=new FormData()
             
                     try {
                       if (mode === 'backend') {
-                        alert(selectedFile.id)
+                        // alert(selectedFile.id)
                         try{
                               let response=await fetch("/decrypt",{
                                 method:"POST",
