@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 	"vaultx/decryption"
+	"vaultx/deleteacc"
 	"vaultx/encryption"
 	auth "vaultx/loginv1"
 	"vaultx/logout"
@@ -41,6 +42,7 @@ func main() {
 	http.HandleFunc("/logout", logout.Logout)
 	http.HandleFunc("/verify-jwt", auth.CheckJWT_ONLOAD)
 	http.HandleFunc("/CheckForVerifyPage", session.CheckForVerifyPage)
+	http.HandleFunc("/deleteacc", deleteacc.DeleteAcc)
 	// http.HandleFunc("/jwt", auth.Setjwtkey)
 	http.ListenAndServe(":8080", nil)
 
