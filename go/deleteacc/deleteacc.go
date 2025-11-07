@@ -10,6 +10,7 @@ import (
 	"vaultx/db"
 	"vaultx/errorcheck"
 	auth "vaultx/loginv1"
+	"vaultx/masterkeys"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -25,6 +26,7 @@ func DeleteAcc(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error expected method was DELETE but got : ", r.Method)
 		return
 	}
+	var mailid string
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -32,6 +34,7 @@ func DeleteAcc(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("token")
 	if err != nil {
 		fmt.Println("Error cant get cookie named token in DeleteAcc():", err)
+		masterkeys.DeleteMasterkey(mailid)
 		ADR.Valid = false
 		ADR.Ok = false
 		ADR.Status = ""
@@ -44,6 +47,7 @@ func DeleteAcc(w http.ResponseWriter, r *http.Request) {
 	username, ok := auth.VerifyJWT(tokenstring)
 	if !ok {
 		fmt.Println("Error Invalid JWT in DeleteAcc():", err)
+		masterkeys.DeleteMasterkey(mailid)
 		ADR.Valid = false
 		ADR.Ok = false
 		ADR.Status = ""
@@ -53,11 +57,12 @@ func DeleteAcc(w http.ResponseWriter, r *http.Request) {
 
 	password := r.FormValue("password")
 	var hashedpass []byte
+
 	conn, err := db.Connect()
 	errorcheck.PrintError("Error connecting to db in Deleteacc()", err)
 	defer conn.Close(context.TODO())
 
-	conn.QueryRow(context.TODO(), "select hashed_passed from users where username=$1", username).Scan(&hashedpass)
+	conn.QueryRow(context.TODO(), "select hashed_passed , mailid from users where username=$1", username).Scan(&hashedpass, &mailid)
 
 	err = bcrypt.CompareHashAndPassword(hashedpass, []byte(password))
 	if err != nil {
@@ -97,10 +102,12 @@ func DeleteAcc(w http.ResponseWriter, r *http.Request) {
 	os.RemoveAll(path)
 
 	clearCookie(w)
+	masterkeys.DeleteMasterkey(mailid)
 
 	ADR.Valid = true
 	ADR.Ok = true
 	ADR.Status = "Deleted"
+
 	json.NewEncoder(w).Encode(&ADR)
 
 }

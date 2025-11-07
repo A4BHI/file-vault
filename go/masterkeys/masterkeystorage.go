@@ -51,3 +51,7 @@ func LoadMasterKey(mailid string) []byte {
 	return masterkey
 
 }
+
+func DeleteMasterkey(mailid string) {
+	master.Delete(mailid)
+}

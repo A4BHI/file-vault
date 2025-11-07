@@ -9,6 +9,8 @@
   <title>Vaultx Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     html {
       scroll-behavior: smooth;
@@ -464,6 +466,10 @@
             color: #7f8c8d;
             margin-top: 5px;
         }
+
+        #Delete{
+          border: 2px solid red;
+        }
         
 .file-info {
     text-align: left;
@@ -527,6 +533,68 @@
     background: linear-gradient(135deg, #64ffda, #5be8cc);
     color: #0a192f;
 }
+
+/* security cards */
+.glow-card {
+  box-shadow: 0 0 15px rgba(100, 255, 218, 0.15);
+  transition: all 0.6s ease;
+}
+.glow-card:hover {
+  box-shadow: 0 0 25px rgba(100, 255, 218, 0.35);
+  transform: translateY(-3px);
+}
+
+/* Smooth fade animations */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(10px); }
+  10%, 90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+
+/* Make table grid lines subtle but visible */
+table {
+  border-spacing: 0;
+}
+
+th, td {
+  border-right: 1px solid rgba(35, 53, 84, 0.4);
+}
+th:last-child, td:last-child {
+  border-right: none;
+}
+
+/* Table rows */
+tbody tr {
+  border-bottom: 1px solid rgba(35, 53, 84, 0.5);
+  transition: all 0.25s ease;
+}
+
+/* Hover highlight */
+tbody tr:hover {
+  background-color: rgba(100, 255, 218, 0.04);
+  transform: translateX(2px);
+}
+
+/* Table headers */
+thead th {
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+}
+
+/* Smooth scrollbar (for overflow) */
+#filesTable::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+#filesTable::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 255, 218, 0.2);
+  border-radius: 8px;
+}
+#filesTable::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 255, 218, 0.4);
+}
+
   </style>
 </head>
 <body>
@@ -586,12 +654,12 @@
         </button>
       </div>
 
-      <div class="p-4 border-t border-[#b32020] mt-auto">
+      <div class="p-4 border-t border-[#233554] mt-auto">
         <button class="btn-secondary w-full px-4 py-2 rounded-md flex items-center justify-center gap-2" id="Delete">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> -->
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          Delete
+          Delete Account
         </button>
       </div>
     </div>
@@ -628,24 +696,49 @@
       <!-- Content area -->
       <div class="flex-1 overflow-y-auto p-6">
         <!-- Dashboard Section -->
+         
         <div id="dashboard" class="content-section active">
+
+
           <div class="grid grid-cols-1 md:grid-cols- gap-6 mb-6">
-            <div class="card p-6 rounded-xl">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="font-medium">Storage Used</h3>
-              </div>
-              <span class="text-2xs bg-[#64ffda] text-[#0a192f] px-3 py-2 rounded-full">0%</span>
-            </div>
-            
-            <div class="card p-6 rounded-xl">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="font-medium">Files Uploaded</h3>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <p class="text-3xl font-bold">0</p>
-            </div>
+
+<!-- SECURITY TIPS CARD -->
+<div class="card p-6 rounded-xl mt-6 relative overflow-hidden" id="securityCard">
+  <h3 class="font-medium mb-4 flex items-center gap-2 text-[#64ffda]">
+    <i class="fas fa-shield-alt text-[#64ffda]"></i> Security Tips
+  </h3>
+  
+  <div class="relative h-32 flex items-center justify-center overflow-hidden">
+    <div id="securityTipCard" 
+         class="absolute inset-0 flex flex-col items-center justify-center 
+                border border-[#64ffda]/40 bg-[#0a192f]/70 
+                p-4 rounded-lg shadow-md text-[#ccd6f6] text-center glow-card opacity-0">
+      <i id="securityIcon" class="fas fa-lock text-[#64ffda] text-2xl mb-3 block"></i>
+      <p id="securityTip" class="text-[#8892b0] italic text-base"></p>
+    </div>
+  </div>
+</div>
+           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <!-- Storage Used -->
+  <div class="card p-6 rounded-xl flex flex-col items-center md:items-start">
+    <div class="flex items-center justify-between w-full mb-4">
+      <h3 class="font-medium">Storage Used</h3>
+    </div>
+    <span class="text-sm bg-[#64ffda] text-[#0a192f] px-3 py-1 rounded-full font-semibold">0  GB</span>
+  </div>
+
+  <!-- Files Uploaded -->
+  <div class="card p-6 rounded-xl flex flex-col items-center md:items-start">
+    <div class="flex items-center justify-between w-full mb-4">
+      <h3 class="font-medium">Files Uploaded</h3>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#64ffda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    </div>
+    <p class="text-3xl font-bold">0</p>
+  </div>
+</div>
+
             
           </div>
           
@@ -665,6 +758,21 @@
               
             </div>
           </div>
+<div class="card p-6 rounded-xl mt-6">
+  <h3 class="font-medium mb-4">Storage Overview</h3>
+  <div class="flex justify-center">
+    <div style="width:350px; height:350px;">
+      <canvas id="storageChart"></canvas>
+    </div>
+  </div>
+  <div class="text-center mt-4 text-[#8892b0]">
+    <span id="storageText" class="text-[#64ffda] text-xl font-bold">25%</span> used
+  </div>
+</div>
+
+
+
+
         </div>
         
         <!-- Upload Files Section -->
@@ -744,21 +852,15 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
       <h2 class="font-bold text-xl mb-4 md:mb-0">My Files</h2>
       
-      <div class="flex gap-3">
-        <div class="relative">
-          <input type="text" id="fileSearch" placeholder="Search files..." class="bg-[#112240] border border-[#233554] rounded-md px-4 py-2 pl-10 focus:border-[#64ffda] focus:outline-none w-full md:w-64">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-[#8892b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-        
-        <button class="btn-secondary px-4 py-2 rounded-md flex items-center gap-2" id="filterBtn">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-          </svg>
-          Filter
-        </button>
-      </div>
+     <div class="flex gap-3">
+  <button id="quickUpload" class="btn-primary px-4 py-2 rounded-md flex items-center gap-2" onclick="showUploadSection()">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    Upload File
+  </button>
+</div>
+
     </div>
     
     <div class="mb-6">
@@ -770,27 +872,23 @@
    
     <!-- Files Table -->
     <!-- Files Table -->
-<div class="overflow-x-auto" id="filesTable" style="max-height: 400px; overflow-y: auto;" id="filesTable">
-  <table class="w-full">
-    <thead>
-      <tr class="border-b border-[#233554]">
-        <th class="text-left py-3 px-4 cursor-pointer sortable" data-sort="name">
-          Name <span class="sort-icon">↕</span>
-        </th>
-        <th class="text-left py-3 px-4 cursor-pointer sortable" data-sort="size">
-          Size <span class="sort-icon">↕</span>
-        </th>
-        <th class="text-left py-3 px-4 cursor-pointer sortable" data-sort="type">
-          Type <span class="sort-icon">↕</span>
-        </th>
-        <th class="text-left py-3 px-4">Actions</th>
+<!-- FILES TABLE (dynamic) -->
+<div id="filesTable" class="overflow-x-auto max-h-[400px] rounded-xl border border-[#233554] shadow-md">
+  <table class="w-full border-collapse">
+    <thead class="bg-[#112240] sticky top-0 z-10">
+      <tr class="text-[#64ffda] uppercase text-xs tracking-wider border-b border-[#233554]">
+        <th class="text-left py-3 px-4 font-semibold cursor-pointer sortable" data-sort="name">File Name</th>
+        <th class="text-left py-3 px-4 font-semibold cursor-pointer sortable" data-sort="size">Size</th>
+        <th class="text-left py-3 px-4 font-semibold cursor-pointer sortable" data-sort="type">Type</th>
+        <th class="text-left py-3 px-4 font-semibold">Actions</th>
       </tr>
     </thead>
-    <tbody id="filesList">
-      <!-- Dynamic files will be inserted here -->
+    <tbody id="filesList" class="text-[#ccd6f6] text-sm">
+      <!-- Your JS dynamically inserts rows here -->
     </tbody>
   </table>
 </div>
+
     
     <!-- Pagination -->
     <div class="flex justify-between items-center mt-6 hidden" id="filesPagination">
@@ -884,6 +982,69 @@
 </div>
 
 <script>
+
+//pie chart
+const ctx = document.getElementById('storageChart').getContext('2d');
+const usedStorage = 25; // % used
+const freeStorage = 100 - usedStorage;
+
+new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Used', 'Free'],
+    datasets: [{
+      data: [usedStorage, freeStorage],
+      backgroundColor: ['#64ffda', '#1a2f5a'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false, // prevent auto-resizing
+    plugins: {
+      legend: {
+        display: true,
+        labels: { color: '#ccd6f6', boxWidth: 12, padding: 10 }
+      },
+    },
+    cutout: '75%' // makes inner circle smaller = thinner ring
+  }
+});
+
+document.getElementById("storageText").textContent = usedStorage + "%";
+//security cards
+
+
+const tips = [
+  { text: "Use strong, unique passwords for encryption and login.", icon: "fa-key" },
+  { text: "Frontend encryption ensures your files never leave your browser unprotected.", icon: "fa-lock" },
+  { text: "Log out when using Vaultx on shared or public devices.", icon: "fa-sign-out-alt" },
+  { text: "Avoid uploading files over unsecured public Wi-Fi.", icon: "fa-wifi" },
+  { text: "Never reuse your encryption password elsewhere.", icon: "fa-user-shield" }
+];
+
+let tipIndex = 0;
+const tipText = document.getElementById("securityTip");
+const tipIcon = document.getElementById("securityIcon");
+const tipCard = document.getElementById("securityTipCard");
+
+function showNextTip() {
+  const tip = tips[tipIndex];
+  tipText.textContent = tip.text;
+  tipIcon.className = `fas ${tip.icon} text-[#64ffda] text-2xl mb-3 block`;
+
+  // trigger fade animation
+  tipCard.style.animation = "none";
+  void tipCard.offsetWidth; // reset animation
+  tipCard.style.animation = "fadeInOut 4s ease-in-out forwards";
+
+  tipIndex = (tipIndex + 1) % tips.length;
+}
+
+showNextTip();
+setInterval(showNextTip, 4000); // new tip every 6s
+
+//pie chart end
 
   document.getElementById("cancelConfirm").addEventListener("click",() =>{
       document.getElementById('confirmModal').classList.add('hidden')  
@@ -1475,36 +1636,33 @@ const FileManager = {
         const formattedDate = this.formatDate(file.modified);
         
         return `
-            <tr class="border-b border-[#233554] hover:bg-[#112240] file-item" data-file-id="${file.id}">
-                <td class="py-3 px-4 flex items-center gap-3">
-                    <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
-                        ${fileIcon}
-                    </div>
-                    <div>
-                        <p class="font-medium">${file.name}</p>
-                        <p class="text-xs text-[#8892b0]">${file.encryption || 'AES-256 Encrypted'}</p>
-                    </div>
-                </td>
-                <td class="py-3 px-4">${formattedSize}</td>
-                <td class="py-3 px-4">${this.getFileType(file.type)}</td>
-              
-                <td class="py-3 px-4">
-                    <div class="flex gap-2">
-                       
-                        <button class="text-[#64ffda] hover:text-[#5be8cc] file-action" data-action="download" data-file-id="${file.id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                        </button>
-                       
-                        <button class="text-[#ff6b6b] hover:text-[#ff5252] file-action" data-action="delete" data-file-id="${file.id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                </td>
-            </tr>
+             <tr class="border-b border-[#233554] hover:bg-[#112240] file-item transition" data-file-id="${file.id}">
+      <td class="py-3 px-4 flex items-center gap-3">
+        <div class="w-8 h-8 bg-[#112240] rounded-lg flex items-center justify-center">
+          ${fileIcon}
+        </div>
+        <div>
+          <p class="font-medium">${file.name}</p>
+          <p class="text-xs text-[#8892b0]">${file.encryption || 'AES-256 Encrypted'}</p>
+        </div>
+      </td>
+      <td class="py-3 px-4">${formattedSize}</td>
+      <td class="py-3 px-4">${this.getFileType(file.type)}</td>
+      <td class="py-3 px-4">
+        <div class="flex gap-2">
+          <button class="text-[#64ffda] hover:text-[#5be8cc] file-action" data-action="download" data-file-id="${file.id}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          </button>
+          <button class="text-[#ff6b6b] hover:text-[#ff5252] file-action" data-action="delete" data-file-id="${file.id}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+      </td>
+    </tr>
         `;
     },
 
@@ -1673,10 +1831,10 @@ updateDashboardStats() {
   }
 
   // Update storage text (was fixed at "5 GB")
-  const storageTextElement = document.querySelector('.card span.text-2xs');
+   const storageTextElement = document.querySelector('.card span.text-sm');
   if (storageTextElement) {
     const usedGB = totalSize / (1024 * 1024 * 1024);
-    storageTextElement.textContent = `${usedGB.toFixed(2)} GB `;
+    storageTextElement.textContent = `${usedGB.toFixed(2)} GB`;
   }
 
   console.log("Total size (bytes):", totalSize);
