@@ -595,12 +595,34 @@ thead th {
   background-color: rgba(100, 255, 218, 0.4);
 }
 
+
+
+
+
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    z-index: 40;
+    left: -100%;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+}
+
   </style>
 </head>
 <body>
   <div class="flex h-screen overflow-hidden">
     <!-- Sidebar -->
-    <div class="sidebar w-64 flex-shrink-0 hidden md:block">
+    <div class="sidebar w-64 flex-shrink-0 md:block">
       <div class="p-4 border-b border-[#233554]">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 bg-gradient-to-br flex items-center justify-center">
@@ -642,6 +664,15 @@ thead th {
             </svg>
             My Files
           </a>
+
+
+          <a data-target="about" class="sidebar-item flex items-center gap-3 p-3 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          About / Docs
+        </a>
         </nav>
       </div>
       
@@ -776,75 +807,114 @@ thead th {
         </div>
         
         <!-- Upload Files Section -->
-        <div id="upload" class="content-section">
-          <div class="card p-11 rounded-2xl mb-11">
-            <h2 class="font-bold text-xl mb-6">Secure File Upload</h2>
-            
-            <div class="upload-area p-8 rounded-lg text-center mb-6" id="dropArea">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-[#64ffda] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-              </svg>
-              <p class="mb-2">Drag & drop files here or click to browse</p>
-              <input type="file" id="fileInput" style="display:none;">
-              <button class="btn-primary px-4 py-2 rounded-md" id="browseBtn">Browse Files</button>
-              <div class="file-info hidden" id="file-info">
-            <h3>Selected File</h3>
-            <div class="file-details">
-                <p><strong>Name:</strong> <span id="file-name"></span></p>
-                <p><strong>Size:</strong> <span id="file-size"></span></p>
-                <p><strong>Type:</strong> <span id="file-type"></span></p>
-            </div>
-            
-<div class="encryption-options" id="encryption-options">
-    <h3>Choose Encryption Method</h3>
-    <div class="option-card" id="frontend-option">
-        <div class="option-header">
-            <div class="option-icon frontend-icon">
+<div id="upload" class="content-section">
+  <div class="card p-11 rounded-2xl mb-11">
+    <h2 class="font-bold text-xl mb-6">Secure File Upload</h2>
+
+        <!-- 🔹 ENCRYPTION INFO CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      <!-- Frontend Encryption Info -->
+      <div
+        class="card p-6 rounded-xl border border-[#233554] bg-gradient-to-br from-[#0b223d] to-[#132b4c] hover:border-[#64ffda] hover:shadow-[0_0_20px_rgba(100,255,218,0.1)] transition-all duration-300">
+        <div class="flex items-center gap-4 mb-3">
+          <div class="w-12 h-12 rounded-full bg-[#2ecc71]/20 flex items-center justify-center text-[#2ecc71]">
+            <i class="fas fa-lock text-xl"></i>
+          </div>
+          <h3 class="text-lg font-semibold text-[#64ffda]">Frontend Encryption</h3>
+        </div>
+        <p class="text-[#a8b2d1] leading-relaxed text-sm">
+          Your file is encrypted <strong>inside your browser</strong> before upload.
+          This ensures the server never sees your unencrypted data — full client-side security.
+        </p>
+      </div>
+
+      <!-- Backend Encryption Info -->
+      <div
+        class="card p-6 rounded-xl border border-[#233554] bg-gradient-to-br from-[#0b223d] to-[#132b4c] hover:border-[#64ffda] hover:shadow-[0_0_20px_rgba(100,255,218,0.1)] transition-all duration-300">
+        <div class="flex items-center gap-4 mb-3">
+          <div class="w-12 h-12 rounded-full bg-[#e74c3c]/20 flex items-center justify-center text-[#e74c3c]">
+            <i class="fas fa-server text-xl"></i>
+          </div>
+          <h3 class="text-lg font-semibold text-[#64ffda]">Backend Encryption</h3>
+        </div>
+        <p class="text-[#a8b2d1] leading-relaxed text-sm">
+          The file is uploaded first and then encrypted securely <strong>on the server</strong>.
+          Suitable for users who trust the backend to handle encryption.
+        </p>
+      </div>
+    </div>
+
+    <div class="upload-area p-8 rounded-lg text-center mb-6" id="dropArea">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-[#64ffda] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+      </svg>
+      <p class="mb-2">Drag & drop files here or click to browse</p>
+      <input type="file" id="fileInput" style="display:none;">
+      <button class="btn-primary px-4 py-2 rounded-md" id="browseBtn">Browse Files</button>
+
+      <!-- FILE INFO -->
+      <div class="file-info hidden" id="file-info">
+        <h3>Selected File</h3>
+        <div class="file-details">
+          <p><strong>Name:</strong> <span id="file-name"></span></p>
+          <p><strong>Size:</strong> <span id="file-size"></span></p>
+          <p><strong>Type:</strong> <span id="file-type"></span></p>
+        </div>
+
+        <!-- ENCRYPTION OPTIONS -->
+        <div class="encryption-options" id="encryption-options">
+          <h3>Choose Encryption Method</h3>
+          <div class="option-card" id="frontend-option">
+            <div class="option-header">
+              <div class="option-icon frontend-icon">
                 <i class="fas fa-lock"></i>
+              </div>
+              <div class="option-title">Frontend Encryption</div>
             </div>
-            <div class="option-title">Frontend Encryption</div>
-        </div>
-        <div class="option-description">
-            File is encrypted in your browser before being sent to the server. More secure as the server never sees your unencrypted data.
-            <div class="password-section">
-                <label for="frontend-password">Encryption Password:</label>
-                <input type="password" id="frontend-password" class="password-input" placeholder="Enter a strong password">
-                <div class="password-note">Enter your password.</div>
+            <div class="option-description">
+              File is encrypted in your browser before being sent to the server.
             </div>
-        </div>
-    </div>
-    <div class="option-card" id="backend-option">
-        <div class="option-header">
-            <div class="option-icon backend-icon">
+          </div>
+          <div class="option-card" id="backend-option">
+            <div class="option-header">
+              <div class="option-icon backend-icon">
                 <i class="fas fa-server"></i>
+              </div>
+              <div class="option-title">Backend Encryption</div>
             </div>
-            <div class="option-title">Backend Encryption</div>
-        </div>
-        <div class="option-description">
-            File is encrypted on the server after being uploaded. The server handles the encryption process.
-            <div class="password-section">
-                <label for="backend-password">Encryption Password:</label>
-                <input type="password" id="backend-password" class="password-input" placeholder="Enter a strong password">
-                <div class="password-note">Enter your password.</div>
+            <div class="option-description">
+              File is sent to the server and encrypted there.
             </div>
-        </div>
-    </div>
-</div>
-            </div>
-            
-            <div class="progress-container">
-                <div class="progress-bar" id="progress-bar"></div>
-            </div>
-            <button class="upload-btn" id="upload-btn" disabled>Upload & Encrypt File</button>
-        </div>
-        
-            <div class="status-message hidden" id="status-message"></div>
-            </div>
-          
-            
-          
           </div>
         </div>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <button class="upload-btn" id="upload-btn" disabled>Upload & Encrypt File</button>
+    </div>
+
+    <div class="status-message hidden" id="status-message"></div>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div id="passwordModal"
+  class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 transition-opacity duration-300">
+  <div
+    class="bg-[#112240] text-white rounded-xl p-6 w-[90%] max-w-sm shadow-xl border border-[#64ffda]/30 backdrop-blur-md">
+    <h2 class="text-lg font-bold mb-4 text-center">Enter Encryption Password</h2>
+    <input type="password" id="passwordInputModal" placeholder="Enter your password"
+      class="w-full mb-4 bg-[#0a192f] border border-[#64ffda] rounded-md p-2 placeholder-gray-400 text-white focus:ring-2 focus:ring-[#64ffda]">
+    <div class="flex justify-end gap-3">
+      <button id="cancelPassword" class="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-700">Cancel</button>
+      <button id="confirmPassword"
+        class="px-4 py-2 rounded-md bg-[#64ffda] text-[#0a192f] font-bold hover:bg-[#52e6c4]">Confirm</button>
+    </div>
+  </div>
+</div>
         <!--My Files Section-->
         <!-- My Files Section -->
 <div id="files" class="content-section ">
@@ -897,6 +967,69 @@ thead th {
     </div>
   </div>
 </div>
+
+
+
+<!-- ABOUT / DOCUMENTATION SECTION -->
+<div id="about" class="content-section hidden">
+  <div class="card p-10 rounded-2xl mb-11">
+    <h2 class="font-bold text-2xl mb-8 text-[#64ffda] glow-text text-center">Vaultx Documentation</h2>
+
+    <p class="text-[#a8b2d1] text-center mb-10 max-w-3xl mx-auto leading-relaxed">
+      Learn how to use <strong>Vaultx</strong> — a secure, privacy-focused platform that encrypts and stores your files safely.
+      Below are guides and explanations of features, encryption methods, and technologies used.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      <!-- Section 1 -->
+      <div class="card p-6 rounded-xl border border-[#233554] bg-gradient-to-br from-[#0b223d] to-[#132b4c] hover:border-[#64ffda] transition-all duration-300">
+        <h3 class="text-[#64ffda] font-semibold mb-2">Frontend Encryption</h3>
+        <p class="text-[#a8b2d1] text-sm leading-relaxed">
+          Encrypts files directly in your browser using <strong>AES-GCM</strong> and <strong>PBKDF2</strong> before upload.  
+          The server never sees your unencrypted data.
+        </p>
+      </div>
+
+      <!-- Section 2 -->
+      <div class="card p-6 rounded-xl border border-[#233554] bg-gradient-to-br from-[#0b223d] to-[#132b4c] hover:border-[#64ffda] transition-all duration-300">
+        <h3 class="text-[#64ffda] font-semibold mb-2">Backend Encryption</h3>
+        <p class="text-[#a8b2d1] text-sm leading-relaxed">
+          Files are securely transmitted to the backend where they’re encrypted server-side with the user’s password and stored in the database.
+        </p>
+      </div>
+
+      <!-- Section 3 -->
+      <div class="card p-6 rounded-xl border border-[#233554] bg-gradient-to-br from-[#0b223d] to-[#132b4c] hover:border-[#64ffda] transition-all duration-300">
+        <h3 class="text-[#64ffda] font-semibold mb-2">Technologies Used</h3>
+        <ul class="text-[#a8b2d1] text-sm list-disc pl-5">
+          <li>Go (Backend API)</li>
+          <li>JavaScript + Tailwind (Frontend)</li>
+          <li>MySQL Database</li>
+          <li>Crypto APIs for AES-GCM Encryption</li>
+          <li>Secure File Upload with FormData</li>
+        </ul>
+      </div>
+
+      <!-- Section 4 -->
+      <div class="card p-6 rounded-xl border border-[#233554] bg-gradient-to-br from-[#0b223d] to-[#132b4c] hover:border-[#64ffda] transition-all duration-300">
+        <h3 class="text-[#64ffda] font-semibold mb-2">Tutorial</h3>
+        <ol class="text-[#a8b2d1] text-sm list-decimal pl-5 leading-relaxed">
+          <li>Select an encryption type (Frontend/Backend)</li>
+          <li>Choose your file or drag it into the upload box</li>
+          <li>Enter a password when prompted</li>
+          <li>Wait for encryption and upload to complete</li>
+          <li>View and download files from the “My Files” page</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="text-center text-[#8892b0]">
+      <p class="text-sm">Developed by <span class="text-[#64ffda] font-medium">Vaultx Team</span></p>
+      <p class="text-xs mt-2 italic text-[#5be8cc]">"Security isn’t optional — it’s built in."</p>
+    </div>
+  </div>
+</div>
+
 
       
     
@@ -982,6 +1115,13 @@ thead th {
 </div>
 
 <script>
+
+document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  alert(1)
+});
+
+
 
 //pie chart
 const ctx = document.getElementById('storageChart').getContext('2d');
@@ -1118,222 +1258,155 @@ setInterval(showNextTip, 4000); // new tip every 6s
       });
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const dropArea = document.getElementById('dropArea');
-        const fileInput = document.getElementById('fileInput');
-        const browseBtn = document.getElementById('browseBtn');
-        const fileInfo = document.getElementById('file-info');
-        const fileName = document.getElementById('file-name');
-        const fileSize = document.getElementById('file-size');
-        const fileType = document.getElementById('file-type');
-        const encryptionOptions = document.getElementById('encryption-options');
-        const frontendOption = document.getElementById('frontend-option');
-        const backendOption = document.getElementById('backend-option');
-        const frontendPassword = document.getElementById('frontend-password');
-        const backendPassword = document.getElementById('backend-password');
-        const progressBar = document.getElementById('progress-bar');
-        const uploadBtn = document.getElementById('upload-btn');
-        const statusMessage = document.getElementById('status-message');
-        
-        let selectedFile = null;
-        let selectedEncryptionType = null;
 
-        // Click on drop area to trigger file input
-        browseBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            fileInput.click();
-        });
+document.addEventListener('DOMContentLoaded', function () {
+  const dropArea = document.getElementById('dropArea');
+  const fileInput = document.getElementById('fileInput');
+  const browseBtn = document.getElementById('browseBtn');
+  const fileInfo = document.getElementById('file-info');
+  const fileName = document.getElementById('file-name');
+  const fileSize = document.getElementById('file-size');
+  const fileType = document.getElementById('file-type');
+  const encryptionOptions = document.getElementById('encryption-options');
+  const frontendOption = document.getElementById('frontend-option');
+  const backendOption = document.getElementById('backend-option');
+  const progressBar = document.getElementById('progress-bar');
+  const uploadBtn = document.getElementById('upload-btn');
+  const statusMessage = document.getElementById('status-message');
 
-        // Handle file selection
-        fileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                selectedFile = this.files[0];
-                displayFileInfo(selectedFile);
-            }
-        });
+  const passwordModal = document.getElementById('passwordModal');
+  const passwordInputModal = document.getElementById('passwordInputModal');
+  const cancelPassword = document.getElementById('cancelPassword');
+  const confirmPassword = document.getElementById('confirmPassword');
 
-        // Drag and drop functionality
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
+  let selectedFile = null;
+  let selectedEncryptionType = null;
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+  // Trigger file input
+  browseBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fileInput.click();
+  });
 
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, highlight, false);
-        });
+  // Handle file input
+  fileInput.addEventListener('change', function () {
+    if (this.files.length > 0) {
+      selectedFile = this.files[0];
+      displayFileInfo(selectedFile);
+    }
+  });
 
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, unhighlight, false);
-        });
+  // Drag & Drop
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+    dropArea.addEventListener(ev, preventDefaults, false);
+  });
+  function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
 
-        function highlight() {
-            dropArea.classList.add('dragover');
-        }
+  ['dragenter', 'dragover'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.add('dragover'), false));
+  ['dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.remove('dragover'), false));
 
-        function unhighlight() {
-            dropArea.classList.remove('dragover');
-        }
+  dropArea.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files.length > 0) {
+      selectedFile = files[0];
+      displayFileInfo(selectedFile);
+    }
+  });
 
-        dropArea.addEventListener('drop', handleDrop, false);
+  function displayFileInfo(file) {
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+    fileType.textContent = file.type || 'Unknown';
+    fileInfo.classList.remove('hidden');
+    encryptionOptions.style.display = 'block';
+    uploadBtn.style.display = 'block';
+    uploadBtn.disabled = true;
+    progressBar.style.width = '0%';
+    statusMessage.classList.add('hidden');
+    resetEncryptionSelection();
+  }
 
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length > 0) {
-                selectedFile = files[0];
-                displayFileInfo(selectedFile);
-            }
-        }
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
 
-        // Display file information
-        function displayFileInfo(file) {
-            fileName.textContent = file.name;
-            fileSize.textContent = formatFileSize(file.size);
-            fileType.textContent = file.type || 'Unknown';
+  frontendOption.addEventListener('click', () => selectEncryptionOption('frontend'));
+  backendOption.addEventListener('click', () => selectEncryptionOption('backend'));
 
-            fileInfo.classList.remove('hidden');
-            encryptionOptions.style.display = 'block';
-            uploadBtn.style.display = 'block';
-            uploadBtn.disabled = true;
+  function selectEncryptionOption(type) {
+    resetEncryptionSelection();
+    selectedEncryptionType = type;
+    (type === 'frontend' ? frontendOption : backendOption).classList.add('selected');
+    uploadBtn.disabled = false;
+  }
 
-            // Reset progress and status message
-            progressBar.style.width = '0%';
-            statusMessage.classList.add('hidden');
+  function resetEncryptionSelection() {
+    frontendOption.classList.remove('selected');
+    backendOption.classList.remove('selected');
+    selectedEncryptionType = null;
+    uploadBtn.disabled = true;
+  }
 
-            // Reset encryption selection
-            resetEncryptionSelection();
-        }
+  // Show modal on Upload click
+  uploadBtn.addEventListener('click', function () {
+    if (!selectedFile || !selectedEncryptionType) return;
+    passwordModal.classList.remove('hidden');
+    passwordModal.classList.add('flex');
+    passwordInputModal.value = '';
+  });
 
-        // Format file size
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
+  cancelPassword.addEventListener('click', () => {
+    passwordModal.classList.add('hidden');
+    passwordModal.classList.remove('flex');
+  });
 
-        // Encryption option selection
-        frontendOption.addEventListener('click', function() {
-            selectEncryptionOption('frontend');
-        });
+  confirmPassword.addEventListener('click', async () => {
+    const password = passwordInputModal.value.trim();
+    if (password.length < 4) {
+       document.getElementById('incorrectModal').classList.remove('hidden');
+  document.getElementById('incorrectModal').classList.add('flex');
+    return;
+    }
+    passwordModal.classList.add('hidden');
+    passwordModal.classList.remove('flex');
+    await startUploadWithPassword(password);
+  });
 
-        backendOption.addEventListener('click', function() {
-            selectEncryptionOption('backend');
-        });
+  async function startUploadWithPassword(password) {
+    uploadBtn.disabled = true;
+    statusMessage.classList.remove('hidden');
+    statusMessage.textContent = selectedEncryptionType === 'frontend'
+      ? 'Encrypting file in your browser...'
+      : 'Sending file to server for encryption...';
+    statusMessage.classList.remove('error', 'success');
+    statusMessage.classList.add('info');
 
-        function selectEncryptionOption(type) {
-            resetEncryptionSelection();
-            selectedEncryptionType = type;
+    simulateEncryptionAndUpload(password);
+  }
 
-            if (type === 'frontend') {
-                frontendOption.classList.add('selected');
-                frontendPassword.focus();
-            } else {
-                backendOption.classList.add('selected');
-            }
+  function simulateEncryptionAndUpload(password) {
+    let width = 0;
+    const interval = setInterval(() => {
+      if (width >= 100) {
+        clearInterval(interval);
+        completeUpload(password);
+      } else {
+        width += 2;
+        progressBar.style.width = width + '%';
+      }
+    }, 100);
+  }
 
-            // Enable upload button if frontend password is provided or backend is selected
-            if (type === 'backend' || (type === 'frontend' && frontendPassword.value.length >= 4)) {
-                uploadBtn.disabled = false;
-            }
-        }
-
-        function resetEncryptionSelection() {
-            frontendOption.classList.remove('selected');
-            backendOption.classList.remove('selected');
-            selectedEncryptionType = null;
-            uploadBtn.disabled = true;
-        }
-
-        // Check password when typing for frontend encryption
-        frontendPassword.addEventListener('input', function() {
-            if (selectedEncryptionType === 'frontend') {
-                if (this.value.length >= 4) {
-                    uploadBtn.disabled = false;
-                } else {
-                    uploadBtn.disabled = true;
-                }
-            }
-        });
-
-        // Upload button click
-        uploadBtn.addEventListener('click', function() {
-            if (!selectedFile || !selectedEncryptionType) return;
-
-            // Disable upload button during upload
-            uploadBtn.disabled = true;
-            statusMessage.classList.add('hidden');
-
-            // Show appropriate status message
-            if (selectedEncryptionType === 'frontend') {
-                statusMessage.textContent = 'Encrypting file in your browser...';
-                statusMessage.classList.remove('hidden');
-                statusMessage.classList.remove('error', 'success');
-                statusMessage.classList.add('info');
-            } else {
-                statusMessage.textContent = 'Sending file to server for encryption...';
-                statusMessage.classList.remove('hidden');
-                statusMessage.classList.remove('error', 'success');
-                statusMessage.classList.add('info');
-            }
-
-            // Simulate encryption and upload process
-            simulateEncryptionAndUpload();
-        });
-
-        // Simulate encryption and upload
-        function simulateEncryptionAndUpload() {
-            let width = 0;
-            const interval = setInterval(() => {
-                if (width >= 100) {
-                    clearInterval(interval);
-                    completeUpload();
-                } else {
-                    width += 2;
-                    progressBar.style.width = width + '%';
-
-                    // Update status message based on progress
-                    if (selectedEncryptionType === 'frontend') {
-                        if (width < 40) {
-                            statusMessage.textContent = 'Encrypting file in your browser...';
-                        } else if (width < 80) {
-                            statusMessage.textContent = 'Sending encrypted file to server...';
-                        } else {
-                            statusMessage.textContent = 'Finalizing upload...';
-                        }
-                    } else {
-                        if (width < 30) {
-                            statusMessage.textContent = 'Sending file to server...';
-                        } else if (width < 70) {
-                            statusMessage.textContent = 'Server is encrypting your file...';
-                        } else {
-                            statusMessage.textContent = 'Finalizing encryption...';
-                        }
-                    }
-                }
-            }, 100);
-        }
-
-        // Complete the upload process
-        async function completeUpload() {
-         let password 
-
-          let currentpassword=document.getElementById("frontend-password").value;
-          if(currentpassword==""){
-            password=document.getElementById("backend-password").value;
-          }else{
-            password=currentpassword
-          }
-         let reply 
-         let message = '';
-         let formdata=new FormData()
+  async function completeUpload(password) {
+    let message = '';
+       let formdata=new FormData()
          formdata.append("password",password)
-         try{
+      try{
              let response=await fetch("/Validatepass",{
               method:"POST",
               body:formdata
@@ -1447,8 +1520,13 @@ setInterval(showNextTip, 4000); // new tip every 6s
                console.log('Raw FileKey (base64):', toBase64(rawKey));
                console.log('File IV (base64):', toBase64(fileIV));
                console.log('Encrypted FileKey IV (base64):', toBase64(keyIV));
+              
 
                message = `File "${file.name}" encrypted in your browser and uploaded securely!`;
+                 await FileManager.loadFiles();
+
+  // ✅ Update dashboard stats immediately
+  FileManager.updateDashboardStats();
              } 
              else {
                const finput = document.getElementById('fileInput');
@@ -1466,33 +1544,34 @@ setInterval(showNextTip, 4000); // new tip every 6s
                } catch (error) {
                  console.log(error);
                }
-
+                 
                message = `File "${selectedFile.name}" uploaded and encrypted on the server successfully!`;
+                await FileManager.loadFiles();
+
+  // ✅ Update dashboard stats immediately
+  FileManager.updateDashboardStats();
              }
          }else{
            message="Incorrect Password"
          }
-         
-         statusMessage.textContent = message;
-         statusMessage.classList.remove('hidden');
-         statusMessage.classList.remove('error', 'info');
-         statusMessage.classList.add('success');
 
-         setTimeout(() => {
-           fileInfo.classList.add('hidden');
-           encryptionOptions.style.display = 'none';
-           uploadBtn.style.display = 'none';
-           statusMessage.classList.add('hidden');
-           fileInput.value = '';
-           selectedFile = null;
-           resetEncryptionSelection();
-           frontendPassword.value = '';
-           
-           // Reload files after upload
-           FileManager.loadFiles();
-         }, 5000);
-       }
-    });
+    statusMessage.textContent = message;
+    statusMessage.classList.remove('info');
+    statusMessage.classList.add('success');
+
+    setTimeout(() => {
+      fileInfo.classList.add('hidden');
+      encryptionOptions.style.display = 'none';
+      uploadBtn.style.display = 'none';
+      statusMessage.classList.add('hidden');
+      fileInput.value = '';
+      selectedFile = null;
+      resetEncryptionSelection();
+    }, 4000);
+  }
+});
+
+
 
     let downloadf
     let selectedFile
@@ -2151,6 +2230,9 @@ let formdata=new FormData()
                     }
          }else{
           console.log("Incorrect Password")
+             document.getElementById('incorrectModal').classList.remove('hidden');
+  document.getElementById('incorrectModal').classList.add('flex');
+    return;
          }
 
 });
