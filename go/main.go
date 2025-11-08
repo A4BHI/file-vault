@@ -11,6 +11,7 @@ import (
 	"vaultx/registerv1"
 	"vaultx/session"
 	"vaultx/showfiles"
+	"vaultx/storagechart"
 	"vaultx/verify"
 
 	"github.com/joho/godotenv"
@@ -43,6 +44,7 @@ func main() {
 	http.HandleFunc("/verify-jwt", auth.CheckJWT_ONLOAD)
 	http.HandleFunc("/CheckForVerifyPage", session.CheckForVerifyPage)
 	http.HandleFunc("/deleteacc", deleteacc.DeleteAcc)
+	http.HandleFunc("/storage", storagechart.Sendata)
 	// http.HandleFunc("/jwt", auth.Setjwtkey)
 	http.ListenAndServe(":8080", nil)
 

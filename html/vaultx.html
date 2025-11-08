@@ -618,11 +618,13 @@ thead th {
 }
 
   </style>
+
 </head>
 <body>
-  <div class="flex h-screen overflow-hidden">
+  <div class="flex h-screen ">
     <!-- Sidebar -->
     <div class="sidebar w-64 flex-shrink-0 md:block">
+     
       <div class="p-4 border-b border-[#233554]">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 bg-gradient-to-br flex items-center justify-center">
@@ -694,6 +696,7 @@ thead th {
         </button>
       </div>
     </div>
+     <div class="sidebar-overlay" id="sidebarOverlay"></div>
      
     
     
@@ -1102,8 +1105,6 @@ thead th {
   <div class="bg-[#112240] text-white rounded-xl p-6 w-[90%] max-w-sm shadow-xl">
     <h2 class="text-lg font-bold mb-4 text-center">Are you sure you want to delete the file?<b> This action cannot be undone.</b></h2>
 
-    
-
    
     <div class="flex justify-end gap-3">
       <button id="cancelConfirm" class="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-700">Cancel</button>
@@ -1116,42 +1117,74 @@ thead th {
 
 <script>
 
-document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-  document.querySelector('.sidebar').classList.toggle('open');
+const sidebar = document.querySelector('.sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const menuBtn = document.querySelector('.mobile-menu-btn');
+
+menuBtn.addEventListener('click', () => {
   alert(1)
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('active');
+});
+
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('active');
 });
 
 
 
 //pie chart
-const ctx = document.getElementById('storageChart').getContext('2d');
-const usedStorage = 25; // % used
-const freeStorage = 100 - usedStorage;
+let storageChart; // Keep one persistent chart instance
 
-new Chart(ctx, {
-  type: 'doughnut',
-  data: {
-    labels: ['Used', 'Free'],
-    datasets: [{
-      data: [usedStorage, freeStorage],
-      backgroundColor: ['#64ffda', '#1a2f5a'],
-      borderWidth: 0
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false, // prevent auto-resizing
-    plugins: {
-      legend: {
-        display: true,
-        labels: { color: '#ccd6f6', boxWidth: 12, padding: 10 }
+async function updateStorageChart() {
+  const res = await fetch('/storage');
+  const data = await res.json();
+
+  const usedStorage = parseFloat(data.used_percent.toFixed(1));
+  const freeStorage = 100 - usedStorage;
+
+  document.getElementById("storageText").textContent = `${usedStorage}%`;
+
+  const ctx = document.getElementById('storageChart').getContext('2d');
+
+  if (storageChart) {
+    // Update existing chart instead of re-creating
+    storageChart.data.datasets[0].data = [usedStorage, freeStorage];
+    storageChart.update();
+  } else {
+    // Create chart only once
+    storageChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Used', 'Free'],
+        datasets: [{
+          data: [usedStorage, freeStorage],
+          backgroundColor: ['#64ffda', '#1a2f5a'],
+          borderWidth: 0
+        }]
       },
-    },
-    cutout: '75%' // makes inner circle smaller = thinner ring
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            labels: { color: '#ccd6f6', boxWidth: 12, padding: 10 }
+          },
+        },
+        cutout: '75%'
+      }
+    });
   }
-});
+}
 
-document.getElementById("storageText").textContent = usedStorage + "%";
+// Run initially
+updateStorageChart();
+
+// Optional: auto-refresh every 30 seconds
+// setInterval(updateStorageChart, 30000);
+
 //security cards
 
 
@@ -1523,6 +1556,7 @@ document.addEventListener('DOMContentLoaded', function () {
               
 
                message = `File "${file.name}" encrypted in your browser and uploaded securely!`;
+               updateStorageChart()
                  await FileManager.loadFiles();
 
   // ✅ Update dashboard stats immediately
@@ -1546,6 +1580,7 @@ document.addEventListener('DOMContentLoaded', function () {
                }
                  
                message = `File "${selectedFile.name}" uploaded and encrypted on the server successfully!`;
+               updateStorageChart()
                 await FileManager.loadFiles();
 
   // ✅ Update dashboard stats immediately
@@ -1892,6 +1927,7 @@ const FileManager = {
 
     // Update dashboard statistics
 updateDashboardStats() {
+
   const totalFiles = this.currentFiles.length;
   const totalSize = this.currentFiles.reduce((sum, file) => sum + file.size, 0);
 
@@ -2003,6 +2039,7 @@ updateDashboardStats() {
                 this.saveFiles();
                 this.displayFiles();
                 this.updateDashboardStats();
+                updateStorageChart()
                 
             } catch (error) {
                 console.error('Delete failed:', error);
