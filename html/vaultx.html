@@ -1049,6 +1049,12 @@ thead th {
     <label class="block mb-2 text-sm">Enter your password:</label>
     <input type="password" id="decryptPassword" placeholder="Enter your password"
       class="w-full mb-4 bg-[#0a192f] border border-[#64ffda] rounded-md p-2 placeholder-gray-400 text-white">
+    <div class="mt-4 hidden" id="pbar">
+  <div class="w-full bg-[#112240] rounded-full h-2.5">
+    <div id="downloadProgress" class="bg-[#64ffda] h-2.5 rounded-full transition-all duration-150" style="width:0%"></div>
+  </div>
+  <p id="progressText" class="text-[#64ffda] text-sm mt-2">0%</p>
+</div>
 
     <div class="flex justify-end gap-3">
       <button id="cancelDecrypt" class="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-700">Cancel</button>
@@ -2099,15 +2105,22 @@ let formdata=new FormData()
                     try {
                       if (mode === 'backend') {
                         // alert(selectedFile.id)
-                        try{
-                              let response=await fetch("/decrypt",{
-                                method:"POST",
-                                headers:{"content-type":"application/json"},
-                                body:JSON.stringify({
-                                    "FileID":parseInt(selectedFile.id),
-                                    "Mode":mode
+                       try {
+                              // Start download
+                              let response = await fetch("/decrypt", {
+                                method: "POST",
+                                headers: { "content-type": "application/json" },
+                                body: JSON.stringify({
+                                  "FileID": parseInt(selectedFile.id),
+                                  "Mode": mode
                                 })
-                              })
+                              });
+
+                              if (!response.ok) {
+                                throw new Error("Failed to download file");
+                              }
+
+                              // Extract filename from headers
                               const disposition = response.headers.get("Content-Disposition");
                               let filename = "downloaded_file";
 
@@ -2117,23 +2130,57 @@ let formdata=new FormData()
                                   filename = match[1];
                                 }
                               }
-                              const blob = await response.blob();
+                              document.getElementById("pbar").classList.remove("hidden")
 
-                                const url = window.URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = filename
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                window.URL.revokeObjectURL(url);
+                              // 🧩 Setup progress tracking
+                              const progressBar = document.getElementById("downloadProgress");
+                              const progressText = document.getElementById("progressText");
 
-                                // 🟩 Close modal
-                                document.getElementById('decryptModal').classList.add('hidden');
-                                document.getElementById('decryptPassword').value = ''; // clear password
-                          }catch(error){
-                            console.log(error)
-                          }
+                              const contentLength = response.headers.get("Content-Length");
+                              const total = parseInt(contentLength, 10);
+
+                              const reader = response.body.getReader();
+                              const chunks = [];
+                              let receivedLength = 0;
+
+                              while (true) {
+                                const { done, value } = await reader.read();
+                                if (done) break;
+
+                                chunks.push(value);
+                                receivedLength += value.length;
+
+                                // 🟢 Update progress
+                                if (total) {
+                                  const percent = Math.round((receivedLength / total) * 100);
+                                  progressBar.style.width = `${percent}%`;
+                                  progressText.textContent = `${percent}% (${(receivedLength / 1048576).toFixed(2)} MB / ${(total / 1048576).toFixed(2)} MB)`;
+                                }
+                              }
+
+                              // 🧱 Combine and download file
+                              const blob = new Blob(chunks);
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.download = filename;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              window.URL.revokeObjectURL(url);
+
+                              // 🟩 Reset progress UI
+                              progressBar.style.width = "0%";
+                              progressText.textContent = "0%";
+
+                              // 🟩 Close modal
+                               document.getElementById("pbar").classList.add("hidden")
+                              document.getElementById("decryptModal").classList.add("hidden");
+                              document.getElementById("decryptPassword").value = ""; // clear password
+                            } catch (error) {
+                              console.error("Error during download:", error);
+                            }
+
 
                        
 
